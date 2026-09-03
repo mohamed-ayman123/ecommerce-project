@@ -129,7 +129,7 @@ Both apps include a vector `Logo` component matching the hexagonal hardware embl
 
 ---
 
-## ⚡ State Management (Redux Toolkit)
+## State Management (Redux Toolkit)
 
 Both projects are wired to centralized Redux Toolkit stores wrapped at the entry point (`main.jsx`).
 
