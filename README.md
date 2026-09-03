@@ -158,6 +158,10 @@ Both apps communicate with the SEF Academy training backend:
 - **Email**: `admin@koda.com`
 - **Password**: `admin1212`
 
+### Test Customer Credentials:
+- **Email**: `customer@koda.com`
+- **Password**: `customer1212`
+
 ### Important API Technical Notes:
 1. **JWT Authentication**:
    - The token is stored in `localStorage.getItem('token')`.
