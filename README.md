@@ -4,7 +4,7 @@ Welcome to the **Nexis Tech** e-commerce project repository. This project is bui
 
 ---
 
-## 📁 Monorepo Structure
+## Monorepo Structure
 
 ```text
 ecommerce-project/
@@ -46,7 +46,7 @@ ecommerce-project/
 
 ---
 
-## 🚀 Quick Start & Development
+## Quick Start & Development
 
 ### Prerequisites
 - Node.js `v18+` (recommended: `v20+` or `v24+`)
@@ -93,7 +93,7 @@ npm run dev
 
 ---
 
-## 🎨 Design System & Branding
+## Design System & Branding
 
 ### 1. Typography
 - **Primary Font**: **Lato** (`300`, `400`, `700`, `900`) — Applied globally across all elements via Tailwind `--font-sans`.
@@ -147,7 +147,7 @@ Both projects are wired to centralized Redux Toolkit stores wrapped at the entry
 
 ---
 
-## 🔌 Backend API & Authentication
+## Backend API & Authentication
 
 Both apps communicate with the SEF Academy training backend:
 - **API Base URL**: `https://e-commerce-api-3wara.vercel.app`
@@ -174,14 +174,14 @@ Both apps communicate with the SEF Academy training backend:
 
 ---
 
-## 📦 Electronics Dataset
+## Electronics Dataset
 A pre-configured catalog of **52 realistic electronics products** (MacBooks, iPhones, Sony headphones, PS5 consoles, OLED monitors, Keychron keyboards) is available at:
 - `admin-dashboard/src/data/electronicsProducts.json`
 - `store/src/data/electronicsProducts.json`
 
 ---
 
-## 🛠️ Current Project Phase
+## Current Project Phase
 - ✅ **Configuration & Scaffolding Phase**: Complete.
 - 🎯 **Current Focus**: **`admin-dashboard` implementation**.
   - Week 1 Milestone: Admin Login flow & Dashboard Overview metrics.
