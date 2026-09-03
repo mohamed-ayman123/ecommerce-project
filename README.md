@@ -24,9 +24,9 @@ ecommerce-project/
 │   │   ├── pages/         # 9 PRD screen folders (products, orders, users, carts)
 │   │   ├── routes/        # Protected & public route definitions
 │   │   ├── store/         # Redux Toolkit store & slices
-│   │   ├── utils/         # Seeder and helper utilities
 │   │   ├── index.css      # Tailwind v4 theme, Lato/Roboto fonts & palette
 │   │   └── main.jsx       # App entry (Provider, BrowserRouter, ToastContainer)
+
 │   └── vite.config.js     # Port 5174, envDir: '../', @ alias, Tailwind v4
 │
 └── store/                 # Customer-facing storefront (loads root .env via envDir: '../')
