@@ -20,13 +20,11 @@ ecommerce-project/
 │   ├── src/
 │   │   ├── api/           # API service layer (mapped to Swagger endpoints)
 │   │   ├── components/    # Reusable UI & layout components
-│   │   ├── data/          # 52-item electronics dataset
 │   │   ├── pages/         # 9 PRD screen folders (products, orders, users, carts)
 │   │   ├── routes/        # Protected & public route definitions
 │   │   ├── store/         # Redux Toolkit store & slices
 │   │   ├── index.css      # Tailwind v4 theme, Lato/Roboto fonts & palette
 │   │   └── main.jsx       # App entry (Provider, BrowserRouter, ToastContainer)
-
 │   └── vite.config.js     # Port 5174, envDir: '../', @ alias, Tailwind v4
 │
 └── store/                 # Customer-facing storefront (loads root .env via envDir: '../')
@@ -34,13 +32,13 @@ ecommerce-project/
     │   ├── api/           # API service layer
     │   ├── components/    # Reusable UI & layout components
     │   ├── constants/     # Electronics categories & brands constants
-    │   ├── data/          # 52-item electronics dataset
     │   ├── pages/         # 15 PRD screen folders (products, auth, checkout, profile)
     │   ├── routes/        # Protected & guest route definitions
     │   ├── store/         # Redux Toolkit store & slices
     │   ├── index.css      # Tailwind v4 theme, Lato/Roboto fonts & palette
     │   └── main.jsx       # App entry (Provider, BrowserRouter, ToastContainer)
     └── vite.config.js     # Port 5173, envDir: '../', @ alias, Tailwind v4
+
 
 ```
 
@@ -178,10 +176,10 @@ Both apps communicate with the SEF Academy training backend:
 
 ---
 
-## Electronics Dataset
-A pre-configured catalog of **52 realistic electronics products** (MacBooks, iPhones, Sony headphones, PS5 consoles, OLED monitors, Keychron keyboards) is available at:
-- `admin-dashboard/src/data/electronicsProducts.json`
-- `store/src/data/electronicsProducts.json`
+## 📦 Electronics Reference Dataset
+A catalog of **52 realistic electronics products** (MacBooks, iPhones, Sony headphones, PS5 consoles, OLED monitors, Keychron keyboards) is available for reference and sample inputs at:
+- `shared/data/electronicsProducts.json`
+
 
 ---
 
