@@ -1,0 +1,10 @@
+{
+  "name": "ecommerce-project",
+  "private": true,
+  "scripts": {
+    "dev:admin": "npm run dev --prefix admin-dashboard",
+    "dev:store": "npm run dev --prefix store",
+    "build:admin": "npm run build --prefix admin-dashboard",
+    "build:store": "npm run build --prefix store"
+  }
+}

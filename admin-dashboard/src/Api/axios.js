@@ -1,63 +1,37 @@
-// import axios from "axios";
-// const api=axios.create({
-//     baseURL:"https://e-commerce-api-3wara.vercel.app",
-//     withCredentials:true
-// })
-// api.interceptors.request.use((config)=>{
-//     const token =localStorage.getItem("token")
-//     if(token){
-//         config.headers.Authorization=`Bearer ${token}`
-//     }
-//     return config
+import axios from 'axios'
 
-// })
-// api.interceptors.response.use(
-//     (response)=>response,
-//     (error)=>{
-//         if(error.response.status===401){
-//             localStorage.removeItem("token")
-//             if(!window.Location.pathname.startsWith("/login")){
-//                 window.history.replaceState(null,"","/login")
-//             }
-//         }
-//         return Promise.reject(error)
-//     }
-// )
-// export default api
-////////////////////////////////
-import axios from "axios";
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://e-commerce-api-3wara.vercel.app'
 
 const api = axios.create({
-    baseURL: "https://e-commerce-api-3wara.vercel.app",
-    withCredentials: true
-});
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+})
 
-
-
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem("token");
-
+// Request Interceptor: Attach token if available
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token')
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`
     }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
 
-    return config;
-});
-
+// Response Interceptor: Handle 401 Unauthorized
 api.interceptors.response.use(
-    (response) => response,
-
-    (error) => {
-        if (error.response?.status === 401) {
-            localStorage.removeItem("token");
-
-            if (!window.location.pathname.startsWith("/login")) {
-                window.location.replace("/login");
-            }
-        }
-
-        return Promise.reject(error);
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      if (!window.location.pathname.startsWith('/login')) {
+        window.location.replace('/login')
+      }
     }
-);
+    return Promise.reject(error)
+  }
+)
 
-export default api;
+export default api
