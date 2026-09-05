@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux'
-import { getAllUsers, deleteUsers, addAdminUser } from '../../Api/users'
+import { getAllUsers, deleteUser, addAdminUser } from '../../Api/users'
 import{
     setUsersLoading,
     setUsers,
@@ -25,6 +25,7 @@ const UserList = () => {
         try {
             dispatch ( setUsersLoading (true))
             const data = await getAllUsers ()
+            console.log('USERS DATA:', data)
             dispatch(setUsers(data))
         } catch (error) {
             dispatch(setUsersError(error.message))
@@ -150,3 +151,4 @@ const UserList = () => {
         </div>
     )
 }
+export default UserList
