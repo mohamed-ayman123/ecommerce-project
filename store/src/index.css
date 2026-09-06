@@ -31,3 +31,20 @@ body {
   background-color: #ffffff;
   color: #262524;
 }
+
+/* Global interactive element cursors */
+button,
+[role='button'],
+[type='button'],
+[type='submit'],
+[type='reset'] {
+  cursor: pointer;
+}
+
+button:disabled,
+[role='button']:disabled,
+[type='button']:disabled,
+[type='submit']:disabled,
+[type='reset']:disabled {
+  cursor: not-allowed;
+}

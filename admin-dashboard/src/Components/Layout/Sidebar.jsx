@@ -1,10 +1,12 @@
 import { NavLink } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { closeMobileSidebar } from '../../store/slices/uiSlice';
 
 const navItems = [
   {
     to: "/dashboard",
     end: true,
-    label: "Dashbord",
+    label: "Dashboard",
     icon: (
       <>
         <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
@@ -85,73 +87,125 @@ const navItems = [
 ];
 
 function SideBar() {
+  const dispatch = useDispatch();
+  const isMobileSidebarOpen = useSelector((state) => state.ui?.isMobileSidebarOpen);
+
+  const handleNavClick = () => {
+    dispatch(closeMobileSidebar());
+  };
+
   return (
-    <aside className="mx-4 mt-4 flex-shrink-0 rounded-3xl bg-[var(--color-primary-dark)] shadow-xl shadow-slate-900/5 md:mx-0 md:mt-0 md:h-dvh md:w-72 md:rounded-none md:py-5">
-      {/* عنوان Commerce / Admin Panel - يظهر فقط من md فما فوق */}
-      <div className="mb-10 mx-5 hidden md:block">
-        <p className="text-sm uppercase tracking-[0.4em] text-[var(--color-text-gold)]">
-          Commerce
-        </p>
-        <h1 className="mt-3 text-2xl font-bold text-[var(--color-text-light)]">
-          Admin Panel
-        </h1>
-      </div>
+    <>
+      {/* Mobile Backdrop Overlay */}
+      {isMobileSidebarOpen && (
+        <div
+          role="presentation"
+          aria-hidden="true"
+          onClick={() => dispatch(closeMobileSidebar())}
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs md:hidden"
+        />
+      )}
 
-      {/* بالجوال: شريط أفقي قابل للسكرول | بالشاشات الكبيرة: عمودي */}
-      <nav className="flex gap-1 overflow-x-auto px-3 py-3 md:ml-5 md:mb-5 md:flex-col md:gap-0 md:overflow-visible md:px-0 md:py-0">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.to}
-            to={item.to}
-            end={item.end}
-            className="relative block flex-shrink-0 overflow-hidden md:flex-shrink"
+      {/* Sidebar Container */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-72 flex-shrink-0 flex-col bg-[var(--color-primary-dark)] py-5 shadow-xl transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
+          isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {/* Header */}
+        <div className="mb-8 mx-5 flex items-center justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.4em] text-[var(--color-text-gold)]">
+              Commerce
+            </p>
+            <h1 className="mt-2 text-xl font-bold text-[var(--color-text-light)]">
+              Admin Panel
+            </h1>
+          </div>
+
+          {/* Close button for mobile drawer */}
+          <button
+            type="button"
+            aria-label="Close sidebar"
+            onClick={() => dispatch(closeMobileSidebar())}
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-300 hover:bg-[var(--color-primary-medium)] hover:text-white md:hidden"
           >
-            {({ isActive }) => (
-              <>
-                <span
-                  className={`absolute inset-0 origin-right bg-[var(--color-bg-main)] transition-transform duration-500 ease-out dark:bg-[var(--color-dark-bg-main)] ${
-                     isActive ? "scale-x-100 rounded-full md:rounded-l-full md:rounded-r-none" : "scale-x-0"
-                  }`}
-                />
-                <span
-                  className={`relative z-10 flex items-center justify-center gap-2 whitespace-nowrap rounded-l-full px-3 py-2 text-sm md:justify-start md:gap-3 md:rounded-none md:px-4 md:py-3 ${
-                    isActive
-                      ? "font-bold text-[var(--color-text-primary)] dark:text-[var(--color-text-gold)]"
-                      : "text-slate-300 hover:rounded-l-full hover:bg-[var(--color-primary-medium)] hover:text-[var(--color-text-primary)] md:hover:rounded-l-full"
-                  }`}
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#DDA136"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="h-4 w-4 shrink-0"
-                  >
-                    {item.icon}
-                  </svg>
-                  {item.label}
-                </span>
-              </>
-            )}
-          </NavLink>
-        ))}
-      </nav>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
 
-      {/* قسم Live - يظهر فقط من md فما فوق */}
-      <div className="mt-auto m-5 hidden rounded-3xl bg-gradient-to-br from-[var(--color-primary-dark)] via-[var(--color-primary-medium)] to-[var(--color-accent-gold)] p-4 text-white shadow-xl shadow-cyan-900/20 md:block">
-        <p className="text-xs uppercase tracking-[0.3em] text-[var(--color-text-gold)]">
-          Live
-        </p>
-        <p className="mt-2 text-base font-semibold">
-          Connected to the E-commerce API
-        </p>
-      </div>
-    </aside>
+        {/* Navigation Items */}
+        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 md:px-0 md:ml-5">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              onClick={handleNavClick}
+              className="relative block overflow-hidden"
+            >
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={`absolute inset-0 origin-right bg-[var(--color-bg-main)] transition-transform duration-300 ease-out dark:bg-[var(--color-dark-bg-main)] ${
+                      isActive
+                        ? "scale-x-100 rounded-l-full"
+                        : "scale-x-0"
+                    }`}
+                  />
+                  <span
+                    className={`relative z-10 flex items-center gap-3 rounded-l-full px-4 py-3 text-sm transition-colors ${
+                      isActive
+                        ? "font-bold text-[var(--color-text-primary)] dark:text-[var(--color-text-gold)]"
+                        : "text-slate-300 hover:rounded-l-full hover:bg-[var(--color-primary-medium)] hover:text-[var(--color-text-primary)]"
+                    }`}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="var(--color-text-gold)"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-4 w-4 shrink-0"
+                    >
+                      {item.icon}
+                    </svg>
+                    {item.label}
+                  </span>
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Live section */}
+        <div className="mt-auto m-5 rounded-2xl bg-gradient-to-br from-[var(--color-primary-dark)] via-[var(--color-primary-medium)] to-[var(--color-accent-gold)] p-4 text-white shadow-xl shadow-cyan-900/20">
+          <p className="text-xs uppercase tracking-[0.3em] text-[var(--color-text-gold)]">
+            Live
+          </p>
+          <p className="mt-1 text-sm font-semibold">
+            Connected to the E-commerce API
+          </p>
+        </div>
+      </aside>
+    </>
   );
 }
 
