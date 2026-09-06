@@ -18,11 +18,12 @@ export const createProduct = async (formData) => {
 }
 
 export const updateProduct = async (id, formData) => {
-  const response = await api.put(`/products/${id}`, formData, {
+  const response = await api.patch(`/products/update/${id}`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   })
   return response.data
 }
+
 
 export const deleteProduct = async (id) => {
   const response = await api.delete(`/products/${id}`)

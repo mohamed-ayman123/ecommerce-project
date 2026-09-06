@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   UploadCloud,
@@ -54,8 +54,34 @@ export default function ProductForm({
   })
 
   const [tagInput, setTagInput] = useState('')
-  const [images, setImages] = useState([])
+  const [images, setImages] = useState([]) // New files to upload
+  const [existingImages, setExistingImages] = useState(initialData?.images || [])
+  const [deletedImages, setDeletedImages] = useState([]) // public_ids to delete from Cloudinary
   const [errors, setErrors] = useState({})
+
+  // Synchronize form when initialData loads asynchronously
+  useEffect(() => {
+    if (initialData) {
+      setForm({
+        name: initialData.name || '',
+        shortDescription: initialData.shortDescription || '',
+        description: initialData.description || '',
+        price: initialData.price || '',
+        discountPrice: initialData.discountPrice || '',
+        stock: initialData.stock !== undefined ? initialData.stock : '',
+        sku: initialData.sku || '',
+        category: initialData.category || 'electronics',
+        subcategory: initialData.subcategory || 'laptops',
+        brand: initialData.brand || '',
+        tags: Array.isArray(initialData.tags) ? initialData.tags : ['electronics'],
+        featured: initialData.featured ?? false,
+        isActive: initialData.isActive ?? true,
+      })
+      if (Array.isArray(initialData.images)) {
+        setExistingImages(initialData.images)
+      }
+    }
+  }, [initialData])
 
   // Add Tag via Enter, Comma, or + Button
   const handleAddTag = (e) => {
@@ -85,7 +111,10 @@ export default function ProductForm({
     const files = Array.from(e.target.files || [])
     if (!files.length) return
 
-    const newImages = files.slice(0, 5 - images.length).map((file) => ({
+    const totalAllowed = 5 - (existingImages.length + images.length)
+    if (totalAllowed <= 0) return
+
+    const newImages = files.slice(0, totalAllowed).map((file) => ({
       file,
       previewUrl: URL.createObjectURL(file),
     }))
@@ -96,12 +125,20 @@ export default function ProductForm({
     }
   }
 
-  const handleRemoveImage = (indexToRemove) => {
+  const handleRemoveNewImage = (indexToRemove) => {
     setImages((prev) => {
       const target = prev[indexToRemove]
       if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl)
       return prev.filter((_, idx) => idx !== indexToRemove)
     })
+  }
+
+  const handleRemoveExistingImage = (indexToRemove) => {
+    const target = existingImages[indexToRemove]
+    if (target?.public_id) {
+      setDeletedImages((prev) => [...prev, target.public_id])
+    }
+    setExistingImages((prev) => prev.filter((_, idx) => idx !== indexToRemove))
   }
 
   // Validation
@@ -130,8 +167,9 @@ export default function ProductForm({
     if (!form.sku.trim()) errs.sku = 'SKU is required'
     if (!form.brand.trim()) errs.brand = 'Brand is required'
 
-    if (mode === 'create' && images.length === 0) {
-      errs.images = 'Please upload at least one image'
+    // At least one image required across existing or new
+    if (images.length === 0 && existingImages.length === 0) {
+      errs.images = 'Please provide at least one product image'
     }
 
     setErrors(errs)
@@ -147,7 +185,7 @@ export default function ProductForm({
     formData.append('shortDescription', form.shortDescription.trim())
     formData.append('description', form.description.trim())
     formData.append('price', String(form.price))
-    if (form.discountPrice) {
+    if (form.discountPrice !== '' && form.discountPrice !== null) {
       formData.append('discountPrice', String(form.discountPrice))
     }
     formData.append('stock', String(form.stock))
@@ -161,6 +199,10 @@ export default function ProductForm({
     form.tags.forEach((tag) => formData.append('tags', tag))
     images.forEach((img) => formData.append('images', img.file))
 
+    if (deletedImages.length > 0) {
+      formData.append('deletedImages', JSON.stringify(deletedImages))
+    }
+
     if (onSubmit) {
       onSubmit(formData)
     }
@@ -168,7 +210,7 @@ export default function ProductForm({
 
   return (
     <form onSubmit={handleSubmit}>
-      {/* 2-Column Responsive Grid matching design */}
+      {/* 2-Column Responsive Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* LEFT COLUMN: Gallery & Upload (5 cols) */}
         <div className="lg:col-span-5 space-y-5">
@@ -186,17 +228,20 @@ export default function ProductForm({
               </div>
             </div>
 
-            {/* Image Previews */}
-            {images.length > 0 && (
+            {/* Previews: Existing Cloudinary Images */}
+            {existingImages.length > 0 && (
               <div className="space-y-3">
-                {images.map((img, idx) => (
+                <span className="text-[10px] font-bold text-brand-gray uppercase tracking-wider block">
+                  Current Cloudinary Images ({existingImages.length})
+                </span>
+                {existingImages.map((img, idx) => (
                   <div
-                    key={idx}
+                    key={img.public_id || idx}
                     className="relative rounded-2xl overflow-hidden border border-slate-200 bg-brand-light group shadow-sm"
                   >
                     <img
-                      src={img.previewUrl}
-                      alt={`Product preview ${idx + 1}`}
+                      src={img.url || img}
+                      alt={`Current product ${idx + 1}`}
                       className="w-full h-52 object-cover"
                     />
                     <div className="absolute inset-x-0 bottom-0 bg-brand-black/90 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-white">
@@ -205,7 +250,42 @@ export default function ProductForm({
                       </span>
                       <button
                         type="button"
-                        onClick={() => handleRemoveImage(idx)}
+                        onClick={() => handleRemoveExistingImage(idx)}
+                        className="p-1 text-slate-300 hover:text-rose-400 transition-colors"
+                        aria-label="Remove image"
+                        title="Delete image on update"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Previews: New Selected Files */}
+            {images.length > 0 && (
+              <div className="space-y-3 pt-2">
+                <span className="text-[10px] font-bold text-brand-gray uppercase tracking-wider block">
+                  New Images To Upload ({images.length})
+                </span>
+                {images.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className="relative rounded-2xl overflow-hidden border border-emerald-500/50 bg-brand-light group shadow-sm"
+                  >
+                    <img
+                      src={img.previewUrl}
+                      alt={`New preview ${idx + 1}`}
+                      className="w-full h-52 object-cover"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-brand-black/90 backdrop-blur-sm px-4 py-2 flex items-center justify-between text-white">
+                      <span className="text-[10px] font-bold tracking-widest uppercase text-emerald-400">
+                        NEW IMAGE {idx + 1}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveNewImage(idx)}
                         className="p-1 text-slate-300 hover:text-rose-400 transition-colors"
                         aria-label="Remove image"
                       >
@@ -218,30 +298,32 @@ export default function ProductForm({
             )}
 
             {/* Upload Dropzone */}
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors bg-brand-light/60 hover:bg-brand-light ${
-                errors.images
-                  ? 'border-rose-400 bg-rose-50/20'
-                  : 'border-slate-300 hover:border-brand-black'
-              }`}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/png, image/jpeg, image/webp"
-                multiple
-                onChange={handleImageChange}
-                className="hidden"
-              />
-              <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-brand-black flex items-center justify-center mx-auto mb-2.5 shadow-xs">
-                <UploadCloud className="w-5 h-5" />
+            {existingImages.length + images.length < 5 && (
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors bg-brand-light/60 hover:bg-brand-light ${
+                  errors.images
+                    ? 'border-rose-400 bg-rose-50/20'
+                    : 'border-slate-300 hover:border-brand-black'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png, image/jpeg, image/webp"
+                  multiple
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-brand-black flex items-center justify-center mx-auto mb-2.5 shadow-xs">
+                  <UploadCloud className="w-5 h-5" />
+                </div>
+                <p className="text-xs font-bold text-brand-black">Upload images</p>
+                <p className="text-[11px] text-brand-gray font-roboto mt-0.5">
+                  PNG, JPG, WEBP • max 5 images total
+                </p>
               </div>
-              <p className="text-xs font-bold text-brand-black">Upload images</p>
-              <p className="text-[11px] text-brand-gray font-roboto mt-0.5">
-                PNG, JPG, WEBP • multiple files supported
-              </p>
-            </div>
+            )}
             {errors.images && (
               <p className="text-xs text-rose-600 font-medium">{errors.images}</p>
             )}
@@ -394,7 +476,7 @@ export default function ProductForm({
             required
           />
 
-          {/* Tags Section matching design with + button */}
+          {/* Tags Section */}
           <div className="p-4 rounded-2xl border border-slate-200 bg-brand-light/50 space-y-3">
             <label className="block text-xs font-bold text-brand-black uppercase tracking-wider">
               Tags
@@ -443,7 +525,7 @@ export default function ProductForm({
             )}
           </div>
 
-          {/* Featured and Active Pills (exact style as screenshot) */}
+          {/* Featured and Active Pills */}
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <button
               type="button"
@@ -506,7 +588,7 @@ export default function ProductForm({
               isLoading={isLoading}
               className="px-6 font-bold"
             >
-              Create Product
+              {mode === 'edit' ? 'Save Changes' : 'Create Product'}
             </Button>
           </div>
         </div>

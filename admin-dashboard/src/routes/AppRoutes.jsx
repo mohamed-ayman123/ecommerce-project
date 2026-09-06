@@ -5,6 +5,8 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/dashboard/products/new" element={<AddProduct />} />
+      <Route path="/dashboard/products/:id/edit" element={<AddProduct />} />
     </Routes>
+
   )
 }
