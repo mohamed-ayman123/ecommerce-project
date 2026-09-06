@@ -9,21 +9,22 @@ export default function Button({
   ...props
 }) {
   const baseStyles =
-    'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
+    'inline-flex items-center justify-center font-heading font-semibold rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
 
   const variants = {
     primary:
-      'bg-brand-black hover:bg-brand-charcoal text-white focus:ring-brand-black shadow-sm active:scale-[0.99]',
+      'bg-[var(--color-primary-dark)] hover:bg-[var(--color-primary-medium)] dark:bg-[var(--color-primary-medium)] dark:hover:bg-[var(--color-accent-gold-hover)] text-white focus:ring-[var(--color-primary-dark)] shadow-sm active:scale-[0.99]',
     secondary:
-      'bg-brand-light hover:bg-slate-200 text-brand-black focus:ring-slate-300',
+      'bg-[var(--color-bg-main)] hover:bg-[var(--color-border-medium)] dark:bg-[var(--color-dark-bg-main)] dark:hover:bg-[var(--color-primary-medium)]/40 text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] focus:ring-[var(--color-primary-medium)]',
     outline:
-      'border border-brand-black hover:bg-brand-light text-brand-black focus:ring-slate-400',
+      'border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/50 hover:bg-[var(--color-bg-main)] dark:hover:bg-[var(--color-dark-bg-main)] text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] focus:ring-[var(--color-primary-medium)]',
+    gold:
+      'bg-[var(--color-text-gold)] hover:bg-[var(--color-accent-gold-hover)] text-white focus:ring-[var(--color-text-gold)] shadow-sm active:scale-[0.99]',
     danger:
       'bg-rose-600 hover:bg-rose-700 text-white focus:ring-rose-500 shadow-sm',
     ghost:
-      'text-brand-gray hover:bg-brand-light hover:text-brand-black focus:ring-slate-400',
+      'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:hover:bg-[var(--color-dark-bg-main)] hover:text-[var(--color-text-primary)] dark:hover:text-[var(--color-text-light)] focus:ring-[var(--color-primary-medium)]',
   }
-
 
   const sizes = {
     sm: 'px-3 py-1.5 text-xs',
@@ -59,7 +60,7 @@ export default function Button({
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             />
           </svg>
-          Loading...
+          <span>Loading...</span>
         </>
       ) : (
         children
