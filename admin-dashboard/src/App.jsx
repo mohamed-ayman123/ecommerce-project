@@ -1,13 +1,22 @@
-import Logo from '@/components/common/Logo'
+import NavBar from "./Components/Layout/Navbar";
+import AppRoutes from "./routes/AppRoutes";
+import SideBar from "./Components/Layout/Sidebar"
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-[#f6f6f6] flex items-center justify-center p-6 text-center">
-      <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm max-w-md w-full space-y-4">
-        <Logo variant="dark" size="lg" className="justify-center" />
-        <p className="text-xs text-[#585858] font-roboto">
-          Admin Dashboard configured &amp; ready for feature implementation.
-        </p>
+    <div className="flex min-h-screen flex-col bg-[var(--color-bg-main)] md:flex-row dark:bg-[var(--color-dark-bg-main)]">
+      <div className="order-2 md:order-1">
+         <SideBar/>
+      </div>
+
+      <div className="order-1 flex min-w-0 flex-1 flex-col md:order-2">
+        
+        <NavBar/>
+
+        <main className="min-w-0 flex-1 p-4 md:p-8">
+          
+          <AppRoutes/>
+        </main>
       </div>
     </div>
   )
