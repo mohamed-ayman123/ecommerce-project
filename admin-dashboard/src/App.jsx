@@ -1,9 +1,14 @@
-import AppRoutes from '@/routes/AppRoutes'
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import AppRoutes from "./routes/AppRoutes";
 
 export default function App() {
-  return (
-    <div className="min-h-screen bg-[#f6f6f6] text-[#262524] py-8 px-4 sm:px-8">
-      <AppRoutes />
-    </div>
-  )
+  const theme = useSelector((state) => state.ui?.theme || "light");
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
+
+  return <AppRoutes />;
 }
+
