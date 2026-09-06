@@ -1,14 +1,41 @@
-import Logo from '@/components/common/Logo'
 
-export default function App() {
+import { useState } from "react";
+
+import Sidebar from "./Components/Layout/Sidebar";
+import Navbar from "./Components/Layout/Navbar";
+
+function App() {
+  const [darkMode, setDarkMode] = useState(true);
+
   return (
-    <div className="min-h-screen bg-[#f6f6f6] flex items-center justify-center p-6 text-center">
-      <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm max-w-md w-full space-y-4">
-        <Logo variant="dark" size="lg" className="justify-center" />
-        <p className="text-xs text-[#585858] font-roboto">
-          Admin Dashboard configured &amp; ready for feature implementation.
-        </p>
+    <div
+      className={`min-h-screen transition-colors duration-300 ${
+        darkMode
+          ? "bg-[#020617] text-white"
+          : "bg-gray-100 text-gray-900"
+      }`}
+    >
+      <div className="flex min-h-screen">
+
+        {/* Sidebar */}
+        <Sidebar darkMode={darkMode} />
+
+        {/* باقي الصفحة */}
+        <div className="flex min-w-0 flex-1 flex-col">
+
+          {/* Navbar */}
+          <Navbar
+            darkMode={darkMode}
+            setDarkMode={setDarkMode}
+          />
+
+          {/* Content */}
+        
+
+        </div>
       </div>
     </div>
-  )
+  );
 }
+
+export default App;
