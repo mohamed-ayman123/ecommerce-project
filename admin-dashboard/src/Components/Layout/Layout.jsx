@@ -3,7 +3,7 @@ import Sidebar from "./Sidebar";
 
 function Layout() {
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <div className="flex min-h-screen bg-[var(--color-bg-main)]">
       <Sidebar />
 
       <main className="flex-1 p-8">
