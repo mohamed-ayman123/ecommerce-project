@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import AppLayout from '../Components/Layout/AppLayout'
 import AuthLayout from '../Components/Layout/AuthLayout'
+import Carts from '../pages/carts/carts'
 
 function AppRoutes() {
   return (
@@ -18,7 +19,7 @@ function AppRoutes() {
         <Route path="/dashboard/users" element={<h2>users</h2>} />
         <Route path="/dashboard/products/new" element={<h2>add products</h2>} />
         <Route path="/dashboard/orders" element={<h2>orders</h2>} />
-        <Route path="/dashboard/carts" element={<h2>carts</h2>} />
+        <Route path="/dashboard/carts" element={<Carts />} />
         <Route path="/dashboard/settings" element={<h2>settings</h2>} />
       </Route>
 
