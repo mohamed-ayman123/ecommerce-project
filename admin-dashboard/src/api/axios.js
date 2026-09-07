@@ -19,19 +19,10 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// Response Interceptor: Handle 401 Unauthorized
+// Response Interceptor: Pass response through or reject error to caller
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      if (!window.location.pathname.startsWith('/login')) {
-        window.location.replace('/login')
-      }
-    }
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
 export default api

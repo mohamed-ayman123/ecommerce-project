@@ -5,7 +5,7 @@ export const getAllUsers = async (params = {}) => {
   return response.data
 }
 
-export const addAdminUser = async (userData) => {
+export const addUser = async (userData) => {
   const response = await api.post('/users/add', userData)
   return response.data
 }
