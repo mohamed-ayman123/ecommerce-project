@@ -1,14 +1,13 @@
-import Logo from '@/components/common/Logo'
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import AppRoutes from "./routes/AppRoutes";
 
 export default function App() {
-  return (
-    <div className="min-h-screen bg-[#f6f6f6] flex items-center justify-center p-6 text-center">
-      <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm max-w-md w-full space-y-4">
-        <Logo variant="dark" size="lg" className="justify-center" />
-        <p className="text-xs text-[#585858] font-roboto">
-          Admin Dashboard configured &amp; ready for feature implementation.
-        </p>
-      </div>
-    </div>
-  )
+  const theme = useSelector((state) => state.ui?.theme || "light");
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
+
+  return <AppRoutes />;
 }
