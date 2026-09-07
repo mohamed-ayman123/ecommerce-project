@@ -1,6 +1,6 @@
-import { NavLink } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { closeMobileSidebar } from '../../store/slices/uiSlice';
+import { NavLink } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { closeMobileSidebar } from "../../store/slices/uiSlice";
 
 const navItems = [
   {
@@ -42,7 +42,7 @@ const navItems = [
   {
     to: "/dashboard/products/new",
     end: true,
-    label: "Add Products",
+    label: "Add Product",
     icon: (
       <>
         <path d="M5 12h14" />
@@ -88,7 +88,10 @@ const navItems = [
 
 function SideBar() {
   const dispatch = useDispatch();
-  const isMobileSidebarOpen = useSelector((state) => state.ui?.isMobileSidebarOpen);
+
+  const isMobileSidebarOpen = useSelector(
+    (state) => state.ui?.isMobileSidebarOpen
+  );
 
   const handleNavClick = () => {
     dispatch(closeMobileSidebar());
@@ -113,17 +116,18 @@ function SideBar() {
         }`}
       >
         {/* Header */}
-        <div className="mb-8 mx-5 flex items-center justify-between">
+        <div className="mx-5 mb-8 flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-[var(--color-text-gold)]">
               Commerce
             </p>
+
             <h1 className="mt-2 text-xl font-bold text-[var(--color-text-light)]">
               Admin Panel
             </h1>
           </div>
 
-          {/* Close button for mobile drawer */}
+          {/* Close Button */}
           <button
             type="button"
             aria-label="Close sidebar"
@@ -147,8 +151,8 @@ function SideBar() {
           </button>
         </div>
 
-        {/* Navigation Items */}
-        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 md:px-0 md:ml-5">
+        {/* Navigation */}
+        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 md:ml-5 md:px-0">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -166,6 +170,7 @@ function SideBar() {
                         : "scale-x-0"
                     }`}
                   />
+
                   <span
                     className={`relative z-10 flex items-center gap-3 rounded-l-full px-4 py-3 text-sm transition-colors ${
                       isActive
@@ -187,6 +192,7 @@ function SideBar() {
                     >
                       {item.icon}
                     </svg>
+
                     {item.label}
                   </span>
                 </>
@@ -195,11 +201,12 @@ function SideBar() {
           ))}
         </nav>
 
-        {/* Live section */}
-        <div className="mt-auto m-5 rounded-2xl bg-gradient-to-br from-[var(--color-primary-dark)] via-[var(--color-primary-medium)] to-[var(--color-accent-gold)] p-4 text-white shadow-xl shadow-cyan-900/20">
+        {/* Live Section */}
+        <div className="m-5 mt-auto rounded-2xl bg-gradient-to-br from-[var(--color-primary-dark)] via-[var(--color-primary-medium)] to-[var(--color-accent-gold)] p-4 text-white shadow-xl shadow-cyan-900/20">
           <p className="text-xs uppercase tracking-[0.3em] text-[var(--color-text-gold)]">
             Live
           </p>
+
           <p className="mt-1 text-sm font-semibold">
             Connected to the E-commerce API
           </p>
