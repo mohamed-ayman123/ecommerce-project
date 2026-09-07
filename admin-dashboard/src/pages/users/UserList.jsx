@@ -25,7 +25,7 @@ const UserList = () => {
         try {
             dispatch ( setUsersLoading (true))
             const data = await getAllUsers ()
-            console.log('USERS DATA:', data)
+            // console.log('USERS DATA:', data)
             dispatch(setUsers(data))
         } catch (error) {
             dispatch(setUsersError(error.message))
@@ -83,15 +83,16 @@ const UserList = () => {
         return <p> {error} </p>
     }
     return (
-        <div className="min-h-screen bg-[#F8FAFC] p-4 sm:p-6 lg:p-8">
+        <div className="min-h-screen bg-[#F4F8F7] p-4 sm:p-6 lg:p-8">
             <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A]">Users</h1>
-            <p className="mt-1 text-sm sm:text-base text-[#334155]">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#1D3532]">Users</h1>
+            <p className="mt-1 text-sm sm:text-base text-[#7A928D]">
                 Manage and view all registered users
             </p>
             </div>
             <form 
-            onSubmit={handleAddUser} className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-slate-200 mb-6">
+            onSubmit={handleAddUser} 
+            className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-[#7A928D] mb-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <input
                 type="text"
@@ -100,7 +101,7 @@ const UserList = () => {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-[#334155] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#EFF6FF]"
+                className="w-full rounded-lg border border-[#7A928D] bg-white px-3 py-2.5 text-sm text-[#1D3532] outline-none transition focus:border-[#C28723] focus:ring-2 focus:ring-[#F4F8F7]"
                 />
                 <input
                 type="text"
@@ -109,7 +110,7 @@ const UserList = () => {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-[#334155] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#EFF6FF]"
+                className="w-full rounded-lg border border-[#7A928D] bg-white px-3 py-2.5 text-sm text-[#1D3532] outline-none transition focus:border-[#C28723] focus:ring-2 focus:ring-[#F4F8F7]"
                 />
 
                 <input
@@ -119,7 +120,7 @@ const UserList = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-[#334155] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#EFF6FF]"
+                className="w-full rounded-lg border border-[#7A928D] bg-white px-3 py-2.5 text-sm text-[#1D3532] outline-none transition focus:border-[#C28723] focus:ring-2 focus:ring-[#F4F8F7]"
                 />
 
                 <input
@@ -129,21 +130,20 @@ const UserList = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-[#334155] outline-none transition focus:border-[#2563EB] focus:ring-2 focus:ring-[#EFF6FF]"
+                className="w-full rounded-lg border border-[#7A928D] bg-white px-3 py-2.5 text-sm text-[#1D3532] outline-none transition focus:border-[#C28723] focus:ring-2 focus:ring-[#F4F8F7]"
                 />
                 </div>
-                <button type="submit" className="mt-4 w-full sm:w-auto rounded-lg bg-[#2563EB] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">Add User</button>
-
-
+                <button type="submit" className="mt-4 w-full rounded-lg bg-[#C28723] px-5 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 sm:w-auto">Add User</button>
             </form>
+
             <div className="mb-4 flex items-center justify-between">
-            <p className="text-sm sm:text-base font-medium text-[#33415]">
+            <p className="text-sm sm:text-base font-medium text-[#1D3532]">
                 Total users: {items.length}
                 </p>
                 </div>
-                <div className="overflow-xauto rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div className="overflow-x-auto rounded-2xl border border-[#7A928D] bg-white shadow-sm">
             <table className="w-full min-w-[700px] text-left text-sm">
-                <thead className="bg-[#EFF6FF] text-[#0F172A]">
+                <thead className="bg-[#1D3532] text-white">
                     <tr>
                         <th className="px-4 py-3 font-semibold">Name</th>
                         <th className="px-4 py-3 font-semibold">Email</th>
@@ -152,20 +152,20 @@ const UserList = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {items.map((user) => {
-                        <tr key={user.id} className="border-t border-slate-200 text-[#334155] transition hover:bg-[#F8FAFC">
+                    {items.map((user) => (
+                        <tr key={user.id} className="border-t  border-[#7A928D] text-[#1D3532] transition hover:bg-[#F4F8F7]">
                             <td className="px-4 py-3">{user.firstName} {user.lastName}</td>
                             <td className="px-4 py-3">{user.email}</td>
                             <td className="px-4 py-3">
-                                <span className="inline-flex rounded-full bg-[#EFF6FF] px-3 py-1 text-xs font-medium text-[#2563EB]">
+                                <span className="inline-flex rounded-full bg-[#F4F8F7] px-3 py-1 text-xs font-medium text-[#C28723]">
                                 {user.role}
                                 </span>
                                 </td>
-                            <td className="px-4 py-3"><button onClick= {() => handleDelete(user.id)}> Delete
-                                </button>
+                            <td className="px-4 py-3">
+                                <button onClick= {() => handleDelete(user.id)} className="font-medium text-[#C28723] hover:underline"> Delete </button>
                             </td>
                         </tr>
-                    })}
+                    ))}
                 </tbody>
             </table>
             </div>
