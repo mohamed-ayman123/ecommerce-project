@@ -9,6 +9,7 @@ import EditProduct from "@/pages/products/EditProduct";
 import UserList from "@/pages/users/UserList";
 import OrdersPage from "@/pages/orders/OrdersPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
+import Login from "@/pages/auth/Login";
 
 export default function AppRoutes() {
   const defaultLanding = useSelector(
@@ -19,7 +20,7 @@ export default function AppRoutes() {
     <Routes>
       {/* Auth routes (clean layout for login/auth) */}
       <Route element={<AuthLayout />}>
-        <Route path="/login" element={<h2>Login</h2>} />
+        <Route path="/login" element={<Login />} />
       </Route>
 
       {/* Dashboard routes (wrapped with Sidebar + Navbar) */}
