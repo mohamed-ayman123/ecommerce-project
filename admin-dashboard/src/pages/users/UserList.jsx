@@ -13,6 +13,8 @@ import {
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import Modal from '@/components/common/Modal'
+import Input from '@/components/common/Input'
+import Button from '@/components/common/Button'
 import {
   fetchUsers,
   createNewUser,
@@ -161,121 +163,56 @@ export default function UserList() {
 
         <form onSubmit={handleAddUser} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* First Name */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] uppercase tracking-wider">
-                First Name <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="firstName"
-                placeholder="e.g. John"
-                value={formData.firstName}
-                onChange={handleChange}
-                className={`w-full px-3.5 py-2.5 bg-[var(--color-bg-input)]/45 dark:bg-[var(--color-dark-bg-main)] border rounded-xl text-sm text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] placeholder-[var(--color-text-secondary)]/70 font-body transition-all duration-150 focus:bg-white dark:focus:bg-[var(--color-dark-bg-card)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-medium)] dark:focus:ring-[var(--color-text-gold)] ${
-                  formErrors.firstName
-                    ? 'border-rose-400 bg-rose-50/40'
-                    : 'border-[var(--color-border-medium)] hover:border-[var(--color-primary-medium)] dark:border-[var(--color-primary-medium)]/40 shadow-2xs'
-                }`}
-              />
-              {formErrors.firstName && (
-                <p className="text-[11px] text-rose-500 font-medium font-body">
-                  {formErrors.firstName}
-                </p>
-              )}
-            </div>
-
-            {/* Last Name */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] uppercase tracking-wider">
-                Last Name <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                placeholder="e.g. Doe"
-                value={formData.lastName}
-                onChange={handleChange}
-                className={`w-full px-3.5 py-2.5 bg-[var(--color-bg-input)]/45 dark:bg-[var(--color-dark-bg-main)] border rounded-xl text-sm text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] placeholder-[var(--color-text-secondary)]/70 font-body transition-all duration-150 focus:bg-white dark:focus:bg-[var(--color-dark-bg-card)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-medium)] dark:focus:ring-[var(--color-text-gold)] ${
-                  formErrors.lastName
-                    ? 'border-rose-400 bg-rose-50/40'
-                    : 'border-[var(--color-border-medium)] hover:border-[var(--color-primary-medium)] dark:border-[var(--color-primary-medium)]/40 shadow-2xs'
-                }`}
-              />
-              {formErrors.lastName && (
-                <p className="text-[11px] text-rose-500 font-medium font-body">
-                  {formErrors.lastName}
-                </p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] uppercase tracking-wider">
-                Email Address <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="email"
-                name="email"
-                placeholder="john.doe@example.com"
-                value={formData.email}
-                onChange={handleChange}
-                className={`w-full px-3.5 py-2.5 bg-[var(--color-bg-input)]/45 dark:bg-[var(--color-dark-bg-main)] border rounded-xl text-sm text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] placeholder-[var(--color-text-secondary)]/70 font-body transition-all duration-150 focus:bg-white dark:focus:bg-[var(--color-dark-bg-card)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-medium)] dark:focus:ring-[var(--color-text-gold)] ${
-                  formErrors.email
-                    ? 'border-rose-400 bg-rose-50/40'
-                    : 'border-[var(--color-border-medium)] hover:border-[var(--color-primary-medium)] dark:border-[var(--color-primary-medium)]/40 shadow-2xs'
-                }`}
-              />
-              {formErrors.email && (
-                <p className="text-[11px] text-rose-500 font-medium font-body">
-                  {formErrors.email}
-                </p>
-              )}
-            </div>
-
-            {/* Password */}
-            <div className="space-y-1.5">
-              <label className="block text-xs font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] uppercase tracking-wider">
-                Password <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="password"
-                name="password"
-                placeholder="Min 6 characters"
-                value={formData.password}
-                onChange={handleChange}
-                className={`w-full px-3.5 py-2.5 bg-[var(--color-bg-input)]/45 dark:bg-[var(--color-dark-bg-main)] border rounded-xl text-sm text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] placeholder-[var(--color-text-secondary)]/70 font-body transition-all duration-150 focus:bg-white dark:focus:bg-[var(--color-dark-bg-card)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-medium)] dark:focus:ring-[var(--color-text-gold)] ${
-                  formErrors.password
-                    ? 'border-rose-400 bg-rose-50/40'
-                    : 'border-[var(--color-border-medium)] hover:border-[var(--color-primary-medium)] dark:border-[var(--color-primary-medium)]/40 shadow-2xs'
-                }`}
-              />
-              {formErrors.password && (
-                <p className="text-[11px] text-rose-500 font-medium font-body">
-                  {formErrors.password}
-                </p>
-              )}
-            </div>
+            <Input
+              label="First Name"
+              name="firstName"
+              placeholder="e.g. John"
+              value={formData.firstName}
+              onChange={handleChange}
+              error={formErrors.firstName}
+              required
+            />
+            <Input
+              label="Last Name"
+              name="lastName"
+              placeholder="e.g. Doe"
+              value={formData.lastName}
+              onChange={handleChange}
+              error={formErrors.lastName}
+              required
+            />
+            <Input
+              label="Email Address"
+              type="email"
+              name="email"
+              placeholder="john.doe@example.com"
+              value={formData.email}
+              onChange={handleChange}
+              error={formErrors.email}
+              required
+            />
+            <Input
+              label="Password"
+              type="password"
+              name="password"
+              placeholder="Min 6 characters"
+              value={formData.password}
+              onChange={handleChange}
+              error={formErrors.password}
+              required
+            />
           </div>
 
           <div className="flex items-center justify-end pt-2">
-            <button
+            <Button
               type="submit"
-              disabled={isActionLoading}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl font-heading font-bold text-sm bg-[var(--color-primary-dark)] hover:bg-[var(--color-primary-medium)] dark:bg-[var(--color-primary-medium)] dark:hover:bg-[var(--color-accent-gold-hover)] text-white shadow-sm transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              isLoading={isActionLoading}
+              variant="primary"
+              className="w-full sm:w-auto"
             >
-              {isActionLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Creating Account...</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Add User</span>
-                </>
-              )}
-            </button>
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+              Add User
+            </Button>
           </div>
         </form>
       </div>
@@ -302,13 +239,14 @@ export default function UserList() {
           <div className="p-8 text-center space-y-3">
             <AlertCircle className="w-8 h-8 text-rose-500 mx-auto" />
             <p className="text-sm font-medium text-rose-600 font-body">{error}</p>
-            <button
+            <Button
               type="button"
               onClick={() => dispatch(fetchUsers())}
-              className="px-4 py-2 text-xs font-semibold rounded-xl border border-[var(--color-border-medium)] text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] hover:bg-[var(--color-bg-main)] transition-colors cursor-pointer"
+              variant="outline"
+              size="sm"
             >
               Try Again
-            </button>
+            </Button>
           </div>
         ) : items.length === 0 ? (
           <div className="p-12 text-center space-y-2">
@@ -399,16 +337,18 @@ export default function UserList() {
                       </td>
 
                       <td className="px-6 py-4 text-right">
-                        <button
+                        <Button
                           type="button"
+                          variant="ghost"
+                          size="sm"
                           onClick={() => handleDelete(user)}
                           disabled={isActionLoading}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                           title="Delete user account"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
-                          <span>Delete</span>
-                        </button>
+                          <Trash2 className="w-3.5 h-3.5 mr-1" />
+                          Delete
+                        </Button>
                       </td>
                     </tr>
                   )
@@ -427,32 +367,25 @@ export default function UserList() {
         maxWidth="max-w-md"
         footer={
           <>
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={() => setUserToDelete(null)}
               disabled={isActionLoading}
-              className="px-4 py-2 text-xs font-semibold rounded-xl border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/40 text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] hover:bg-[var(--color-bg-main)]/60 dark:hover:bg-[var(--color-dark-bg-main)] transition-colors cursor-pointer disabled:opacity-50"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="danger"
+              size="sm"
               onClick={confirmDelete}
-              disabled={isActionLoading}
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl bg-rose-600 hover:bg-rose-700 text-white shadow-sm transition-colors cursor-pointer disabled:opacity-50"
+              isLoading={isActionLoading}
             >
-              {isActionLoading ? (
-                <>
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Deleting...</span>
-                </>
-              ) : (
-                <>
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete User</span>
-                </>
-              )}
-            </button>
+              <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+              Delete User
+            </Button>
           </>
         }
       >
