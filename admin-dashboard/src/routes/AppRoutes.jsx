@@ -7,7 +7,7 @@ import AuthLayout from "@/components/layout/AuthLayout";
 import AddProduct from "@/pages/products/AddProduct";
 import EditProduct from "@/pages/products/EditProduct";
 import UserList from "@/pages/users/UserList";
-import OrdersPage from "../pages/orders/Orders";
+import OrdersPage from "@/pages/orders/OrdersPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
 
 export default function AppRoutes() {
