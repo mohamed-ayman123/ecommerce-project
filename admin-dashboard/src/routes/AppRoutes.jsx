@@ -1,21 +1,5 @@
-// <<<<<<< HEAD
-// import { Routes, Route, Navigate } from "react-router-dom";
-// import AppLayout from "@/components/layout/AppLayout";
-// import AuthLayout from "@/components/layout/AuthLayout";
-// import AddProduct from "@/pages/products/AddProduct";
-// import EditProduct from "@/pages/products/EditProduct";
-// import SettingsPage from "@/pages/settings/SettingsPage";
-// =======
-
-// import { Routes, Route, Navigate } from 'react-router-dom';
-// import AppLayout from '@/components/layout/AppLayout';
-// import AuthLayout from '@/components/layout/AuthLayout';
-// import AddProduct from '@/pages/products/AddProduct';
-// import EditProduct from '@/pages/products/EditProduct';
-// import UserList from '@/pages/users/UserList'
-// >>>>>>> 17dcb8e0d203311228f0e2f65f1a869dd9576ef0
-
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import AppLayout from "@/components/layout/AppLayout";
 import AuthLayout from "@/components/layout/AuthLayout";
 import AddProduct from "@/pages/products/AddProduct";
@@ -24,6 +8,10 @@ import SettingsPage from "@/pages/settings/SettingsPage";
 import UserList from "@/pages/users/UserList";
 
 export default function AppRoutes() {
+  const defaultLanding = useSelector(
+    (state) => state.ui?.preferences?.defaultLanding || '/dashboard'
+  );
+
   return (
     <Routes>
       {/* Auth routes (clean layout for login/auth) */}
@@ -33,7 +21,7 @@ export default function AppRoutes() {
 
       {/* Dashboard routes (wrapped with Sidebar + Navbar) */}
       <Route element={<AppLayout />}>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<Navigate to={defaultLanding} replace />} />
         <Route path="/dashboard" element={<h2>dashboard</h2>} />
         <Route path="/dashboard/products" element={<h2>Products</h2>} />
         <Route path="/dashboard/products/new" element={<AddProduct />} />

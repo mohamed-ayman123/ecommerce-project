@@ -1,12 +1,24 @@
-import { useState } from "react";
-
-/**
- * Settings page for the Koda Store admin dashboard.
- * Colors come from clean Tailwind utility classes (bg-primary-dark,
- * text-text-gold, border-border-light...) auto-generated from the
- * @theme tokens in index.css — no manual var(--color-x) anywhere.
- * Drop into src/pages/settings/SettingsPage.jsx.
- */
+import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  Settings as SettingsIcon,
+  Moon,
+  Sun,
+  Sliders,
+  Bell,
+  RotateCcw,
+  Save,
+  LayoutGrid,
+  ChevronDown,
+} from 'lucide-react'
+import { toast } from 'react-toastify'
+import {
+  toggleTheme,
+  updatePreferences,
+  resetPreferences,
+} from '@/store/slices/uiSlice'
+import Button from '@/components/common/Button'
+import Modal from '@/components/common/Modal'
 
 function Toggle({ checked, onChange, label }) {
   return (
@@ -16,213 +28,342 @@ function Toggle({ checked, onChange, label }) {
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative h-6 w-11 shrink-0 rounded-full transition-colors duration-150 ${
-        checked ? "bg-primary-dark dark:bg-text-gold" : "bg-border-medium"
+      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold-hover)] ${
+        checked
+          ? 'bg-[var(--color-primary-dark)] dark:bg-[var(--color-text-gold)]'
+          : 'bg-[var(--color-border-medium)] dark:bg-[var(--color-primary-medium)]/40'
       }`}
     >
       <span
-        className={`absolute top-0.5 h-5 w-5 rounded-full bg-text-light shadow transition-all duration-150 ${
-          checked ? "left-[22px]" : "left-0.5"
+        aria-hidden="true"
+        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+          checked ? 'translate-x-5' : 'translate-x-0'
         }`}
       />
     </button>
-  );
+  )
 }
 
-function Card({ title, description, children }) {
+function SelectDropdown({ name, value, onChange, options }) {
   return (
-    <section className="mb-5 rounded-2xl border border-border-light bg-bg-card p-7 dark:bg-dark-bg-card dark:border-primary-medium">
-      <h2 className="mb-1 text-lg font-bold text-text-primary dark:text-text-light">
-        {title}
-      </h2>
-      <p className="mb-5 text-sm text-text-secondary">{description}</p>
-      {children}
-    </section>
-  );
-}
-
-function Row({ label, hint, children, first }) {
-  return (
-    <div
-      className={`flex items-center justify-between gap-5 py-4 ${
-        first ? "" : "border-t border-border-light dark:border-primary-medium"
-      }`}
-    >
-      <div>
-        <p className="text-sm font-semibold text-text-primary dark:text-text-light">
-          {label}
-        </p>
-        {hint && <p className="mt-0.5 text-xs text-text-secondary">{hint}</p>}
-      </div>
-      {children}
+    <div className="relative inline-block w-full sm:w-auto min-w-[210px]">
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        className="w-full appearance-none rounded-xl border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/40 bg-[var(--color-bg-input)]/45 dark:bg-[var(--color-dark-bg-main)] pl-3.5 pr-10 py-2.5 text-sm font-body text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-medium)] dark:focus:ring-[var(--color-text-gold)] cursor-pointer transition-colors shadow-2xs"
+      >
+        {options.map((opt) => (
+          <option
+            key={opt.value}
+            value={opt.value}
+            className="bg-white dark:bg-[var(--color-dark-bg-card)] text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] py-1"
+          >
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--color-text-secondary)] dark:text-[var(--color-text-gold)]" />
     </div>
-  );
+  )
 }
 
-const selectClass =
-  "min-w-[150px] rounded-lg border border-border-medium bg-bg-input px-3 py-2 text-sm text-text-primary";
-
-const smallBtnClass =
-  "whitespace-nowrap rounded-lg border border-border-medium bg-bg-input px-3.5 py-2.5 text-sm font-semibold text-text-primary hover:border-primary-medium";
-
-export default function SettingsPage() {
-  const [darkMode, setDarkMode] = useState(false);
-  const [emailAlerts, setEmailAlerts] = useState(true);
-  const [lowStockAlerts, setLowStockAlerts] = useState(true);
-  const [defaultView, setDefaultView] = useState("Orders");
-  const [pageSize, setPageSize] = useState("25");
-  const [apiKeyVisible, setApiKeyVisible] = useState(false);
-  const [apiKey] = useState("koda_live_9f2c7a1e8b3d4f56");
-  const [saved, setSaved] = useState(false);
-
-  const maskedKey = apiKeyVisible
-    ? apiKey
-    : apiKey.slice(0, 9) + "•".repeat(apiKey.length - 9);
-
-  const handleSave = () => {
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 2000);
-  };
-
-  const copyKey = () => {
-    if (navigator?.clipboard) navigator.clipboard.writeText(apiKey);
-  };
-
+function SectionCard({ icon: Icon, title, description, children }) {
   return (
-    <div className="min-h-screen bg-bg-main pb-12 dark:bg-dark-bg-main">
-      <div className="mx-auto max-w-[760px] px-5 pt-8">
-        <p className="mb-2 text-[13px] font-semibold tracking-[0.16em] text-text-gold">
-          SETTINGS
-        </p>
-        <h1 className="text-3xl font-bold text-text-primary dark:text-text-light">
-          Preferences and integrations
-        </h1>
-        <p className="mt-2.5 max-w-[480px] text-[15px] leading-relaxed text-text-secondary">
-          Theme mode, API credentials, and dashboard preferences are managed
-          here.
-        </p>
-
-        <div className="mt-6">
-          <Card
-            title="Appearance"
-            description="Choose how the dashboard looks for you."
-          >
-            <Row
-              first
-              label="Dark mode"
-              hint="Switch the dashboard to a dark theme."
-            >
-              <Toggle
-                checked={darkMode}
-                onChange={setDarkMode}
-                label="Toggle dark mode"
-              />
-            </Row>
-            <Row
-              label="Default landing page"
-              hint="Where the dashboard opens after login."
-            >
-              <select
-                className={selectClass}
-                value={defaultView}
-                onChange={(e) => setDefaultView(e.target.value)}
-              >
-                <option>Orders</option>
-                <option>Products</option>
-                <option>Analytics</option>
-                <option>Customers</option>
-              </select>
-            </Row>
-            <Row label="Rows per page" hint="Items shown in tables and lists.">
-              <select
-                className={selectClass}
-                value={pageSize}
-                onChange={(e) => setPageSize(e.target.value)}
-              >
-                <option value="10">10</option>
-                <option value="25">25</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-              </select>
-            </Row>
-          </Card>
-
-          <Card
-            title="API and integrations"
-            description="Use this key to connect external tools to your store data."
-          >
-            <Row first label="API key">
-              <div className="flex flex-1 gap-2">
-                <input
-                  readOnly
-                  value={maskedKey}
-                  className="w-full rounded-lg border border-border-medium bg-bg-input px-3 py-2.5 font-mono text-[13.5px] text-text-primary"
-                />
-                <button
-                  className={smallBtnClass}
-                  onClick={() => setApiKeyVisible(!apiKeyVisible)}
-                >
-                  {apiKeyVisible ? "Hide" : "Show"}
-                </button>
-                <button className={smallBtnClass} onClick={copyKey}>
-                  Copy
-                </button>
-              </div>
-            </Row>
-            <Row
-              label="Regenerate API key"
-              hint="Old key stops working immediately once regenerated."
-            >
-              <button className="rounded-lg border border-text-gold bg-transparent px-4 py-2.5 text-sm font-semibold text-text-gold hover:bg-accent-gold-hover hover:text-text-light">
-                Regenerate
-              </button>
-            </Row>
-          </Card>
-
-          <Card
-            title="Notifications"
-            description="Control what the dashboard alerts you about."
-          >
-            <Row
-              first
-              label="Email alerts"
-              hint="New orders and customer messages."
-            >
-              <Toggle
-                checked={emailAlerts}
-                onChange={setEmailAlerts}
-                label="Toggle email alerts"
-              />
-            </Row>
-            <Row
-              label="Low stock alerts"
-              hint="Notify when a product drops below threshold."
-            >
-              <Toggle
-                checked={lowStockAlerts}
-                onChange={setLowStockAlerts}
-                label="Toggle low stock alerts"
-              />
-            </Row>
-          </Card>
-
-          <div className="mt-2 flex items-center justify-end gap-3.5">
-            {saved && (
-              <span className="text-sm font-semibold text-primary-medium">
-                Saved
-              </span>
-            )}
-            <button
-              onClick={handleSave}
-              className="rounded-xl bg-primary-dark px-6 py-3 text-[14.5px] font-bold text-text-light hover:bg-primary-medium"
-            >
-              Save changes
-            </button>
+    <div className="bg-white dark:bg-[var(--color-dark-bg-card)] rounded-2xl border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/30 shadow-xs p-6 sm:p-7 space-y-5 transition-colors">
+      <div className="flex items-start gap-3 pb-4 border-b border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/30">
+        {Icon && (
+          <div className="w-10 h-10 rounded-xl bg-[var(--color-primary-medium)]/15 dark:bg-[var(--color-primary-medium)]/30 text-[var(--color-primary-dark)] dark:text-[var(--color-text-gold)] border border-[var(--color-primary-medium)]/25 flex items-center justify-center shrink-0">
+            <Icon className="w-5 h-5" />
           </div>
+        )}
+        <div className="space-y-0.5">
+          <h2 className="text-base font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)]">
+            {title}
+          </h2>
+          {description && (
+            <p className="text-xs text-[var(--color-text-secondary)] font-body">
+              {description}
+            </p>
+          )}
         </div>
       </div>
+      <div className="space-y-4">{children}</div>
     </div>
-  );
+  )
 }
 
+function SettingRow({ label, hint, children, isFirst }) {
+  return (
+    <div
+      className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 ${
+        isFirst
+          ? ''
+          : 'border-t border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/20'
+      }`}
+    >
+      <div className="space-y-0.5">
+        <p className="text-sm font-semibold font-heading text-[var(--color-text-primary)] dark:text-[var(--color-text-light)]">
+          {label}
+        </p>
+        {hint && (
+          <p className="text-xs text-[var(--color-text-secondary)] font-body">
+            {hint}
+          </p>
+        )}
+      </div>
+      <div className="flex items-center gap-2">{children}</div>
+    </div>
+  )
+}
 
+export default function SettingsPage() {
+  const dispatch = useDispatch()
+  const theme = useSelector((state) => state.ui?.theme || 'light')
+  const preferences = useSelector((state) => state.ui?.preferences)
+  const isDarkMode = theme === 'dark'
+
+  // Local form state initialized from Redux Single Source of Truth
+  const [formData, setFormData] = useState({
+    defaultLanding: preferences?.defaultLanding || '/dashboard',
+    defaultPageSize: preferences?.defaultPageSize || 25,
+    currency: preferences?.currency || 'USD',
+    toastPosition: preferences?.toastPosition || 'top-right',
+    toastDuration: preferences?.toastDuration || 3000,
+  })
+
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false)
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === 'defaultPageSize' || name === 'toastDuration' ? Number(value) : value,
+    }))
+  }
+
+  const handleSaveAll = () => {
+    dispatch(updatePreferences(formData))
+    toast.success('Dashboard preferences saved successfully!')
+  }
+
+  const handleConfirmReset = () => {
+    dispatch(resetPreferences())
+    setFormData({
+      defaultLanding: '/dashboard',
+      defaultPageSize: 25,
+      currency: 'USD',
+      toastPosition: 'top-right',
+      toastDuration: 3000,
+    })
+    setIsResetModalOpen(false)
+    toast.info('Preferences reset to standard defaults.')
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-8 pb-12">
+      {/* Header Banner */}
+      <div className="bg-white dark:bg-[var(--color-dark-bg-card)] p-6 sm:p-8 rounded-3xl border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/30 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-[var(--color-primary-dark)] text-white dark:bg-[var(--color-primary-medium)] flex items-center justify-center shrink-0 shadow-sm border border-[var(--color-primary-medium)]/30">
+            <SettingsIcon className="w-6 h-6 text-[var(--color-text-gold)]" />
+          </div>
+          <div className="space-y-1">
+            <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase font-heading bg-[var(--color-primary-medium)]/15 text-[var(--color-primary-dark)] border border-[var(--color-primary-medium)]/25 dark:bg-[var(--color-primary-medium)]/30 dark:text-[var(--color-text-gold)]">
+              PREFERENCES
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] tracking-tight">
+              Dashboard Settings
+            </h1>
+            <p className="text-xs text-[var(--color-text-secondary)] font-body">
+              Configure interface themes, landing views, table densities, and alerts.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsResetModalOpen(true)}
+            title="Reset to initial defaults"
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Reset Defaults
+          </Button>
+          <Button variant="primary" onClick={handleSaveAll}>
+            <Save className="w-4 h-4 mr-2" />
+            Save Changes
+          </Button>
+        </div>
+      </div>
+
+      {/* Settings Sections */}
+      <div className="space-y-6">
+        {/* Appearance & Navigation */}
+        <SectionCard
+          icon={Sliders}
+          title="Appearance & Navigation"
+          description="Control theme mode and configure where the dashboard opens."
+        >
+          <SettingRow
+            isFirst
+            label="Dark Mode Theme"
+            hint="Switch between dark forest mode and light card mode."
+          >
+            <div className="flex items-center gap-3">
+              {isDarkMode ? (
+                <Moon className="w-4 h-4 text-[var(--color-text-gold)]" />
+              ) : (
+                <Sun className="w-4 h-4 text-amber-500" />
+              )}
+              <Toggle
+                checked={isDarkMode}
+                onChange={() => dispatch(toggleTheme())}
+                label="Toggle dark mode theme"
+              />
+            </div>
+          </SettingRow>
+
+          <SettingRow
+            label="Default Landing Page"
+            hint="The primary screen displayed when accessing the root dashboard."
+          >
+            <SelectDropdown
+              name="defaultLanding"
+              value={formData.defaultLanding}
+              onChange={handleChange}
+              options={[
+                { value: '/dashboard', label: 'Dashboard Overview' },
+                { value: '/dashboard/products', label: 'Products Catalog' },
+                { value: '/dashboard/users', label: 'Users & Administrators' },
+                { value: '/dashboard/orders', label: 'Orders Management' },
+              ]}
+            />
+          </SettingRow>
+        </SectionCard>
+
+        {/* Catalog & Data Preferences */}
+        <SectionCard
+          icon={LayoutGrid}
+          title="Catalog & Data Density"
+          description="Customize table pagination limits and default pricing display."
+        >
+          <SettingRow
+            isFirst
+            label="Default Rows Per Page"
+            hint="Initial pagination record count for directory tables."
+          >
+            <SelectDropdown
+              name="defaultPageSize"
+              value={formData.defaultPageSize}
+              onChange={handleChange}
+              options={[
+                { value: 10, label: '10 items per page' },
+                { value: 25, label: '25 items per page' },
+                { value: 50, label: '50 items per page' },
+                { value: 100, label: '100 items per page' },
+              ]}
+            />
+          </SettingRow>
+
+          <SettingRow
+            label="Catalog Currency"
+            hint="Default currency symbol used for pricing formats."
+          >
+            <SelectDropdown
+              name="currency"
+              value={formData.currency}
+              onChange={handleChange}
+              options={[
+                { value: 'USD', label: 'USD ($ - US Dollar)' },
+                { value: 'EUR', label: 'EUR (€ - Euro)' },
+                { value: 'EGP', label: 'EGP (E£ - Egyptian Pound)' },
+                { value: 'GBP', label: 'GBP (£ - British Pound)' },
+              ]}
+            />
+          </SettingRow>
+        </SectionCard>
+
+        {/* Notifications & Toast Alerts */}
+        <SectionCard
+          icon={Bell}
+          title="Alerts & Toast Feedback"
+          description="Control where on screen system notification popups appear and their duration."
+        >
+          <SettingRow
+            isFirst
+            label="Toast Popup Placement"
+            hint="Position on the screen where confirmation and error toasts appear."
+          >
+            <SelectDropdown
+              name="toastPosition"
+              value={formData.toastPosition}
+              onChange={handleChange}
+              options={[
+                { value: 'top-right', label: 'Top Right (Standard)' },
+                { value: 'top-center', label: 'Top Center' },
+                { value: 'bottom-right', label: 'Bottom Right' },
+                { value: 'bottom-center', label: 'Bottom Center' },
+              ]}
+            />
+          </SettingRow>
+
+          <SettingRow
+            label="Toast Dismissal Timer"
+            hint="How many seconds popup messages remain visible before automatically closing."
+          >
+            <SelectDropdown
+              name="toastDuration"
+              value={formData.toastDuration}
+              onChange={handleChange}
+              options={[
+                { value: 2000, label: '2 Seconds (Fast)' },
+                { value: 3000, label: '3 Seconds (Standard)' },
+                { value: 5000, label: '5 Seconds (Extended)' },
+              ]}
+            />
+          </SettingRow>
+        </SectionCard>
+      </div>
+
+      {/* Confirmation Modal for Resetting Defaults */}
+      <Modal
+        isOpen={isResetModalOpen}
+        onClose={() => setIsResetModalOpen(false)}
+        title="Reset All Preferences"
+        maxWidth="max-w-md"
+        footer={
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsResetModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              size="sm"
+              onClick={handleConfirmReset}
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+              Confirm Reset
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-2">
+          <p className="text-sm text-[var(--color-text-primary)] dark:text-[var(--color-text-light)]">
+            Are you sure you want to reset all dashboard settings to their standard defaults?
+          </p>
+          <p className="text-xs text-[var(--color-text-secondary)] font-body leading-relaxed">
+            This will reset your default landing page, catalog table page sizes, currency format, and notification positions.
+          </p>
+        </div>
+      </Modal>
+    </div>
+  )
+}
