@@ -1,23 +1,32 @@
-import NavBar from "./Components/Layout/Navbar";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import AppRoutes from "./routes/AppRoutes";
-import SideBar from "./Components/Layout/Sidebar"
 
 export default function App() {
+  const theme = useSelector((state) => state.ui?.theme || "light");
+  const preferences = useSelector((state) => state.ui?.preferences);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
+
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--color-bg-main)] md:flex-row dark:bg-[var(--color-dark-bg-main)]">
-      <div className="order-2 md:order-1">
-         <SideBar/>
-      </div>
-
-      <div className="order-1 flex min-w-0 flex-1 flex-col md:order-2">
-        
-        <NavBar/>
-
-        <main className="min-w-0 flex-1 p-4 md:p-8">
-          
-          <AppRoutes/>
-        </main>
-      </div>
-    </div>
-  )
+    <>
+      <AppRoutes />
+      <ToastContainer
+        position={preferences?.toastPosition || "top-right"}
+        autoClose={preferences?.toastDuration || 3000}
+        theme={theme === "dark" ? "dark" : "colored"}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+    </>
+  );
 }
