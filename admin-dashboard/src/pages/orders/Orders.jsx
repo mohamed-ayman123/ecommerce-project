@@ -98,10 +98,9 @@ function OrdersPage() {
   const { items, total, isLoading, error } = useSelector(
     (state) => state.orders,
   )
-  const itemsPerPagePref = useSelector(
-    (state) => state.ui?.preferences?.itemsPerPage,
-  )
-  const pageSize = Number(itemsPerPagePref) || PAGE_SIZE
+  const preferences = useSelector((state) => state.ui?.preferences)
+  const pageSize = Number(preferences?.defaultPageSize || preferences?.itemsPerPage) || PAGE_SIZE
+  const currency = preferences?.currency || 'EGP'
 
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
@@ -338,7 +337,7 @@ function OrdersPage() {
                 </div>
 
                 <span className="text-sm font-bold text-[var(--color-text-primary)] dark:text-[var(--color-text-light)]">
-                  {order.total} EGP
+                  {order.total} {currency}
                 </span>
               </button>
             ))}
@@ -417,6 +416,7 @@ function OrdersPage() {
       >
         <OrderDetailPanel
           order={selectedOrder}
+          currency={currency}
           onClose={() => setSelectedOrder(null)}
           onUpdated={(updated) => {
             const newStatus = updated?.status || updated?.order?.status

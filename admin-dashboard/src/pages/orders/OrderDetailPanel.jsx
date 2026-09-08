@@ -3,6 +3,7 @@ import { X } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { updateOrderStatus } from '@/api/orders'
 import Dropdown from '@/components/common/Dropdown'
+import Button from '@/components/common/Button'
 
 const STATUS_OPTIONS = [
   
@@ -13,7 +14,7 @@ const STATUS_OPTIONS = [
   'Cancelled',
 ]
 
-function OrderDetailPanel({ order, onClose, onUpdated }) {
+function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
   const [prevOrder, setPrevOrder] = useState(order)
   const [status, setStatus] = useState(order?.status || 'Pending')
   const [note, setNote] = useState('')
@@ -184,12 +185,12 @@ function OrderDetailPanel({ order, onClose, onUpdated }) {
                 </p>
                 <p className="text-xs text-[var(--color-text-secondary)]">
                   x {item.qty || item.quantity || 1} ·{' '}
-                  {item.unitPrice || item.price || '0.00'} EGP
+                  {item.unitPrice || item.price || '0.00'} {currency}
                 </p>
               </div>
 
               <span className="text-sm font-bold text-[var(--color-text-primary)]">
-                {item.total || item.totalPrice || '0.00'} EGP
+                {item.total || item.totalPrice || '0.00'} {currency}
               </span>
             </div>
           ))}
@@ -200,21 +201,21 @@ function OrderDetailPanel({ order, onClose, onUpdated }) {
           <div className="flex items-center justify-between text-sm">
             <span className="text-[var(--color-text-secondary)]">Subtotal</span>
             <span className="font-semibold text-[var(--color-text-primary)]">
-              {order.subtotal || '0.00'} EGP
+              {order.subtotal || '0.00'} {currency}
             </span>
           </div>
 
           <div className="flex items-center justify-between text-sm">
             <span className="text-[var(--color-text-secondary)]">Shipping</span>
             <span className="font-semibold text-[var(--color-text-primary)]">
-              {order.shipping || order.shippingFee || '0.00'} EGP
+              {order.shipping || order.shippingFee || '0.00'} {currency}
             </span>
           </div>
 
           <div className="flex items-center justify-between text-sm">
             <span className="text-[var(--color-text-secondary)]">Tax</span>
             <span className="font-semibold text-[var(--color-text-primary)]">
-              {order.tax || '0.00'} EGP
+              {order.tax || '0.00'} {currency}
             </span>
           </div>
 
@@ -223,7 +224,7 @@ function OrderDetailPanel({ order, onClose, onUpdated }) {
           <div className="flex items-center justify-between text-base font-bold">
             <span className="text-[var(--color-text-primary)]">Total</span>
             <span className="text-[var(--color-primary-dark)]">
-              {order.total || order.totalPrice || '0.00'} EGP
+              {order.total || order.totalPrice || '0.00'} {currency}
             </span>
           </div>
         </div>
@@ -270,14 +271,16 @@ function OrderDetailPanel({ order, onClose, onUpdated }) {
 
       {/* Save button */}
       <div className="border-t border-[var(--color-border-light)] p-6">
-        <button
-          type="button"
+        <Button
+          variant="primary"
+          size="lg"
           onClick={handleSave}
           disabled={isSaving}
-          className="w-full rounded-2xl bg-[var(--color-accent-gold)] py-3 text-sm font-bold text-[var(--color-text-primary)] transition hover:bg-[var(--color-accent-gold-hover)] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[var(--color-primary-medium)]"
+          isLoading={isSaving}
+          className="w-full font-bold"
         >
-          {isSaving ? 'Saving...' : 'Save changes'}
-        </button>
+          Save changes
+        </Button>
       </div>
     </aside>
   )
