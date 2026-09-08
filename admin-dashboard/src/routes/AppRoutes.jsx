@@ -3,12 +3,14 @@ import { useSelector } from "react-redux";
 
 import AppLayout from "@/components/layout/AppLayout";
 import AuthLayout from "@/components/layout/AuthLayout";
+import ProtectedRoute from "@/routes/ProtectedRoute";
 
 import AddProduct from "@/pages/products/AddProduct";
 import EditProduct from "@/pages/products/EditProduct";
 import UserList from "@/pages/users/UserList";
 import OrdersPage from "@/pages/orders/OrdersPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
+import Login from "@/pages/auth/Login";
 
 export default function AppRoutes() {
   const defaultLanding = useSelector(
@@ -19,15 +21,16 @@ export default function AppRoutes() {
     <Routes>
       {/* Auth routes (clean layout for login/auth) */}
       <Route element={<AuthLayout />}>
-        <Route path="/login" element={<h2>Login</h2>} />
+        <Route path="/login" element={<Login />} />
       </Route>
 
-      {/* Dashboard routes (wrapped with Sidebar + Navbar) */}
-      <Route element={<AppLayout />}>
-        <Route
-          path="/"
-          element={<Navigate to={defaultLanding} replace />}
-        />
+      {/* Protected Dashboard routes (guarded by ProtectedRoute + wrapped with AppLayout) */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route
+            path="/"
+            element={<Navigate to={defaultLanding} replace />}
+          />
 
         <Route path="/dashboard" element={<h2>dashboard</h2>} />
         <Route path="/dashboard/products" element={<h2>Products</h2>} />
@@ -52,6 +55,7 @@ export default function AppRoutes() {
           path="/dashboard/settings"
           element={<SettingsPage />}
         />
+        </Route>
       </Route>
 
       {/* Fallback */}
