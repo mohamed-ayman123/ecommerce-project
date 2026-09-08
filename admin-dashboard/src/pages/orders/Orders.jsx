@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react'
-import OrderDetailPanel from './OrderDetailPanel'
+import OrderDetailPanel from '@/components/orders/OrderDetailPanel'
 import { getAdminOrders } from '@/api/orders'
 import {
   setOrdersLoading,
