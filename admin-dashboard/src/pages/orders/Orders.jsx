@@ -8,7 +8,7 @@ import {
   setOrders,
   setOrdersError,
 } from '@/store/slices/ordersSlice'
-import Dropdown from '../../Components/common/Dropdown'
+import Dropdown from '@/components/common/Dropdown'
 
 const statusStyles = {
   Pending: 'bg-amber-50 text-amber-700',
@@ -98,6 +98,10 @@ function OrdersPage() {
   const { items, total, isLoading, error } = useSelector(
     (state) => state.orders,
   )
+  const itemsPerPagePref = useSelector(
+    (state) => state.ui?.preferences?.itemsPerPage,
+  )
+  const pageSize = Number(itemsPerPagePref) || PAGE_SIZE
 
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
@@ -156,12 +160,12 @@ function OrdersPage() {
 
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredOrders.length / PAGE_SIZE),
+    Math.ceil(filteredOrders.length / pageSize),
   )
 
   const paginatedOrders = filteredOrders.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize,
   )
 
   const goToPage = (page) => {
@@ -347,11 +351,11 @@ function OrdersPage() {
           <p className="text-sm text-[var(--color-text-secondary)]">
             Showing{' '}
             <span className="font-semibold text-[var(--color-text-primary)]">
-              {(currentPage - 1) * PAGE_SIZE + 1}
+              {(currentPage - 1) * pageSize + 1}
             </span>{' '}
             -{' '}
             <span className="font-semibold text-[var(--color-text-primary)]">
-              {Math.min(currentPage * PAGE_SIZE, filteredOrders.length)}
+              {Math.min(currentPage * pageSize, filteredOrders.length)}
             </span>{' '}
             of{' '}
             <span className="font-semibold text-[var(--color-text-primary)]">
@@ -414,6 +418,18 @@ function OrdersPage() {
         <OrderDetailPanel
           order={selectedOrder}
           onClose={() => setSelectedOrder(null)}
+          onUpdated={(updated) => {
+            const newStatus = updated?.status || updated?.order?.status
+            if (newStatus && selectedOrder) {
+              setSelectedOrder((prev) => (prev ? { ...prev, status: newStatus } : null))
+              const updatedItems = items.map((item) => {
+                const id = item._id || item.id
+                const targetId = selectedOrder.originalId || selectedOrder._id || selectedOrder.id
+                return id === targetId ? { ...item, status: newStatus } : item
+              })
+              dispatch(setOrders({ orders: updatedItems, total }))
+            }
+          }}
         />
       </div>
     </div>

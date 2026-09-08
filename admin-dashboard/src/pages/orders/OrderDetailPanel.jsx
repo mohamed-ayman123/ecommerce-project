@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
-import { X, ChevronDown } from 'lucide-react'
+import { useState } from 'react'
+import { X } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { updateOrderStatus } from '@/api/orders'
-import Dropdown from '../../Components/common/Dropdown'
+import Dropdown from '@/components/common/Dropdown'
 
 const STATUS_OPTIONS = [
   
@@ -14,14 +14,16 @@ const STATUS_OPTIONS = [
 ]
 
 function OrderDetailPanel({ order, onClose, onUpdated }) {
+  const [prevOrder, setPrevOrder] = useState(order)
   const [status, setStatus] = useState(order?.status || 'Pending')
   const [note, setNote] = useState('')
   const [isSaving, setIsSaving] = useState(false)
 
-  useEffect(() => {
+  if (order !== prevOrder) {
+    setPrevOrder(order)
     setStatus(order?.status || 'Pending')
     setNote('')
-  }, [order])
+  }
 
   if (!order) return null
 
@@ -245,20 +247,16 @@ function OrderDetailPanel({ order, onClose, onUpdated }) {
         </p>
 
         <div className="space-y-3">
-          <div className="relative">
-            <Dropdown
-                value={status}
-                onChange={(event) => setStatus(event.target.value)}
-                options={STATUS_OPTIONS.map((option) => ({
-                    value: option,
-                    label: option,
-                }))}
-                placeholder="All statuses"
-                ariaLabel="Change order status"
-            />
-
-            <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-secondary)]" />
-          </div>
+          <Dropdown
+            value={status}
+            onChange={setStatus}
+            options={STATUS_OPTIONS.map((option) => ({
+              value: option,
+              label: option,
+            }))}
+            placeholder="All statuses"
+            ariaLabel="Change order status"
+          />
 
           <textarea
             value={note}
