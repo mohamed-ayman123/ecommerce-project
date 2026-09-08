@@ -12,7 +12,7 @@ const getInitialTheme = () => {
 const DEFAULT_PREFERENCES = {
   defaultLanding: '/dashboard',
   defaultPageSize: 25,
-  currency: 'USD',
+  currency: 'EGP',
   toastPosition: 'top-right',
   toastDuration: 3000,
 }

@@ -10,6 +10,8 @@ import {
   AlertCircle,
   Mail,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import Modal from '@/components/common/Modal'
@@ -26,6 +28,22 @@ export default function UserList() {
   const { items, total, isLoading, isActionLoading, error } = useSelector(
     (state) => state.users
   )
+  const preferences = useSelector((state) => state.ui?.preferences)
+  const pageSize = Number(preferences?.defaultPageSize) || 25
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const totalUsers = items.length
+  const totalPages = Math.max(1, Math.ceil(totalUsers / pageSize))
+  const safePage = Math.min(currentPage, totalPages)
+
+  const startIndex = (safePage - 1) * pageSize
+  const endIndex = Math.min(startIndex + pageSize, totalUsers)
+  const paginatedUsers = items.slice(startIndex, endIndex)
+
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return
+    setCurrentPage(page)
+  }
 
   const [userToDelete, setUserToDelete] = useState(null)
   const [formData, setFormData] = useState({
@@ -224,7 +242,7 @@ export default function UserList() {
             Registered Users Directory
           </h3>
           <span className="text-xs text-[var(--color-text-secondary)] font-body">
-            Showing {items.length} accounts
+            {totalUsers} {totalUsers === 1 ? 'account' : 'accounts'} total
           </span>
         </div>
 
@@ -279,8 +297,8 @@ export default function UserList() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--color-border-medium)]/50 dark:divide-[var(--color-primary-medium)]/30">
-                {items.map((user) => {
+              <tbody className="divide-y divide-[var(--color-border-medium)]/30 font-body">
+                {paginatedUsers.map((user) => {
                   const userId = user._id || user.id
                   const displayName =
                     `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
@@ -355,6 +373,68 @@ export default function UserList() {
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Pagination Footer */}
+        {!isLoading && !error && totalUsers > 0 && (
+          <div className="flex flex-col items-center justify-between gap-4 border-t border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/30 px-6 py-4 sm:flex-row bg-[var(--color-bg-card)] dark:bg-[var(--color-dark-bg-card)]">
+            <p className="text-xs text-[var(--color-text-secondary)] dark:text-slate-300">
+              Showing{' '}
+              <span className="font-semibold text-[var(--color-text-primary)] dark:text-white">
+                {startIndex + 1}
+              </span>{' '}
+              to{' '}
+              <span className="font-semibold text-[var(--color-text-primary)] dark:text-white">
+                {endIndex}
+              </span>{' '}
+              of{' '}
+              <span className="font-semibold text-[var(--color-text-primary)] dark:text-white">
+                {totalUsers}
+              </span>{' '}
+              users
+            </p>
+
+            {totalPages > 1 && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => goToPage(safePage - 1)}
+                  disabled={safePage === 1}
+                  aria-label="Previous page"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40 dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer transition-colors"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+
+                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => goToPage(page)}
+                      className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold cursor-pointer transition-colors ${
+                        page === safePage
+                          ? 'bg-[var(--color-primary-dark)] text-white dark:bg-[var(--color-text-gold)] dark:text-[var(--color-primary-dark)] shadow-sm'
+                          : 'border border-[var(--color-border-light)] bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40 dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ),
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => goToPage(safePage + 1)}
+                  disabled={safePage === totalPages}
+                  aria-label="Next page"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40 dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer transition-colors"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

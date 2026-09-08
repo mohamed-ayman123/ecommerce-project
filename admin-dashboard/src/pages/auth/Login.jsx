@@ -19,14 +19,17 @@ export default function Login() {
   const location = useLocation()
 
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth)
+  const defaultLanding = useSelector(
+    (state) => state.ui?.preferences?.defaultLanding || '/dashboard'
+  )
 
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      const redirectPath = location.state?.from?.pathname || '/dashboard'
+      const redirectPath = location.state?.from?.pathname || defaultLanding
       navigate(redirectPath, { replace: true })
     }
-  }, [isAuthenticated, navigate, location])
+  }, [isAuthenticated, navigate, location, defaultLanding])
 
   // Fill default test credentials
   const handleQuickFill = () => {
@@ -70,7 +73,8 @@ export default function Login() {
           })
         )
         toast.success(response.message || 'Logged in successfully!')
-        navigate('/dashboard', { replace: true })
+        const destination = location.state?.from?.pathname || defaultLanding
+        navigate(destination, { replace: true })
       } else {
         throw new Error(response?.message || 'Authentication failed. Please check credentials.')
       }
@@ -94,7 +98,8 @@ export default function Login() {
           })
         )
         toast.success('Signed in using offline demo mode!')
-        navigate('/dashboard', { replace: true })
+        const destination = location.state?.from?.pathname || defaultLanding
+        navigate(destination, { replace: true })
         return
       }
 

@@ -127,7 +127,7 @@ export default function SettingsPage() {
   const [formData, setFormData] = useState({
     defaultLanding: preferences?.defaultLanding || '/dashboard',
     defaultPageSize: preferences?.defaultPageSize || 25,
-    currency: preferences?.currency || 'USD',
+    currency: preferences?.currency || 'EGP',
     toastPosition: preferences?.toastPosition || 'top-right',
     toastDuration: preferences?.toastDuration || 3000,
   })
@@ -136,10 +136,15 @@ export default function SettingsPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target
+    const parsedValue =
+      name === 'defaultPageSize' || name === 'toastDuration'
+        ? Number(value)
+        : value
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'defaultPageSize' || name === 'toastDuration' ? Number(value) : value,
+      [name]: parsedValue,
     }))
+    dispatch(updatePreferences({ [name]: parsedValue }))
   }
 
   const handleSaveAll = () => {
@@ -152,7 +157,7 @@ export default function SettingsPage() {
     setFormData({
       defaultLanding: '/dashboard',
       defaultPageSize: 25,
-      currency: 'USD',
+      currency: 'EGP',
       toastPosition: 'top-right',
       toastDuration: 3000,
     })
@@ -276,9 +281,9 @@ export default function SettingsPage() {
               value={formData.currency}
               onChange={handleChange}
               options={[
+                { value: 'EGP', label: 'EGP (E£ - Egyptian Pound)' },
                 { value: 'USD', label: 'USD ($ - US Dollar)' },
                 { value: 'EUR', label: 'EUR (€ - Euro)' },
-                { value: 'EGP', label: 'EGP (E£ - Egyptian Pound)' },
                 { value: 'GBP', label: 'GBP (£ - British Pound)' },
               ]}
             />

@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 import {
   UploadCloud,
   X,
@@ -36,6 +37,9 @@ export default function ProductForm({
 }) {
   const navigate = useNavigate()
   const fileInputRef = useRef(null)
+
+  const preferences = useSelector((state) => state.ui?.preferences)
+  const currency = preferences?.currency || 'EGP'
 
   const [form, setForm] = useState({
     name: initialData?.name || '',
@@ -369,7 +373,7 @@ export default function ProductForm({
           {/* Price & Discount Price */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
-              label="Price ($)"
+              label={`Price (${currency})`}
               type="number"
               step="0.01"
               min="0"
@@ -380,7 +384,7 @@ export default function ProductForm({
               required
             />
             <Input
-              label="Discount Price ($)"
+              label={`Discount Price (${currency})`}
               type="number"
               step="0.01"
               min="0"
