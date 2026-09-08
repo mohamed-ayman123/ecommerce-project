@@ -170,7 +170,7 @@ function SideBar() {
                     className={`relative z-10 flex items-center gap-3 rounded-l-full px-4 py-3 text-sm transition-colors ${
                       isActive
                         ? "font-bold text-[var(--color-text-primary)] dark:text-[var(--color-text-gold)]"
-                        : "text-slate-300 hover:rounded-l-full hover:bg-[var(--color-primary-medium)] hover:text-[var(--color-text-primary)]"
+                        : "text-slate-300 hover:rounded-l-full hover:bg-white/10 hover:text-white dark:hover:bg-white/10 dark:hover:text-white"
                     }`}
                   >
                     <svg

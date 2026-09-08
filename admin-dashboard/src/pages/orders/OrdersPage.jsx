@@ -207,8 +207,8 @@ function OrdersPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] px-6 py-3 shadow-sm dark:bg-[var(--color-dark-bg-main)]">
-          <span className="text-2xl font-black text-[var(--color-text-primary)] dark:text-[var(--color-bg-card)]">
+        <div className="rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] px-6 py-3 shadow-sm dark:bg-[var(--color-dark-bg-main)] dark:border-[var(--color-primary-medium)]/30">
+          <span className="text-2xl font-black text-[var(--color-text-primary)] dark:text-white">
             {total || orders.length}
           </span>
           <span className="ml-2 text-sm text-[var(--color-text-secondary)] dark:text-[var(--color-text-gold)]">
@@ -219,13 +219,13 @@ function OrdersPage() {
 
       <div className="flex flex-col gap-3 md:flex-row">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-secondary)]" />
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-secondary)] dark:text-slate-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={(event) => handleSearchChange(event.target.value)}
             placeholder="Search ID, customer..."
-            className="w-full rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] py-3 pl-11 pr-4 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-gold)] dark:bg-[var(--color-dark-bg-main)] dark:placeholder:text-[var(--color-text-secondary)] dark:text-[var(--color-text-light)]"
+            className="w-full rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] py-3 pl-11 pr-4 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-gold)] dark:bg-[var(--color-dark-bg-main)] dark:border-[var(--color-primary-medium)]/30 dark:placeholder:text-slate-400 dark:text-white"
           />
         </div>
 
@@ -264,22 +264,22 @@ function OrdersPage() {
         </div>
 
       {isLoading && (
-        <div className="rounded-2xl bg-[var(--color-bg-card)] px-6 py-12 text-center text-sm text-[var(--color-text-secondary)] shadow-sm">
+        <div className="rounded-2xl bg-[var(--color-bg-card)] dark:bg-[var(--color-dark-bg-card)] px-6 py-12 text-center text-sm text-[var(--color-text-secondary)] dark:text-slate-400 shadow-sm border border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/30">
           Loading orders...
         </div>
       )}
 
       {error && !isLoading && (
-        <div className="rounded-2xl bg-[var(--color-bg-card)] px-6 py-12 text-center text-sm text-red-600 shadow-sm">
+        <div className="rounded-2xl bg-[var(--color-bg-card)] dark:bg-[var(--color-dark-bg-card)] px-6 py-12 text-center text-sm text-red-500 shadow-sm border border-red-200 dark:border-red-900/40">
           {error}
         </div>
       )}
 
       
       {!isLoading && !error && (
-        <div className="overflow-x-auto rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] shadow-sm">
+        <div className="overflow-x-auto rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] shadow-sm dark:border-[var(--color-primary-medium)]/30 dark:bg-[var(--color-dark-bg-card)]">
           <div className="min-w-[720px]">
-            <div className="grid grid-cols-6 gap-4 bg-[var(--color-bg-main)] px-6 py-3 text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
+            <div className="grid grid-cols-6 gap-4 bg-[var(--color-bg-main)] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] dark:bg-[var(--color-dark-bg-main)] dark:text-[var(--color-text-gold)]">
               <span>Order</span>
               <span>Customer</span>
               <span>Date</span>
@@ -289,7 +289,7 @@ function OrdersPage() {
             </div>
 
             {paginatedOrders.length === 0 && (
-              <div className="px-6 py-10 text-center text-sm text-[var(--color-text-secondary)] dark:bg-[var(--color-dark-bg-main)]">
+              <div className="px-6 py-10 text-center text-sm text-[var(--color-text-secondary)] dark:text-slate-400 dark:bg-[var(--color-dark-bg-card)]">
                 No orders match your search or filters.
               </div>
             )}
@@ -299,24 +299,24 @@ function OrdersPage() {
                 key={order.originalId || order.id}
                 type="button"
                 onClick={() => setSelectedOrder(order)}
-                className="grid w-full grid-cols-6 items-center gap-4 whitespace-nowrap border-t border-[var(--color-border-light)] px-6 py-4 text-left transition-colors hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-main)]"
+                className="grid w-full grid-cols-6 items-center gap-4 whitespace-nowrap border-t border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/20 px-6 py-4 text-left transition-colors hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:hover:bg-[var(--color-primary-medium)]/25 group cursor-pointer"
               >
                 <span className="font-mono text-sm font-semibold text-[var(--color-text-gold)]">
                   {order.id}
                 </span>
 
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-bg-input)] text-sm font-bold text-[var(--color-primary-dark)]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-bg-input)] text-sm font-bold text-[var(--color-primary-dark)] dark:bg-[var(--color-primary-medium)]/50 dark:text-white">
                   {order.customer}
                 </span>
 
-                <span className="text-sm text-[var(--color-text-secondary)]">
+                <span className="text-sm font-medium text-[var(--color-text-secondary)] dark:text-slate-200">
                   {order.date}
                 </span>
 
                 <span
                   className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${
                     statusStyles[order.status] ||
-                    'bg-[var(--color-bg-input)] text-[var(--color-text-secondary)]'
+                    'bg-[var(--color-bg-input)] text-[var(--color-text-secondary)] dark:bg-[var(--color-primary-medium)]/40 dark:text-slate-300'
                   }`}
                 >
                   ● {order.status}
@@ -326,17 +326,17 @@ function OrdersPage() {
                   <span
                     className={`inline-block rounded-lg px-3 py-1 text-xs font-bold uppercase ${
                       paymentStyles[order.payment] ||
-                      'bg-[var(--color-bg-input)] text-[var(--color-text-secondary)]'
+                      'bg-[var(--color-bg-input)] text-[var(--color-text-secondary)] dark:bg-[var(--color-primary-medium)]/40 dark:text-slate-300'
                     }`}
                   >
                     {order.payment}
                   </span>
-                  <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
+                  <p className="mt-1 text-xs text-[var(--color-text-secondary)] dark:text-slate-400">
                     {order.method}
                   </p>
                 </div>
 
-                <span className="text-sm font-bold text-[var(--color-text-primary)] dark:text-[var(--color-text-light)]">
+                <span className="text-sm font-bold text-[var(--color-text-primary)] dark:text-white">
                   {order.total} {currency}
                 </span>
               </button>
@@ -347,17 +347,17 @@ function OrdersPage() {
 
       {filteredOrders.length > 0 && (
         <div className="flex flex-col items-center justify-between gap-3 md:flex-row">
-          <p className="text-sm text-[var(--color-text-secondary)]">
+          <p className="text-sm text-[var(--color-text-secondary)] dark:text-slate-400">
             Showing{' '}
-            <span className="font-semibold text-[var(--color-text-primary)]">
+            <span className="font-semibold text-[var(--color-text-primary)] dark:text-white">
               {(currentPage - 1) * pageSize + 1}
             </span>{' '}
             -{' '}
-            <span className="font-semibold text-[var(--color-text-primary)]">
+            <span className="font-semibold text-[var(--color-text-primary)] dark:text-white">
               {Math.min(currentPage * pageSize, filteredOrders.length)}
             </span>{' '}
             of{' '}
-            <span className="font-semibold text-[var(--color-text-primary)]">
+            <span className="font-semibold text-[var(--color-text-primary)] dark:text-white">
               {filteredOrders.length}
             </span>{' '}
             orders
@@ -368,7 +368,7 @@ function OrdersPage() {
               type="button"
               onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40 dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -379,10 +379,10 @@ function OrdersPage() {
                   key={page}
                   type="button"
                   onClick={() => goToPage(page)}
-                  className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold ${
+                  className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold cursor-pointer transition-colors ${
                     page === currentPage
-                      ? 'bg-[var(--color-primary-dark)] text-white'
-                      : 'border border-[var(--color-border-light)] bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)]'
+                      ? 'bg-[var(--color-primary-dark)] text-white dark:bg-[var(--color-text-gold)] dark:text-[var(--color-primary-dark)] shadow-sm'
+                      : 'border border-[var(--color-border-light)] bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40 dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30'
                   }`}
                 >
                   {page}
@@ -394,7 +394,7 @@ function OrdersPage() {
               type="button"
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40 dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
