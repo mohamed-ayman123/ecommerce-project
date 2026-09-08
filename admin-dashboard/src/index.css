@@ -5,39 +5,32 @@
   --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-sans: var(--font-body);
-}
 
-@custom-variant dark (&:where(.dark, .dark *));
-:root {
-  /* Primary & Accent Colors */
-  --color-primary-dark: #2F4842;    
-  --color-primary-medium: #44635B;  
+  /* Moved into @theme so Tailwind auto-generates utility classes
+     like bg-primary-dark, text-text-gold, border-border-light, etc.
+     No more bg-[var(--color-x)] needed anywhere. */
+  --color-primary-dark: #2F4842;
+  --color-primary-medium: #44635B;
   --color-accent-gold-hover: #C58C2B;
 
-  /* Neutral Background Colors */
-  --color-bg-main: #E1E8E6;         
-  --color-bg-card: #FFFFFF;         
-  --color-bg-input: #D5DDD9;        
-  
-  /* Text & Icon Colors */
-  --color-text-primary: #2B3332;     
-  --color-text-secondary: #6B7B76;   
-  --color-text-light: #FFFFFF;       
-  --color-text-gold: #DDA136;        
+  --color-bg-main: #E1E8E6;
+  --color-bg-card: #FFFFFF;
+  --color-bg-input: #D5DDD9;
 
-  /* Borders & Dividers */
+  --color-text-primary: #2B3332;
+  --color-text-secondary: #6B7B76;
+  --color-text-light: #FFFFFF;
+  --color-text-gold: #DDA136;
+
   --color-border-light: #E8EEEC;
   --color-border-medium: #C0CFC9;
 
-  /* Fonts */
-  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-sans: var(--font-body);
-
-  /* Dark Mode Palette Extensions */
-  --color-dark-bg-main: #1D2826;     
-  --color-dark-bg-card: #253531;     
+  --color-dark-bg-main: #1D2826;
+  --color-dark-bg-card: #253531;
 }
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 body {
   background-color: var(--color-bg-main);
   color: var(--color-text-primary);
@@ -51,6 +44,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
 }
+
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -60,7 +54,6 @@ h1, h2, h3, h4, h5, h6 {
   scrollbar-width: none;
 }
 
-/* Global interactive element cursors */
 button,
 [role='button'],
 [type='button'],
@@ -76,7 +69,3 @@ button:disabled,
 [type='reset']:disabled {
   cursor: not-allowed;
 }
-
-
-
-

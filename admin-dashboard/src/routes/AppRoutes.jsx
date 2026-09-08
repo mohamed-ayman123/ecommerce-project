@@ -1,8 +1,9 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import AppLayout from '@/components/layout/AppLayout';
-import AuthLayout from '@/components/layout/AuthLayout';
-import AddProduct from '@/pages/products/AddProduct';
-import EditProduct from '@/pages/products/EditProduct';
+import { Routes, Route, Navigate } from "react-router-dom";
+import AppLayout from "@/components/layout/AppLayout";
+import AuthLayout from "@/components/layout/AuthLayout";
+import AddProduct from "@/pages/products/AddProduct";
+import EditProduct from "@/pages/products/EditProduct";
+import SettingsPage from "@/pages/settings/SettingsPage";
 
 export default function AppRoutes() {
   return (
@@ -22,7 +23,7 @@ export default function AppRoutes() {
         <Route path="/dashboard/users" element={<h2>users</h2>} />
         <Route path="/dashboard/orders" element={<h2>orders</h2>} />
         <Route path="/dashboard/carts" element={<h2>carts</h2>} />
-        <Route path="/dashboard/settings" element={<h2>settings</h2>} />
+        <Route path="/dashboard/settings" element={<SettingsPage />} />
       </Route>
 
       {/* Fallback */}
@@ -30,4 +31,3 @@ export default function AppRoutes() {
     </Routes>
   );
 }
-
