@@ -27,7 +27,7 @@ export default function ProductFilterBar({
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by product name, category, or brand..."
-            className="w-full rounded-xl border border-[var(--color-border-medium)] bg-[var(--color-bg-input)]/45 py-2.5 pl-10 pr-4 text-sm font-body text-[var(--color-text-primary)] outline-none transition-all duration-150 placeholder:text-[var(--color-text-secondary)]/60 focus:border-transparent focus:ring-2 focus:ring-[var(--color-primary-medium)] dark:border-[var(--color-primary-medium)]/40 dark:bg-[var(--color-dark-bg-main)] dark:text-white dark:placeholder:text-slate-400 dark:focus:ring-[var(--color-text-gold)] shadow-2xs"
+            className="w-full rounded-xl border border-[var(--color-border-medium)] bg-[var(--color-bg-input)]/45 py-2.5 pl-10 pr-4 text-sm font-body text-[var(--color-text-primary)] outline-none transition-all duration-150 placeholder:text-[var(--color-text-secondary)]/60 focus:border-transparent focus:ring-2 focus:ring-[var(--color-primary-medium)] dark:border-[var(--color-primary-medium)]/40 dark:bg-[var(--color-dark-bg-main)] dark:text-white dark:placeholder:text-slate-300 dark:focus:ring-[var(--color-text-gold)] shadow-2xs"
           />
         </div>
 

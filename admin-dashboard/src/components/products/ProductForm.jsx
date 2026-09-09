@@ -409,7 +409,7 @@ export default function ProductForm({
         </div>
 
         {/* RIGHT COLUMN: Form Fields (7 cols) */}
-        <div className="lg:col-span-7 bg-[#F2F5F3] dark:bg-[var(--color-dark-bg-card)] p-6 sm:p-8 rounded-2xl border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/30 shadow-xs space-y-5">
+        <div className="lg:col-span-7 bg-[var(--color-bg-card)] dark:bg-[var(--color-dark-bg-card)] p-6 sm:p-8 rounded-2xl border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/30 shadow-xs space-y-5">
           {/* Product Name */}
           <Input
             label="Product Name"

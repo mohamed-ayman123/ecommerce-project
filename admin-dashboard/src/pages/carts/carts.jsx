@@ -1,113 +1,370 @@
-import { useEffect, useState } from "react";
-import { getAdminActiveCarts } from "../../api/carts"; 
-
+import { useEffect, useMemo, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import {
+  ShoppingCart,
+  ChevronLeft,
+  ChevronRight,
+  RefreshCw,
+  AlertCircle,
+  Sparkles,
+} from 'lucide-react'
+import {
+  fetchAdminCarts,
+  setSearchTerm,
+  setSortBy,
+  setPage,
+  setStoreOnly,
+  setSelectedCart,
+} from '@/store/slices/cartsSlice'
+import { fetchProducts } from '@/store/slices/productsSlice'
+import CartStats from '@/components/carts/CartStats'
+import CartFilters from '@/components/carts/CartFilters'
+import CartCard from '@/components/carts/CartCard'
+import CartDetailModal from '@/components/carts/CartDetailModal'
+import Button from '@/components/common/Button'
+import {
+  buildStoreCatalogLookup,
+  isStoreCart,
+  filterStoreCart,
+} from '@/utils/storeCatalog'
 
 export default function Carts() {
-  const [carts, setCarts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch()
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  // 1. Redux as Single Source of Truth
+  const {
+    items: rawCarts,
+    total: rawTotal,
+    page,
+    totalPages,
+    isLoading,
+    error,
+    searchTerm,
+    sortBy,
+    storeOnly,
+    selectedCart,
+  } = useSelector((state) => state.carts)
 
+  const products = useSelector((state) => state.products.items || [])
+  const preferences = useSelector((state) => state.ui?.preferences)
+  const currency = preferences?.currency || 'EGP'
+  const pageSize = Number(preferences?.defaultPageSize) || 25
+
+  const [expandedCartIds, setExpandedCartIds] = useState({})
+
+  // Fetch active carts and ensure store products catalog is loaded
   useEffect(() => {
-    const fetchCarts = async () => {
-      try {
-        if (!user) {
-          setError("User not found");
-          setLoading(false);
-          return;
-        }
+    dispatch(fetchAdminCarts({ page, limit: pageSize }))
+    if (products.length === 0) {
+      dispatch(fetchProducts({ limit: 100 }))
+    }
+  }, [dispatch, page, pageSize, products.length])
 
-        const data = await getAdminActiveCarts();
+  const toggleCartExpand = (id) => {
+    setExpandedCartIds((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }))
+  }
 
-        if (!data || data.length === 0) {
-          setError("No carts returned from the API");
-          setLoading(false);
-          return;
-        }
+  // 2. Pure Data-Driven Catalog Matching
+  const storeCatalogLookup = useMemo(
+    () => buildStoreCatalogLookup(products),
+    [products]
+  )
 
-        setCarts(data);
-        setLoading(false);
-      } catch (err) {
-        setError("Failed to fetch carts");
-        setLoading(false);
-      }
-    };
+  // 3. Store-Scope Filter:
+  // Shows only carts containing Nexis Tech electronics products when storeOnly is true.
+  const storeScopedCarts = useMemo(() => {
+    if (!storeOnly) return rawCarts
+    return rawCarts
+      .filter((cart) => isStoreCart(cart, storeCatalogLookup))
+      .map((cart) => filterStoreCart(cart, storeCatalogLookup))
+  }, [rawCarts, storeOnly, storeCatalogLookup])
 
-    fetchCarts();
-  }, []);
+  // 4. Search and Sort Filtering
+  const filteredCarts = useMemo(() => {
+    let result = [...storeScopedCarts]
+
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase().trim()
+      result = result.filter((cart) => {
+        const username = cart.user?.username?.toLowerCase() || ''
+        const email = cart.user?.email?.toLowerCase() || ''
+        const cartId = (cart._id || cart.id || '').toLowerCase()
+        const itemMatch = cart.items?.some((item) =>
+          item.name?.toLowerCase().includes(q)
+        )
+        return (
+          username.includes(q) ||
+          email.includes(q) ||
+          cartId.includes(q) ||
+          itemMatch
+        )
+      })
+    }
+
+    if (sortBy === 'newest') {
+      result.sort(
+        (a, b) =>
+          new Date(b.updatedAt || b.createdAt || 0) -
+          new Date(a.updatedAt || a.createdAt || 0)
+      )
+    } else if (sortBy === 'oldest') {
+      result.sort(
+        (a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
+      )
+    } else if (sortBy === 'highest-value') {
+      result.sort((a, b) => (b.subtotal || 0) - (a.subtotal || 0))
+    } else if (sortBy === 'lowest-value') {
+      result.sort((a, b) => (a.subtotal || 0) - (b.subtotal || 0))
+    } else if (sortBy === 'most-items') {
+      result.sort(
+        (a, b) =>
+          (b.itemCount || b.items?.length || 0) -
+          (a.itemCount || a.items?.length || 0)
+      )
+    }
+
+    return result
+  }, [storeScopedCarts, searchTerm, sortBy])
+
+  // 5. Accurate KPI summary derived from store-scoped carts
+  const stats = useMemo(() => {
+    const totalActive = filteredCarts.length
+    const totalPipelineValue = filteredCarts.reduce(
+      (acc, cart) => acc + (cart.subtotal || 0),
+      0
+    )
+    const totalItemsCount = filteredCarts.reduce(
+      (acc, cart) => acc + (cart.itemCount || cart.items?.length || 0),
+      0
+    )
+    const avgValue =
+      totalActive > 0 ? (totalPipelineValue / totalActive).toFixed(2) : '0.00'
+
+    return {
+      totalActive,
+      totalPipelineValue,
+      totalItemsCount,
+      avgValue,
+    }
+  }, [filteredCarts])
 
   return (
-   
-    <div className="w-full  ">
-      <div className="bg-white p-6 md:p-6 rounded-3xl border border-gray-300 shadow-lg mb-4 w-full">
-        <span className="text-[#2dd4bf] text-sm tracking-[0.5em] uppercase block mb-2">
-          Carts
-        </span>
-        <h1 className="text-2xl font-semibold text-slate-900 mb-2">Cart overview</h1>
-        <p className="text-gray-500 text-sm">
-          All active carts returned from the API are rendered here with their latest item details.
-        </p>
+    <div className="w-full space-y-6">
+      {/* Top Header Card */}
+      <div className="bg-white dark:bg-[var(--color-dark-bg-card)] p-6 rounded-2xl border border-border-light dark:border-white/10 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-gold/10 text-accent-gold border border-accent-gold/20 tracking-wider uppercase">
+              <ShoppingCart className="w-3.5 h-3.5" />
+              Active Carts Monitor
+            </span>
+            {storeOnly && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <Sparkles className="w-3 h-3" />
+                Nexis Tech Catalog Matched (Electronics & Hardware)
+              </span>
+            )}
+          </div>
+          <h1 className="text-2xl font-bold text-primary-dark dark:text-white font-heading">
+            Live Shopping Carts
+          </h1>
+          <p className="text-text-secondary dark:text-slate-400 text-sm mt-1">
+            Real-time visibility into customer shopping sessions, abandoned cart values, and item demand.
+          </p>
+        </div>
+
+        {/* Refresh Button using Common Component Button */}
+        <Button
+          variant="outline"
+          size="md"
+          onClick={() => dispatch(fetchAdminCarts({ page, limit: pageSize }))}
+          disabled={isLoading}
+          className="self-start md:self-auto gap-2"
+        >
+          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          Refresh Data
+        </Button>
       </div>
 
-    
-      <div className="w-full">
-        {loading && (
-          <div className="bg-white p-6 rounded-2xl border border-gray-400 text-slate-500 text-sm max-w-md animate-pulse">
-            Loading active carts…
+      {/* KPI Stats Grid */}
+      <CartStats stats={stats} currency={currency} />
+
+      {/* Filter & Search Toolbar */}
+      <CartFilters
+        searchTerm={searchTerm}
+        onSearchChange={(val) => dispatch(setSearchTerm(val))}
+        sortBy={sortBy}
+        onSortChange={(val) => dispatch(setSortBy(val))}
+        storeOnly={storeOnly}
+        onStoreOnlyChange={(val) => dispatch(setStoreOnly(val))}
+      />
+
+      {/* Error Banner */}
+      {error && (
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-sm flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            <span>{error}</span>
           </div>
-        )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => dispatch(fetchAdminCarts({ page, limit: pageSize }))}
+            className="text-rose-600 dark:text-rose-400 font-semibold underline"
+          >
+            Retry
+          </Button>
+        </div>
+      )}
 
-        {error && (
-          <div className=" p-6 rounded-3xl border border-dashed border-gray-400 text-slate-500 text-sm max-w-md">
-            {error}
-          </div>
-        )}
-
-        
-        {!loading && !error && (
-          <div className="grid grid-cols-1 gap-6 w-full">
-            {carts.map((cart) => (
-              <div key={cart._id || cart.id} className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm w-full">
-                <div className="flex justify-between items-center mb-4 border-b border-gray-50 pb-3">
-                  <h2 className="text-base font-semibold text-slate-800">
-                    Cart ID: <span className="text-gray-500 font-normal">{cart._id || cart.id}</span>
-                  </h2>
-                  <span className="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-medium">
-                    Active
-                  </span>
+      {/* Loading Skeletons */}
+      {isLoading && (
+        <div className="space-y-4">
+          {[1, 2, 3].map((n) => (
+            <div
+              key={n}
+              className="bg-white dark:bg-[var(--color-dark-bg-card)] p-6 rounded-2xl border border-border-light dark:border-white/10 animate-pulse space-y-4"
+            >
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-white/10" />
+                  <div className="space-y-1.5">
+                    <div className="w-36 h-4 bg-slate-200 dark:bg-white/10 rounded" />
+                    <div className="w-24 h-3 bg-slate-200 dark:bg-white/10 rounded" />
+                  </div>
                 </div>
-
-                <div className="divide-y divide-gray-100">
-                  {cart.items?.map((item) => (
-                    <div key={item._id || item.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
-                      <img
-                        src={item.image || "https://placeholder.com"}
-                        alt={item.title}
-                        className="w-16 h-16 rounded-xl object-cover border border-gray-100 bg-slate-50"
-                      />
-
-                      <div className="flex-1">
-                        <h3 className="font-medium text-slate-800 text-sm mb-0.5">{item.title}</h3>
-                        <p className="text-slate-400 text-xs">${item.price}</p>
-                      </div>
-
-                      <div className="text-right">
-                        <span className="text-slate-700 text-sm font-semibold block">
-                          Qty: {item.quantity}
-                        </span>
-                        <span className="text-xs text-slate-400 block mt-0.5">
-                          Total: ${(item.price * item.quantity).toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <div className="w-20 h-6 bg-slate-200 dark:bg-white/10 rounded-full" />
               </div>
-            ))}
+              <div className="h-16 bg-slate-100 dark:bg-white/5 rounded-xl" />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!isLoading && !error && filteredCarts.length === 0 && (
+        <div className="bg-white dark:bg-[var(--color-dark-bg-card)] p-12 rounded-3xl border border-border-light dark:border-white/10 text-center flex flex-col items-center justify-center space-y-3">
+          <div className="w-16 h-16 rounded-2xl bg-primary-dark/5 dark:bg-white/5 text-text-secondary dark:text-slate-400 flex items-center justify-center">
+            <ShoppingCart className="w-8 h-8 stroke-[1.5]" />
           </div>
-        )}
-      </div>
+          <h3 className="text-lg font-bold text-primary-dark dark:text-white font-heading">
+            No active carts found
+          </h3>
+          <p className="text-sm text-text-secondary dark:text-slate-400 max-w-md">
+            {searchTerm
+              ? `No shopping carts match "${searchTerm}". Try another query or clear the filter.`
+              : storeOnly
+              ? 'No active carts currently hold Electronics & Hardware items from Nexis Tech. You can switch the scope filter to view all shared API carts.'
+              : 'There are currently no active carts held by customers in the database.'}
+          </p>
+          <div className="flex items-center gap-3 mt-2">
+            {searchTerm && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => dispatch(setSearchTerm(''))}
+              >
+                Clear Search
+              </Button>
+            )}
+            {storeOnly && (
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => dispatch(setStoreOnly(false))}
+              >
+                Show All Shared Carts
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Active Carts List */}
+      {!isLoading && !error && filteredCarts.length > 0 && (
+        <div className="space-y-4">
+          {filteredCarts.map((cart) => (
+            <CartCard
+              key={cart._id || cart.id}
+              cart={cart}
+              currency={currency}
+              isExpanded={!!expandedCartIds[cart._id || cart.id]}
+              onToggleExpand={toggleCartExpand}
+              onOpenDetails={(c) => dispatch(setSelectedCart(c))}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && !searchTerm && (
+        <div className="bg-white dark:bg-[var(--color-dark-bg-card)] p-4 rounded-2xl border border-border-light dark:border-white/10 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <span className="text-xs text-text-secondary dark:text-slate-400">
+            Showing Page <span className="font-semibold text-primary-dark dark:text-white">{page}</span> of{' '}
+            <span className="font-semibold text-primary-dark dark:text-white">{totalPages}</span> ({rawTotal} total carts in DB)
+          </span>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => dispatch(setPage(Math.max(1, page - 1)))}
+              disabled={page <= 1 || isLoading}
+              className="p-2 rounded-xl border border-border-light dark:border-white/10 hover:bg-bg-input/50 dark:hover:bg-white/5 text-primary-dark dark:text-white disabled:opacity-40 cursor-pointer"
+              title="Previous Page"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
+              if (
+                p === 1 ||
+                p === totalPages ||
+                (p >= page - 1 && p <= page + 1)
+              ) {
+                return (
+                  <button
+                    key={p}
+                    onClick={() => dispatch(setPage(p))}
+                    className={`w-8 h-8 rounded-xl text-xs font-semibold cursor-pointer transition-colors ${
+                      p === page
+                        ? 'bg-primary-dark text-white shadow-xs'
+                        : 'border border-border-light dark:border-white/10 text-primary-dark dark:text-white hover:bg-bg-input/50 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                )
+              }
+              if (p === page - 2 || p === page + 2) {
+                return (
+                  <span key={p} className="text-xs text-text-secondary dark:text-slate-400">
+                    ...
+                  </span>
+                )
+              }
+              return null
+            })}
+
+            <button
+              onClick={() => dispatch(setPage(Math.min(totalPages, page + 1)))}
+              disabled={page >= totalPages || isLoading}
+              className="p-2 rounded-xl border border-border-light dark:border-white/10 hover:bg-bg-input/50 dark:hover:bg-white/5 text-primary-dark dark:text-white disabled:opacity-40 cursor-pointer"
+              title="Next Page"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Cart Detail Modal using Common Modal & Button */}
+      <CartDetailModal
+        cart={selectedCart}
+        currency={currency}
+        onClose={() => dispatch(setSelectedCart(null))}
+      />
     </div>
-  );
+  )
 }

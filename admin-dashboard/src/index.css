@@ -70,3 +70,9 @@ button:disabled,
 [type='reset']:disabled {
   cursor: not-allowed;
 }
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #cbd5e1;
+  opacity: 0.85;
+}

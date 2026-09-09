@@ -11,7 +11,11 @@ export default function Dropdown({
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef(null)
 
-  const selectedOption = options.find((option) => option.value === value)
+  const normalizedOptions = options.map((option) =>
+    typeof option === 'string' ? { value: option, label: option } : option
+  )
+
+  const selectedOption = normalizedOptions.find((option) => option.value === value)
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
@@ -66,7 +70,7 @@ export default function Dropdown({
 
       {isOpen && (
         <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] p-1 shadow-xl dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40">
-          {options.map((option) => {
+          {normalizedOptions.map((option) => {
             const isSelected = option.value === value
 
             return (
