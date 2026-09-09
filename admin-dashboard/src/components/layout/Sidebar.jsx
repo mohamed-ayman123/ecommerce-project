@@ -108,16 +108,17 @@ function SideBar() {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-72 flex-shrink-0 flex-col bg-[var(--color-primary-dark)] py-5 shadow-xl transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-72 flex-shrink-0 flex-col bg-[var(--color-primary-dark)] py-5 shadow-xl transition-transform duration-300 ease-in-out md:sticky md:top-0 md:h-screen md:translate-x-0 ${
           isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Header */}
-        <div className="mb-8 mx-5 flex items-center justify-between">
+        <div className="mx-5 mb-8 flex items-center justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.4em] text-[var(--color-text-gold)]">
               Commerce
             </p>
+
             <h1 className="mt-2 text-xl font-bold text-[var(--color-text-light)]">
               Admin Panel
             </h1>
@@ -148,63 +149,66 @@ function SideBar() {
         </div>
 
         {/* Navigation Items */}
-        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 md:px-0 md:ml-5">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              onClick={handleNavClick}
-              className="relative block overflow-hidden"
-            >
-              {({ isActive }) => (
-                <>
-                  <span
-                    className={`absolute inset-0 origin-right bg-[var(--color-bg-main)] transition-transform duration-300 ease-out dark:bg-[var(--color-dark-bg-main)] ${
-                      isActive
-                        ? "scale-x-100 rounded-l-full"
-                        : "scale-x-0"
-                    }`}
-                  />
-                  <span
-                    className={`relative z-10 flex items-center gap-3 rounded-l-full px-4 py-3 text-sm transition-colors ${
-                      isActive
-                        ? "font-bold text-[var(--color-text-primary)] dark:text-[var(--color-text-gold)]"
-                        : "text-slate-300 hover:rounded-l-full hover:bg-white/10 hover:text-white dark:hover:bg-white/10 dark:hover:text-white"
-                    }`}
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="var(--color-text-gold)"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-4 w-4 shrink-0"
-                    >
-                      {item.icon}
-                    </svg>
-                    {item.label}
-                  </span>
-                </>
-              )}
-            </NavLink>
-          ))}
-        </nav>
+        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 md:ml-5 md:px-0">
+    {navItems.map((item) => (
+      <NavLink
+        key={item.to}
+        to={item.to}
+        end={item.end}
+        onClick={handleNavClick}
+        className="relative block overflow-hidden"
+      >
+        {({ isActive }) => (
+          <>
+            <span
+              className={`absolute inset-0 origin-right bg-[var(--color-bg-main)] transition-transform duration-300 ease-out dark:bg-[var(--color-dark-bg-main)] ${
+                isActive
+                  ? "scale-x-100 rounded-l-full"
+                  : "scale-x-0"
+              }`}
+            />
 
-        {/* Live section */}
-        <div className="mt-auto m-5 rounded-2xl bg-gradient-to-br from-[var(--color-primary-dark)] via-[var(--color-primary-medium)] to-[var(--color-accent-gold)] p-4 text-white shadow-xl shadow-cyan-900/20">
-          <p className="text-xs uppercase tracking-[0.3em] text-[var(--color-text-gold)]">
-            Live
-          </p>
-          <p className="mt-1 text-sm font-semibold">
-            Connected to the E-commerce API
-          </p>
-        </div>
-      </aside>
+            <span
+              className={`relative z-10 flex items-center gap-3 rounded-l-full px-4 py-3 text-sm transition-colors ${
+                isActive
+                  ? "font-bold text-[var(--color-text-primary)] dark:text-[var(--color-text-gold)]"
+                  : "text-slate-300 hover:bg-white/10 hover:text-white dark:hover:bg-white/10 dark:hover:text-white"
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--color-text-gold)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4 shrink-0"
+              >
+                {item.icon}
+              </svg>
+
+              {item.label}
+            </span>
+          </>
+        )}
+      </NavLink>
+    ))}
+  </nav>
+
+  {/* Live section */}
+  <div className="m-5 mt-auto rounded-2xl bg-gradient-to-br from-[var(--color-primary-dark)] via-[var(--color-primary-medium)] to-[var(--color-accent-gold)] p-4 text-white shadow-xl shadow-cyan-900/20">
+    <p className="text-xs uppercase tracking-[0.3em] text-[var(--color-text-gold)]">
+      Live
+    </p>
+
+    <p className="mt-1 text-sm font-semibold">
+      Connected to the E-commerce API
+    </p>
+  </div>
+</aside>
     </>
   );
 }

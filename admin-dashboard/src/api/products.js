@@ -11,16 +11,12 @@ export const getProductById = async (id) => {
 }
 
 export const createProduct = async (formData) => {
-  const response = await api.post('/products', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  })
+  const response = await api.post('/products', formData)
   return response.data
 }
 
 export const updateProduct = async (id, formData) => {
-  const response = await api.patch(`/products/update/${id}`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  })
+  const response = await api.patch(`/products/update/${id}`, formData)
   return response.data
 }
 
