@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   Users,
@@ -12,11 +12,13 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Search,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import Modal from '@/components/common/Modal'
 import Input from '@/components/common/Input'
 import Button from '@/components/common/Button'
+import Dropdown from '@/components/common/Dropdown'
 import {
   fetchUsers,
   createNewUser,
@@ -25,25 +27,46 @@ import {
 
 export default function UserList() {
   const dispatch = useDispatch()
-  const { items, total, isLoading, isActionLoading, error } = useSelector(
+  const { items = [], total, isLoading, isActionLoading, error } = useSelector(
     (state) => state.users
   )
+
   const preferences = useSelector((state) => state.ui?.preferences)
   const pageSize = Number(preferences?.defaultPageSize) || 25
   const [currentPage, setCurrentPage] = useState(1)
+  const [roleFilter, setRoleFilter] = useState('ALL')
+  const [searchTerm, setSearchTerm] = useState('')
 
-  const totalUsers = items.length
+  useEffect(() => {
+    dispatch(fetchUsers())
+  }, [dispatch])
+
+  // Filter users naturally by role and search query
+  const filteredUsers = useMemo(() => {
+    let result = items
+    if (roleFilter !== 'ALL') {
+      result = result.filter(
+        (u) => (u.role || 'customer').toUpperCase() === roleFilter
+      )
+    }
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase().trim()
+      result = result.filter((u) => {
+        const name = `${u.firstName || ''} ${u.lastName || ''} ${u.name || ''} ${u.username || ''}`.toLowerCase()
+        const email = (u.email || '').toLowerCase()
+        return name.includes(q) || email.includes(q)
+      })
+    }
+    return result
+  }, [items, roleFilter, searchTerm])
+
+  const totalUsers = filteredUsers.length
   const totalPages = Math.max(1, Math.ceil(totalUsers / pageSize))
   const safePage = Math.min(currentPage, totalPages)
 
   const startIndex = (safePage - 1) * pageSize
   const endIndex = Math.min(startIndex + pageSize, totalUsers)
-  const paginatedUsers = items.slice(startIndex, endIndex)
-
-  const goToPage = (page) => {
-    if (page < 1 || page > totalPages) return
-    setCurrentPage(page)
-  }
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex)
 
   const [userToDelete, setUserToDelete] = useState(null)
   const [formData, setFormData] = useState({
@@ -54,10 +77,6 @@ export default function UserList() {
     role: 'USER',
   })
   const [formErrors, setFormErrors] = useState({})
-
-  useEffect(() => {
-    dispatch(fetchUsers())
-  }, [dispatch])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -237,13 +256,47 @@ export default function UserList() {
 
       {/* Users Table Card */}
       <div className="bg-white dark:bg-[var(--color-dark-bg-card)] rounded-2xl border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/30 shadow-xs overflow-hidden">
-        <div className="p-4 sm:p-5 border-b border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/30 flex items-center justify-between">
-          <h3 className="text-sm font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)]">
-            Registered Users Directory
-          </h3>
-          <span className="text-xs text-[var(--color-text-secondary)] font-body">
-            {totalUsers} {totalUsers === 1 ? 'account' : 'accounts'} total
-          </span>
+        <div className="p-4 sm:p-5 border-b border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <h3 className="text-sm font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)]">
+              Registered Users Directory
+            </h3>
+            <span className="text-xs text-[var(--color-text-secondary)] font-body">
+              Showing {filteredUsers.length} of {items.length} accounts
+            </span>
+          </div>
+
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full sm:w-auto">
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-secondary)] dark:text-slate-400 pointer-events-none" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  setCurrentPage(1)
+                }}
+                placeholder="Search name or email..."
+                className="w-full pl-10 pr-4 py-2 text-sm rounded-2xl border border-[var(--color-border-light)] dark:border-white/10 bg-[var(--color-bg-main)]/30 dark:bg-white/5 text-[var(--color-primary-dark)] dark:text-white placeholder:text-[var(--color-text-secondary)]/60 dark:placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-medium)]"
+              />
+            </div>
+
+            <div className="w-full sm:w-44">
+              <Dropdown
+                value={roleFilter}
+                onChange={(val) => {
+                  setRoleFilter(val)
+                  setCurrentPage(1)
+                }}
+                options={[
+                  { value: 'ALL', label: 'All Roles' },
+                  { value: 'ADMIN', label: 'Admins Only' },
+                  { value: 'CUSTOMER', label: 'Customers Only' },
+                ]}
+                ariaLabel="Filter by Role"
+              />
+            </div>
+          </div>
         </div>
 
         {isLoading ? (

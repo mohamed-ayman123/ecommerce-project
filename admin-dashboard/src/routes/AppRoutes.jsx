@@ -12,6 +12,7 @@ import OrdersPage from "@/pages/orders/OrdersPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
 import Login from "@/pages/auth/Login";
 import Products from "@/pages/products/Products";
+import Carts from "@/pages/carts/Carts";
 import NotFound from "@/pages/error/NotFound";
 
 export default function AppRoutes() {
@@ -38,30 +39,14 @@ export default function AppRoutes() {
       {/* Protected Dashboard routes (guarded by ProtectedRoute + wrapped with AppLayout) */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-
-        <Route path="/dashboard" element={<h2>dashboard</h2>} />
-        <Route path="/dashboard/products" element={<Products/>} />
-        <Route
-          path="/dashboard/products/new"
-          element={<AddProduct />}
-        />
-        <Route
-          path="/dashboard/products/:id/edit"
-          element={<EditProduct />}
-        />
-        <Route path="/dashboard/users" element={<UserList />} />
-
-        <Route
-          path="/dashboard/orders"
-          element={<OrdersPage />}
-        />
-
-        <Route path="/dashboard/carts" element={<h2>carts</h2>} />
-
-        <Route
-          path="/dashboard/settings"
-          element={<SettingsPage />}
-        />
+          <Route path="/dashboard" element={<h2>dashboard</h2>} />
+          <Route path="/dashboard/products" element={<Products />} />
+          <Route path="/dashboard/products/new" element={<AddProduct />} />
+          <Route path="/dashboard/products/:id/edit" element={<EditProduct />} />
+          <Route path="/dashboard/users" element={<UserList />} />
+          <Route path="/dashboard/orders" element={<OrdersPage />} />
+          <Route path="/dashboard/carts" element={<Carts />} />
+          <Route path="/dashboard/settings" element={<SettingsPage />} />
         </Route>
       </Route>
 

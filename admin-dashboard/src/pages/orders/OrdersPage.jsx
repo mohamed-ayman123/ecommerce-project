@@ -1,8 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Search, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
 import OrderDetailPanel from '@/components/orders/OrderDetailPanel'
 import { fetchAdminOrders } from '@/store/slices/ordersSlice'
+import { fetchProducts } from '@/store/slices/productsSlice'
+import {
+  buildStoreCatalogLookup,
+  isStoreOrder,
+  filterStoreOrder,
+} from '@/utils/storeCatalog'
 import Dropdown from '@/components/common/Dropdown'
 
 const statusStyles = {
@@ -88,11 +94,17 @@ const formatOrder = (order) => {
   }
 }
 
+const SCOPE_OPTIONS = [
+  'Nexis Tech (Electronics Only)',
+  'All Shared Orders',
+]
+
 function OrdersPage() {
   const dispatch = useDispatch()
   const { items, total, isLoading, error } = useSelector(
     (state) => state.orders,
   )
+  const products = useSelector((state) => state.products.items || [])
   const preferences = useSelector((state) => state.ui?.preferences)
   const pageSize = Number(preferences?.defaultPageSize || preferences?.itemsPerPage) || PAGE_SIZE
   const currency = preferences?.currency || 'EGP'
@@ -100,20 +112,39 @@ function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
+  const [scopeFilter, setScopeFilter] = useState('Nexis Tech (Electronics Only)')
   const [statusFilter, setStatusFilter] = useState('All statuses')
   const [paymentFilter, setPaymentFilter] = useState('All payments')
   const [methodFilter, setMethodFilter] = useState('All methods')
 
   useEffect(() => {
     dispatch(fetchAdminOrders())
-  }, [dispatch])
+    if (products.length === 0) {
+      dispatch(fetchProducts({ limit: 100 }))
+    }
+  }, [dispatch, products.length])
 
-  const orders = useMemo(
-    () => items.map(formatOrder),
-    [items],
+  // Build catalog lookup for store-level filtering
+  const storeCatalogLookup = useMemo(
+    () => buildStoreCatalogLookup(products),
+    [products]
   )
 
-  
+  // Scope orders to Nexis Tech Electronics merchandise when scopeFilter is active
+  const storeScopedOrders = useMemo(() => {
+    if (scopeFilter !== 'Nexis Tech (Electronics Only)') {
+      return items
+    }
+
+    return items
+      .filter((order) => isStoreOrder(order, storeCatalogLookup))
+      .map((order) => filterStoreOrder(order, storeCatalogLookup))
+  }, [items, scopeFilter, storeCatalogLookup])
+
+  const orders = useMemo(
+    () => storeScopedOrders.map(formatOrder),
+    [storeScopedOrders],
+  )
 
   const filteredOrders = useMemo(() => {
     const term = searchTerm.trim().toLowerCase()
@@ -177,9 +208,17 @@ function OrdersPage() {
     <div className="relative space-y-6 pb-12">
       <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--color-text-gold)]">
-            Admin · Management
-          </p>
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--color-text-gold)]">
+              Admin · Management
+            </p>
+            {scopeFilter === 'Nexis Tech (Electronics Only)' && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <Sparkles className="w-3 h-3" />
+                Nexis Tech Store Orders (Electronics Only)
+              </span>
+            )}
+          </div>
           <h1 className="mt-1 text-4xl font-black text-[var(--color-text-primary)] dark:text-[var(--color-text-light)]">
             Orders
           </h1>
@@ -190,59 +229,73 @@ function OrdersPage() {
 
         <div className="rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] px-6 py-3 shadow-sm dark:bg-[var(--color-dark-bg-main)] dark:border-[var(--color-primary-medium)]/30">
           <span className="text-2xl font-black text-[var(--color-text-primary)] dark:text-white">
-            {total || orders.length}
+            {orders.length}
           </span>
           <span className="ml-2 text-sm text-[var(--color-text-secondary)] dark:text-[var(--color-text-gold)]">
-            total orders
+            {scopeFilter === 'Nexis Tech (Electronics Only)' ? 'store orders' : 'total orders'}
           </span>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 md:flex-row">
-        <div className="relative flex-1">
+      <div className="flex flex-col gap-3 lg:flex-row flex-wrap">
+        <div className="relative flex-1 min-w-[240px]">
           <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-secondary)] dark:text-slate-400" />
           <input
             type="text"
             value={searchTerm}
             onChange={(event) => handleSearchChange(event.target.value)}
             placeholder="Search ID, customer..."
-            className="w-full rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] py-3 pl-11 pr-4 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-gold)] dark:bg-[var(--color-dark-bg-main)] dark:border-[var(--color-primary-medium)]/30 dark:placeholder:text-slate-400 dark:text-white"
+            className="w-full rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] py-3 pl-11 pr-4 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-gold)] dark:bg-[var(--color-dark-bg-main)] dark:border-[var(--color-primary-medium)]/30 dark:placeholder:text-slate-300 dark:text-white"
           />
         </div>
 
-           <Dropdown
-            value={statusFilter}
-            onChange={handleStatusChange}
-            options={STATUS_OPTIONS.map((option) => ({
-                value: option,
-                label: option,
-            }))}
-            placeholder="All statuses"
-            ariaLabel="Filter by order status"
-            />
+        <Dropdown
+          value={scopeFilter}
+          onChange={(val) => {
+            setScopeFilter(val)
+            setCurrentPage(1)
+          }}
+          options={SCOPE_OPTIONS.map((option) => ({
+            value: option,
+            label: option,
+          }))}
+          placeholder="Filter by Store Scope"
+          ariaLabel="Filter by Store Scope"
+        />
 
-           <Dropdown
-            value={paymentFilter}
-            onChange={handlePaymentChange}
-            options={PAYMENT_OPTIONS.map((option) => ({
-                value: option,
-                label: option,
-            }))}
-            placeholder="All payments"
-            ariaLabel="Filter by order payments"
-            />
+        <Dropdown
+          value={statusFilter}
+          onChange={handleStatusChange}
+          options={STATUS_OPTIONS.map((option) => ({
+            value: option,
+            label: option,
+          }))}
+          placeholder="All statuses"
+          ariaLabel="Filter by order status"
+        />
 
-            <Dropdown
-            value={methodFilter}
-            onChange={handleMethodChange}
-            options={METHODS_OPTIONS.map((option) => ({
-                value: option,
-                label: option,
-            }))}
-            placeholder="All methods"
-            ariaLabel="Filter by order methods"
-            />
-        </div>
+        <Dropdown
+          value={paymentFilter}
+          onChange={handlePaymentChange}
+          options={PAYMENT_OPTIONS.map((option) => ({
+            value: option,
+            label: option,
+          }))}
+          placeholder="All payments"
+          ariaLabel="Filter by order payments"
+        />
+
+        <Dropdown
+          value={methodFilter}
+          onChange={handleMethodChange}
+          options={METHODS_OPTIONS.map((option) => ({
+            value: option,
+            label: option,
+          }))}
+          placeholder="All methods"
+          ariaLabel="Filter by order methods"
+        />
+      </div>
 
       {isLoading && (
         <div className="rounded-2xl bg-[var(--color-bg-card)] dark:bg-[var(--color-dark-bg-card)] px-6 py-12 text-center text-sm text-[var(--color-text-secondary)] dark:text-slate-400 shadow-sm border border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/30">
