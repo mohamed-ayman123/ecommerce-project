@@ -18,3 +18,8 @@ export const logoutAdmin = async () => {
     localStorage.removeItem('user')
   }
 }
+
+export const changeUserRole = async (userId, role = 'admin') => {
+  const response = await api.patch('/auth/change-role', { userId, role })
+  return response.data
+}

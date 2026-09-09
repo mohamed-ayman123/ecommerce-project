@@ -5,8 +5,7 @@ import { Mail, Lock, Eye, EyeOff, Sparkles, ShieldCheck, CheckCircle2 } from 'lu
 import { toast } from 'react-toastify'
 import Logo from '@/components/common/Logo'
 import Button from '@/components/common/Button'
-import { loginAdmin } from '@/api/auth'
-import { loginStart, loginSuccess, loginFailure } from '@/store/slices/authSlice'
+import { loginUser, loginSuccess } from '@/store/slices/authSlice'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -18,18 +17,24 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const { isAuthenticated, isLoading } = useSelector((state) => state.auth)
+  const { isAuthenticated, isLoading, user } = useSelector((state) => state.auth)
   const defaultLanding = useSelector(
     (state) => state.ui?.preferences?.defaultLanding || '/dashboard'
   )
 
-  // Redirect if already authenticated
+  const userRole = (user?.role || '').toLowerCase()
+  const isAdmin = !user?.role || userRole === 'admin'
+
+  // Redirect if already authenticated as an admin
   useEffect(() => {
-    if (isAuthenticated) {
-      const redirectPath = location.state?.from?.pathname || defaultLanding
+    if (isAuthenticated && isAdmin) {
+      let redirectPath = location.state?.from?.pathname || defaultLanding
+      if (redirectPath === '/' || redirectPath === '/login') {
+        redirectPath = defaultLanding
+      }
       navigate(redirectPath, { replace: true })
     }
-  }, [isAuthenticated, navigate, location, defaultLanding])
+  }, [isAuthenticated, isAdmin, navigate, location, defaultLanding])
 
   // Fill default test credentials
   const handleQuickFill = () => {
@@ -53,31 +58,17 @@ export default function Login() {
       return
     }
 
-    dispatch(loginStart())
-
     try {
-      const response = await loginAdmin({
-        email: cleanEmail,
-        password: cleanPassword,
-      })
+      const response = await dispatch(
+        loginUser({
+          email: cleanEmail,
+          password: cleanPassword,
+        })
+      ).unwrap()
 
-      if (response && response.token) {
-        dispatch(
-          loginSuccess({
-            token: response.token,
-            user: response.user || {
-              email: cleanEmail,
-              role: 'admin',
-              username: 'Nexis Admin',
-            },
-          })
-        )
-        toast.success(response.message || 'Logged in successfully!')
-        const destination = location.state?.from?.pathname || defaultLanding
-        navigate(destination, { replace: true })
-      } else {
-        throw new Error(response?.message || 'Authentication failed. Please check credentials.')
-      }
+      toast.success(response?.message || 'Logged in successfully!')
+      const destination = location.state?.from?.pathname || defaultLanding
+      navigate(destination, { replace: true })
     } catch (error) {
       // Graceful demo fallback: If external API server is down or unreachable, allow demo login
       if (
@@ -104,12 +95,13 @@ export default function Login() {
       }
 
       const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        'Failed to sign in. Please verify your credentials.'
+        typeof error === 'string'
+          ? error
+          : error?.response?.data?.message ||
+            error?.message ||
+            'Failed to sign in. Please verify your credentials.'
 
       setFormError(errorMessage)
-      dispatch(loginFailure(errorMessage))
       toast.error(errorMessage)
     }
   }

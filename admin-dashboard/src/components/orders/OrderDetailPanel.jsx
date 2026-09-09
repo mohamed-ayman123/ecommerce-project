@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { X } from 'lucide-react'
 import { toast } from 'react-toastify'
-import { updateOrderStatus } from '@/api/orders'
+import { changeOrderStatus } from '@/store/slices/ordersSlice'
 import Dropdown from '@/components/common/Dropdown'
 import Button from '@/components/common/Button'
 
@@ -14,6 +15,7 @@ const STATUS_OPTIONS = [
 ]
 
 function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
+  const dispatch = useDispatch()
   const [prevOrder, setPrevOrder] = useState(order)
   const [status, setStatus] = useState(order?.status || 'Pending')
   const [note, setNote] = useState('')
@@ -48,17 +50,18 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
     try {
       setIsSaving(true)
 
-      const updatedOrder = await updateOrderStatus(orderId, {
-        status,
-        note,
-      })
+      const result = await dispatch(
+        changeOrderStatus({ id: orderId, statusData: { status, note } })
+      ).unwrap()
 
       toast.success('Order status updated successfully')
-      onUpdated?.(updatedOrder)
+      onUpdated?.(result.data?.order || result.data)
       onClose?.()
     } catch (error) {
       toast.error(
-        error.response?.data?.message || 'Failed to update order status',
+        typeof error === 'string'
+          ? error
+          : error?.message || 'Failed to update order status'
       )
     } finally {
       setIsSaving(false)

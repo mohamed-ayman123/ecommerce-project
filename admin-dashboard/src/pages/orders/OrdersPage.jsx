@@ -2,12 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Search, ChevronLeft, ChevronRight } from 'lucide-react'
 import OrderDetailPanel from '@/components/orders/OrderDetailPanel'
-import { getAdminOrders } from '@/api/orders'
-import {
-  setOrdersLoading,
-  setOrders,
-  setOrdersError,
-} from '@/store/slices/ordersSlice'
+import { fetchAdminOrders } from '@/store/slices/ordersSlice'
 import Dropdown from '@/components/common/Dropdown'
 
 const statusStyles = {
@@ -110,21 +105,7 @@ function OrdersPage() {
   const [methodFilter, setMethodFilter] = useState('All methods')
 
   useEffect(() => {
-    const loadOrders = async () => {
-      try {
-        dispatch(setOrdersLoading(true))
-        const data = await getAdminOrders()
-        dispatch(setOrders(data))
-      } catch (err) {
-        dispatch(
-          setOrdersError(
-            err.response?.data?.message || 'Failed to load orders',
-          ),
-        )
-      }
-    }
-
-    loadOrders()
+    dispatch(fetchAdminOrders())
   }, [dispatch])
 
   const orders = useMemo(

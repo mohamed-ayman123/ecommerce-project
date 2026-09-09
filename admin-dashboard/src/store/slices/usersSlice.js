@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { getAllUsers, addUser, deleteUser } from '@/api/users'
+import { changeUserRole } from '@/api/auth'
 
 // Async Thunks
 export const fetchUsers = createAsyncThunk(
@@ -41,6 +42,20 @@ export const removeUser = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to delete user'
+      )
+    }
+  }
+)
+
+export const updateUserRole = createAsyncThunk(
+  'users/updateUserRole',
+  async ({ userId, role }, { rejectWithValue }) => {
+    try {
+      const data = await changeUserRole(userId, role)
+      return { userId, role, data }
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || err.message || 'Failed to update user role'
       )
     }
   }
@@ -114,6 +129,30 @@ const usersSlice = createSlice({
         state.total = Math.max(0, state.total - 1)
       })
       .addCase(removeUser.rejected, (state, action) => {
+        state.isActionLoading = false
+        state.error = action.payload
+      })
+
+      // updateUserRole
+      .addCase(updateUserRole.pending, (state) => {
+        state.isActionLoading = true
+      })
+      .addCase(updateUserRole.fulfilled, (state, action) => {
+        state.isActionLoading = false
+        const { userId, role, data } = action.payload
+        const updatedUser = data?.user || data
+        const idx = state.items.findIndex(
+          (u) => (u._id || u.id) === userId
+        )
+        if (idx !== -1) {
+          state.items[idx] = {
+            ...state.items[idx],
+            ...(typeof updatedUser === 'object' ? updatedUser : {}),
+            role: role || state.items[idx].role,
+          }
+        }
+      })
+      .addCase(updateUserRole.rejected, (state, action) => {
         state.isActionLoading = false
         state.error = action.payload
       })

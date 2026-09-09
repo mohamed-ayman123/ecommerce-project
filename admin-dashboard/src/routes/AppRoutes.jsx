@@ -12,14 +12,24 @@ import OrdersPage from "@/pages/orders/OrdersPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
 import Login from "@/pages/auth/Login";
 import Products from "@/pages/products/Products";
+import NotFound from "@/pages/error/NotFound";
 
 export default function AppRoutes() {
+  const { isAuthenticated } = useSelector((state) => state.auth);
   const defaultLanding = useSelector(
     (state) => state.ui?.preferences?.defaultLanding || "/dashboard"
   );
 
   return (
     <Routes>
+      {/* Public Landing / Root route */}
+      <Route
+        path="/"
+        element={
+          <Navigate to={isAuthenticated ? defaultLanding : "/login"} replace />
+        }
+      />
+
       {/* Auth routes (clean layout for login/auth) */}
       <Route element={<AuthLayout />}>
         <Route path="/login" element={<Login />} />
@@ -28,10 +38,6 @@ export default function AppRoutes() {
       {/* Protected Dashboard routes (guarded by ProtectedRoute + wrapped with AppLayout) */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route
-            path="/"
-            element={<Navigate to={defaultLanding} replace />}
-          />
 
         <Route path="/dashboard" element={<h2>dashboard</h2>} />
         <Route path="/dashboard/products" element={<Products/>} />
@@ -59,11 +65,8 @@ export default function AppRoutes() {
         </Route>
       </Route>
 
-      {/* Fallback */}
-      <Route
-        path="*"
-        element={<Navigate to="/dashboard" replace />}
-      />
+      {/* 404 Fallback */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
