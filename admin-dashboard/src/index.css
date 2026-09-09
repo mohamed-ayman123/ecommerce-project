@@ -11,6 +11,7 @@
      No more bg-[var(--color-x)] needed anywhere. */
   --color-primary-dark: #2F4842;
   --color-primary-medium: #44635B;
+  --color-accent-gold: #DDA136;
   --color-accent-gold-hover: #C58C2B;
 
   --color-bg-main: #E1E8E6;

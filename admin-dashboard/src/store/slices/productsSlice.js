@@ -6,13 +6,14 @@ import {
   updateProduct,
   deleteProduct,
 } from '@/api/products'
+import { isElectronicsOrHardwareProduct } from '@/constants/categories'
 
 // Async Thunks - Service Layer via Redux
 export const fetchProducts = createAsyncThunk(
   'products/fetchProducts',
-  async (params, { rejectWithValue }) => {
+  async (params = {}, { rejectWithValue }) => {
     try {
-      const data = await getProducts(params)
+      const data = await getProducts({ limit: 100, ...params })
       return data
     } catch (err) {
       return rejectWithValue(
@@ -43,10 +44,23 @@ export const addNewProduct = createAsyncThunk(
       const data = await createProduct(formData)
       return data
     } catch (err) {
-      const errorMsg =
-        err.response?.data?.errors?.join(', ') ||
-        err.response?.data?.message ||
-        'Failed to create product'
+      const data = err.response?.data
+      let errorMsg = 'Failed to create product'
+      if (Array.isArray(data?.errors) && data.errors.length > 0) {
+        errorMsg = data.errors.join(', ')
+      } else if (data?.message) {
+        if (data.message.includes('E11000') && data.message.includes('sku')) {
+          errorMsg = 'A product with this SKU already exists. Please enter a unique SKU.'
+        } else if (data.message.includes('E11000') && data.message.includes('name')) {
+          errorMsg = 'A product with this name already exists. Please choose a unique name.'
+        } else {
+          errorMsg = data.message
+        }
+      } else if (data?.error) {
+        errorMsg = data.error
+      } else if (err.message) {
+        errorMsg = err.message
+      }
       return rejectWithValue(errorMsg)
     }
   }
@@ -59,10 +73,21 @@ export const updateExistingProduct = createAsyncThunk(
       const data = await updateProduct(id, formData)
       return data
     } catch (err) {
-      const errorMsg =
-        err.response?.data?.errors?.join(', ') ||
-        err.response?.data?.message ||
-        'Failed to update product'
+      const data = err.response?.data
+      let errorMsg = 'Failed to update product'
+      if (Array.isArray(data?.errors) && data.errors.length > 0) {
+        errorMsg = data.errors.join(', ')
+      } else if (data?.message) {
+        if (data.message.includes('E11000') && data.message.includes('sku')) {
+          errorMsg = 'A product with this SKU already exists. Please enter a unique SKU.'
+        } else {
+          errorMsg = data.message
+        }
+      } else if (data?.error) {
+        errorMsg = data.error
+      } else if (err.message) {
+        errorMsg = err.message
+      }
       return rejectWithValue(errorMsg)
     }
   }
@@ -125,10 +150,17 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
         state.isLoading = false
-        state.items = action.payload.products || []
-        state.total = action.payload.total || action.payload.totalProducts || 0
-        state.page = action.payload.currentPage || 1
-        state.totalPages = action.payload.totalPages || 1
+        const payload = action.payload || {}
+        const rawItems =
+          payload.products ||
+          payload.data ||
+          (Array.isArray(payload) ? payload : [])
+
+        // Strict category filter: Electronics & Hardware products ONLY
+        state.items = rawItems.filter(isElectronicsOrHardwareProduct)
+        state.total = state.items.length
+        state.page = payload.currentPage || payload.page || 1
+        state.totalPages = payload.totalPages || 1
       })
       .addCase(fetchProducts.rejected, (state, action) => {
         state.isLoading = false
@@ -142,7 +174,7 @@ const productsSlice = createSlice({
       })
       .addCase(fetchProductById.fulfilled, (state, action) => {
         state.isLoading = false
-        state.selectedProduct = action.payload
+        state.selectedProduct = action.payload?.product || action.payload
       })
       .addCase(fetchProductById.rejected, (state, action) => {
         state.isLoading = false
@@ -156,8 +188,12 @@ const productsSlice = createSlice({
       })
       .addCase(addNewProduct.fulfilled, (state, action) => {
         state.isLoading = false
-        const created = action.payload.product || action.payload
-        if (created) {
+        const created = action.payload?.product || action.payload
+        if (
+          created &&
+          (created._id || created.id) &&
+          isElectronicsOrHardwareProduct(created)
+        ) {
           state.items.unshift(created)
           state.total += 1
         }
@@ -174,13 +210,21 @@ const productsSlice = createSlice({
       })
       .addCase(updateExistingProduct.fulfilled, (state, action) => {
         state.isLoading = false
-        const updated = action.payload.product || action.payload
-        const idx = state.items.findIndex((p) => p._id === updated?._id)
-        if (idx !== -1) {
-          state.items[idx] = updated
-        }
-        if (state.selectedProduct?._id === updated?._id) {
-          state.selectedProduct = updated
+        const updated = action.payload?.product || action.payload
+        if (updated) {
+          const updatedId = updated._id || updated.id
+          const idx = state.items.findIndex(
+            (p) => (p._id || p.id) === updatedId
+          )
+          if (idx !== -1) {
+            state.items[idx] = updated
+          }
+          if (
+            state.selectedProduct &&
+            (state.selectedProduct._id || state.selectedProduct.id) === updatedId
+          ) {
+            state.selectedProduct = updated
+          }
         }
       })
       .addCase(updateExistingProduct.rejected, (state, action) => {
@@ -195,7 +239,10 @@ const productsSlice = createSlice({
       })
       .addCase(deleteProductById.fulfilled, (state, action) => {
         state.isLoading = false
-        state.items = state.items.filter((p) => p._id !== action.payload.id)
+        const deletedId = action.payload.id
+        state.items = state.items.filter(
+          (p) => (p._id || p.id) !== deletedId
+        )
         state.total = Math.max(0, state.total - 1)
       })
       .addCase(deleteProductById.rejected, (state, action) => {

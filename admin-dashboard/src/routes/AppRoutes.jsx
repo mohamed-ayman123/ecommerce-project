@@ -11,7 +11,7 @@ import UserList from "@/pages/users/UserList";
 import OrdersPage from "@/pages/orders/OrdersPage";
 import SettingsPage from "@/pages/settings/SettingsPage";
 import Login from "@/pages/auth/Login";
-import Products from "../pages/products/Products";
+import Products from "@/pages/products/Products";
 
 export default function AppRoutes() {
   const defaultLanding = useSelector(

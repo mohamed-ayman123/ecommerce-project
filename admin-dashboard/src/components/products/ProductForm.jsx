@@ -88,22 +88,94 @@ export default function ProductForm({
     }))
   }
 
+  // Client-side image compression to prevent Vercel 4.5MB payload edge rejections
+  const compressImageFile = async (file) => {
+    if (!file || !file.type.startsWith('image/')) return file
+    if (file.size <= 500 * 1024) return file
+
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const img = new Image()
+        img.onload = () => {
+          const maxWidth = 1600
+          const maxHeight = 1600
+          let width = img.width
+          let height = img.height
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width)
+              width = maxWidth
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height)
+              height = maxHeight
+            }
+          }
+
+          const canvas = document.createElement('canvas')
+          canvas.width = width
+          canvas.height = height
+
+          const ctx = canvas.getContext('2d')
+          ctx.drawImage(img, 0, 0, width, height)
+
+          canvas.toBlob(
+            (blob) => {
+              if (!blob || blob.size >= file.size) {
+                resolve(file)
+              } else {
+                const compressedFile = new File(
+                  [blob],
+                  file.name.replace(/\.[^/.]+$/, '.jpg'),
+                  {
+                    type: 'image/jpeg',
+                    lastModified: Date.now(),
+                  }
+                )
+                resolve(compressedFile)
+              }
+            },
+            'image/jpeg',
+            0.85
+          )
+        }
+        img.onerror = () => resolve(file)
+        img.src = e.target.result
+      }
+      reader.onerror = () => resolve(file)
+      reader.readAsDataURL(file)
+    })
+  }
+
   // Handle Multi-Image Upload
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     const files = Array.from(e.target.files || [])
     if (!files.length) return
 
     const totalAllowed = 5 - (existingImages.length + images.length)
     if (totalAllowed <= 0) return
 
-    const newImages = files.slice(0, totalAllowed).map((file) => ({
-      file,
-      previewUrl: URL.createObjectURL(file),
-    }))
+    const selectedFiles = files.slice(0, totalAllowed)
+    const processedImages = await Promise.all(
+      selectedFiles.map(async (file) => {
+        const processedFile = await compressImageFile(file)
+        return {
+          file: processedFile,
+          previewUrl: URL.createObjectURL(processedFile),
+        }
+      })
+    )
 
-    setImages((prev) => [...prev, ...newImages])
+    setImages((prev) => [...prev, ...processedImages])
     if (errors.images) {
       setErrors((prev) => ({ ...prev, images: null }))
+    }
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
     }
   }
 
@@ -152,6 +224,15 @@ export default function ProductForm({
     // At least one image required across existing or new
     if (images.length === 0 && existingImages.length === 0) {
       errs.images = 'Please provide at least one product image'
+    } else {
+      const totalBytes = images.reduce(
+        (sum, img) => sum + (img.file?.size || 0),
+        0
+      )
+      if (totalBytes > 4 * 1024 * 1024) {
+        errs.images =
+          'Total uploaded images exceed 4MB limit. Please upload fewer or smaller images.'
+      }
     }
 
     setErrors(errs)

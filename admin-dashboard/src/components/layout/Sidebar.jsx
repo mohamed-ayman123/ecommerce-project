@@ -107,51 +107,49 @@ function SideBar() {
       )}
 
       {/* Sidebar Container */}
-   <aside
-  className={`fixed inset-y-0 left-0 z-50 flex h-screen w-72 shrink-0 flex-col bg-[var(--color-primary-dark)] py-5 shadow-xl transition-transform duration-300 ease-in-out ${
-    isMobileSidebarOpen
-      ? "translate-x-0"
-      : "-translate-x-full"
-  } md:translate-x-0`}
->
-  {/* Header */}
-  <div className="mx-5 mb-8 flex items-center justify-between">
-    <div>
-      <p className="text-xs uppercase tracking-[0.4em] text-[var(--color-text-gold)]">
-        Commerce
-      </p>
-
-      <h1 className="mt-2 text-xl font-bold text-[var(--color-text-light)]">
-        Admin Panel
-      </h1>
-    </div>
-
-    {/* Close button for mobile drawer */}
-    <button
-      type="button"
-      aria-label="Close sidebar"
-      onClick={() => dispatch(closeMobileSidebar())}
-      className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-300 hover:bg-[var(--color-primary-medium)] hover:text-white md:hidden"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-72 flex-shrink-0 flex-col bg-[var(--color-primary-dark)] py-5 shadow-xl transition-transform duration-300 ease-in-out md:sticky md:top-0 md:h-screen md:translate-x-0 ${
+          isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
-        <line x1="18" y1="6" x2="6" y2="18" />
-        <line x1="6" y1="6" x2="18" y2="18" />
-      </svg>
-    </button>
-  </div>
+        {/* Header */}
+        <div className="mx-5 mb-8 flex items-center justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.4em] text-[var(--color-text-gold)]">
+              Commerce
+            </p>
 
-  {/* Navigation Items */}
-  <nav className="flex flex-1 flex-col gap-1  px-3 md:ml-5 md:px-0">
+            <h1 className="mt-2 text-xl font-bold text-[var(--color-text-light)]">
+              Admin Panel
+            </h1>
+          </div>
+
+          {/* Close button for mobile drawer */}
+          <button
+            type="button"
+            aria-label="Close sidebar"
+            onClick={() => dispatch(closeMobileSidebar())}
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-300 hover:bg-[var(--color-primary-medium)] hover:text-white md:hidden"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Navigation Items */}
+        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-3 md:ml-5 md:px-0">
     {navItems.map((item) => (
       <NavLink
         key={item.to}
