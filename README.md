@@ -26,6 +26,7 @@ ecommerce-project/
 │   │   │   ├── products/  # ProductCard, ProductForm, ProductDetails, ProductQuickEditModal
 │   │   │   ├── orders/    # OrderDetailPanel, OrderStatusModal, etc.
 │   │   │   └── carts/     # CartCard, CartStats, CartDetailModal, CartItemRow, CartFilters
+│   │   ├── constants/     # Allowed categories, subcategories & catalog validation rules
 │   │   ├── pages/         # Application page views
 │   │   │   ├── auth/      # Login.jsx (with instant demo credentials fill)
 │   │   │   ├── dashboard/ # DashboardOverview.jsx (Executive real-time metrics & feeds)
@@ -37,6 +38,7 @@ ecommerce-project/
 │   │   │   └── error/     # NotFound.jsx (404 error page)
 │   │   ├── routes/        # AppRoutes.jsx, ProtectedRoute.jsx
 │   │   ├── store/         # Redux Toolkit store & slices (auth, products, orders, carts, users, dashboard, ui)
+│   │   ├── utils/         # Store catalog isolation helpers (order/cart filtering, fast Set lookups)
 │   │   ├── index.css      # Tailwind v4 theme, Nexis Tech design tokens & fonts
 │   │   └── main.jsx       # App entry (Redux Provider, BrowserRouter, ToastContainer)
 │   └── vite.config.js     # Port 5174, @ alias, Tailwind v4
@@ -161,6 +163,23 @@ Both projects are wired to centralized Redux Toolkit stores wrapped at the entry
 - **`usersSlice`**: Complete user directory, administrator vs customer role toggles, search, and pagination.
 - **`uiSlice`**: Responsive sidebar state (desktop collapse & mobile drawer), dark/light theme persistence, and user preferences (`currency`, `defaultLanding`, `defaultPageSize`, `toastPosition`, `toastDuration`).
 - **`authSlice`**: Admin JWT token management, automatic `localStorage` synchronization, role validation, and offline demo fallback.
+
+---
+
+## Business Logic, Utilities & Catalog Constants
+
+Because the application communicates with a shared training backend hosting multiple projects, dedicated constants and high-performance utilities ensure **strict store isolation** and **data integrity**:
+
+### 1. Catalog Scope & Constants (`src/constants/categories.js`)
+- **`ALLOWED_CATEGORIES`**: Strictly limited to `['electronics', 'hardware']`.
+- **`ALLOWED_SUBCATEGORIES`**: `laptops`, `smartphones`, `tablets`, `audio`, `gaming`, `wearables`, `cameras`, `accessories`.
+- **`isElectronicsOrHardwareProduct(product)`**: Validates incoming products against official categories, subcategories, and tags to prevent cross-contamination from non-electronics records.
+
+### 2. Store Catalog Isolation Utilities (`src/utils/storeCatalog.js`)
+- **`buildStoreCatalogLookup(reduxProducts)`**: Generates high-performance `Set` lookups (`ids`, `names`) derived directly from live products in Redux state (`state.products.items`).
+- **`isStoreItem(item, lookup)`**: Validates whether a line item belongs to Nexis Tech's electronics catalog.
+- **`isStoreOrder(order, lookup)` & `filterStoreOrder(order, lookup)`**: Filters platform orders to isolate Nexis Tech items, recalculating store subtotal, taxes, shipping fees, and accurate gross/net revenue.
+- **`isStoreCart(cart, lookup)` & `filterStoreCart(cart, lookup)`**: Filters active carts to calculate accurate abandoned cart values specifically for Nexis Tech merchandise.
 
 ---
 
