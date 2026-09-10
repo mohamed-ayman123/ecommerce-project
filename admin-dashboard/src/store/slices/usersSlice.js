@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit'
 import { getAllUsers, addUser, deleteUser } from '@/api/users'
 import { changeUserRole } from '@/api/auth'
 
@@ -160,4 +160,32 @@ const usersSlice = createSlice({
 })
 
 export const { clearUserError } = usersSlice.actions
+
+// ==========================================
+// User Domain Selectors
+// ==========================================
+
+/**
+ * User Directory & Customer Demographics Selector
+ * Computes total users, customer count, and admin count.
+ */
+export const selectUserStats = createSelector(
+  [
+    (state) => state.users?.items || [],
+    (state) => Boolean(state.users?.isLoading),
+  ],
+  (users, isLoading) => {
+    const totalUsers = users.length
+    const totalCustomers = users.filter((u) => u.role !== 'admin').length
+    const totalAdmins = users.filter((u) => u.role === 'admin').length
+
+    return {
+      totalUsers,
+      totalCustomers,
+      totalAdmins,
+      isUsersLoading: isLoading,
+    }
+  }
+)
+
 export default usersSlice.reducer

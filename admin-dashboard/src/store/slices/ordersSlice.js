@@ -1,10 +1,14 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit'
 import {
   getAdminOrders,
   getAdminOrderById,
   updateOrderStatus,
-  getDashboardStats,
 } from '@/api/orders'
+import {
+  buildStoreCatalogLookup,
+  isStoreOrder,
+  filterStoreOrder,
+} from '@/utils/storeCatalog'
 
 // Async Thunks
 export const fetchAdminOrders = createAsyncThunk(
@@ -49,19 +53,6 @@ export const changeOrderStatus = createAsyncThunk(
   }
 )
 
-export const fetchDashboardStats = createAsyncThunk(
-  'orders/fetchDashboardStats',
-  async (_, { rejectWithValue }) => {
-    try {
-      const data = await getDashboardStats()
-      return data
-    } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || err.message || 'Failed to fetch dashboard stats'
-      )
-    }
-  }
-)
 
 const initialState = {
   items: [],
@@ -69,7 +60,6 @@ const initialState = {
   page: 1,
   totalPages: 1,
   selectedOrder: null,
-  dashboardStats: null,
   filters: {
     status: '',
     paymentStatus: '',
@@ -168,11 +158,6 @@ const ordersSlice = createSlice({
           }
         }
       })
-
-      // fetchDashboardStats
-      .addCase(fetchDashboardStats.fulfilled, (state, action) => {
-        state.dashboardStats = action.payload
-      })
   },
 })
 
@@ -184,5 +169,144 @@ export const {
   clearOrderFilters,
   setOrdersError,
 } = ordersSlice.actions
+
+// ==========================================
+// Order Domain Selectors
+// ==========================================
+
+/**
+ * Nexis Tech Store Orders & Revenue Statistics Selector
+ * Pure domain-level selector calculating real electronics orders, statuses, revenues, and top products.
+ */
+export const selectStoreOrderStats = createSelector(
+  [
+    (state) => state.orders?.items || [],
+    (state) => state.products?.items || [],
+    (state) => Boolean(state.orders?.isLoading),
+  ],
+  (orders, products, isLoading) => {
+    const lookup = buildStoreCatalogLookup(products)
+
+    // Filter orders to Nexis Tech Electronics & recalculate accurate prices
+    const storeOrders = orders
+      .filter((order) => isStoreOrder(order, lookup))
+      .map((order) => filterStoreOrder(order, lookup))
+
+    const statusCounts = {
+      pending: 0,
+      processing: 0,
+      confirmed: 0,
+      shipped: 0,
+      delivered: 0,
+      cancelled: 0,
+      returned: 0,
+    }
+
+    let totalRevenue = 0
+    let deliveredRevenue = 0
+    let thisMonthRevenue = 0
+
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentMonth = now.getMonth()
+
+    const productSalesMap = new Map()
+
+    storeOrders.forEach((order) => {
+      const rawStatus = (order.status || 'pending').toLowerCase()
+      if (Object.prototype.hasOwnProperty.call(statusCounts, rawStatus)) {
+        statusCounts[rawStatus] += 1
+      } else {
+        statusCounts[rawStatus] = 1
+      }
+
+      const orderTotal = Number(order.totalPrice || order.total) || 0
+      const isCancelled = rawStatus === 'cancelled' || rawStatus === 'returned'
+
+      // Delivered revenue = actual realized revenue
+      if (rawStatus === 'delivered') {
+        deliveredRevenue += orderTotal
+      }
+
+      // Gross revenue from valid orders (excluding cancelled / returned)
+      if (!isCancelled) {
+        totalRevenue += orderTotal
+
+        // Check if created within current month
+        if (order.createdAt) {
+          const orderDate = new Date(order.createdAt)
+          if (
+            !Number.isNaN(orderDate.getTime()) &&
+            orderDate.getFullYear() === currentYear &&
+            orderDate.getMonth() === currentMonth
+          ) {
+            thisMonthRevenue += orderTotal
+          }
+        }
+      }
+
+      // Aggregate item sales for top products ranking
+      if (!isCancelled && Array.isArray(order.items)) {
+        order.items.forEach((item) => {
+          const prodId = String(item.product?._id || item.product || item.name || '')
+          const prodName = item.name || item.title || 'Electronics Product'
+          const prodImage = item.image || item.product?.image || ''
+          const qty = Number(item.quantity) || 1
+          const itemRev = (Number(item.price) || 0) * qty
+
+          if (!productSalesMap.has(prodId)) {
+            productSalesMap.set(prodId, {
+              _id: prodId,
+              name: prodName,
+              image: prodImage,
+              totalSold: 0,
+              revenue: 0,
+            })
+          }
+
+          const existing = productSalesMap.get(prodId)
+          existing.totalSold += qty
+          existing.revenue += itemRev
+          if (!existing.image && prodImage) {
+            existing.image = prodImage
+          }
+        })
+      }
+    })
+
+    // Sort and rank top 10 best-selling electronics
+    const topProducts = Array.from(productSalesMap.values())
+      .sort((a, b) => b.totalSold - a.totalSold || b.revenue - a.revenue)
+      .slice(0, 10)
+
+    // Sort recent orders (newest first)
+    const recentOrders = [...storeOrders]
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+      .slice(0, 5)
+
+    return {
+      totalOrders: storeOrders.length,
+      pendingOrders: statusCounts.pending,
+      processingOrders: statusCounts.processing,
+      confirmedOrders: statusCounts.confirmed,
+      shippedOrders: statusCounts.shipped,
+      deliveredOrders: statusCounts.delivered,
+      cancelledOrders: statusCounts.cancelled,
+      returnedOrders: statusCounts.returned,
+      statusCounts,
+      ordersByStatus: Object.entries(statusCounts).map(([status, count]) => ({
+        _id: status,
+        count,
+      })),
+      totalRevenue: Number(totalRevenue.toFixed(2)),
+      deliveredRevenue: Number(deliveredRevenue.toFixed(2)),
+      thisMonthRevenue: Number(thisMonthRevenue.toFixed(2)),
+      topProduct: topProducts[0] || { name: '—', totalSold: 0, revenue: 0 },
+      topProducts,
+      recentOrders,
+      isOrdersLoading: isLoading,
+    }
+  }
+)
 
 export default ordersSlice.reducer

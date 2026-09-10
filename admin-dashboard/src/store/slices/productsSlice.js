@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit'
 import {
   getProducts,
   getProductById,
@@ -258,5 +258,36 @@ export const {
   clearProductFilters,
   clearProductsError,
 } = productsSlice.actions
+
+// ==========================================
+// Product Domain Selectors
+// ==========================================
+
+/**
+ * Product Catalog & Inventory Statistics Selector
+ * Computes catalog totals, in-stock count, and out-of-stock count.
+ */
+export const selectProductStats = createSelector(
+  [
+    (state) => state.products?.items || [],
+    (state) => Boolean(state.products?.isLoading),
+  ],
+  (products, isLoading) => {
+    const totalProducts = products.length
+    const inStockProducts = products.filter(
+      (p) => (Number(p.stock) || Number(p.quantity) || 0) > 0
+    ).length
+    const outOfStockProducts = products.filter(
+      (p) => (Number(p.stock) || Number(p.quantity) || 0) <= 0
+    ).length
+
+    return {
+      totalProducts,
+      inStockProducts,
+      outOfStockProducts,
+      isProductsLoading: isLoading,
+    }
+  }
+)
 
 export default productsSlice.reducer

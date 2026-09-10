@@ -1,5 +1,10 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit'
 import { getAdminActiveCarts } from '@/api/carts'
+import {
+  buildStoreCatalogLookup,
+  isStoreCart,
+  filterStoreCart,
+} from '@/utils/storeCatalog'
 
 // Async Thunks
 export const fetchAdminCarts = createAsyncThunk(
@@ -85,5 +90,50 @@ export const {
   setSelectedCart,
   clearCartError,
 } = cartsSlice.actions
+
+// ==========================================
+// Cart Domain Selectors
+// ==========================================
+
+/**
+ * Nexis Tech Store Cart Statistics Selector
+ * Computes active carts, pipeline revenue, and item metrics for store-isolated sessions.
+ */
+export const selectStoreCartStats = createSelector(
+  [
+    (state) => state.carts?.items || [],
+    (state) => state.products?.items || [],
+    (state) => Boolean(state.carts?.isLoading),
+  ],
+  (carts, products, isLoading) => {
+    const lookup = buildStoreCatalogLookup(products)
+
+    const storeCarts = carts
+      .filter((cart) => isStoreCart(cart, lookup))
+      .map((cart) => filterStoreCart(cart, lookup))
+
+    const activeCarts = storeCarts.length
+    const pipelineRevenue = storeCarts.reduce(
+      (sum, cart) => sum + (Number(cart.subtotal) || 0),
+      0
+    )
+    const totalItemsCount = storeCarts.reduce(
+      (sum, cart) => sum + (Number(cart.itemCount) || cart.items?.length || 0),
+      0
+    )
+    const avgValue =
+      activeCarts > 0 ? (pipelineRevenue / activeCarts).toFixed(2) : '0.00'
+
+    return {
+      activeCarts,
+      totalActive: activeCarts,
+      pipelineRevenue: Number(pipelineRevenue.toFixed(2)),
+      totalPipelineValue: Number(pipelineRevenue.toFixed(2)),
+      totalItemsCount,
+      avgValue,
+      isCartsLoading: isLoading,
+    }
+  }
+)
 
 export default cartsSlice.reducer
