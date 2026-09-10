@@ -16,6 +16,16 @@ const STATUS_OPTIONS = [
   'Returned',
 ]
 
+const STATUS_STYLES = {
+  pending: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border-amber-200/50',
+  confirmed: 'bg-sky-50 text-sky-600 dark:bg-sky-950/40 dark:text-sky-400 border-sky-200/50',
+  processing: 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400 border-violet-200/50',
+  shipped: 'bg-cyan-50 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 border-cyan-200/50',
+  delivered: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200/50',
+  cancelled: 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 border-rose-200/50',
+  returned: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200/50',
+}
+
 const normalizeStatus = (s) => {
   if (!s) return 'Pending'
   const str = String(s).trim()
@@ -109,8 +119,12 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
       {/* Status and payment */}
       <div className="flex items-center justify-between border-b border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/30 px-6 py-4">
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1 rounded-full bg-[var(--color-primary-medium)]/15 px-3 py-1 text-xs font-bold text-[var(--color-primary-dark)] dark:bg-[var(--color-primary-medium)]/40 dark:text-emerald-300">
-            ● {order.status || 'Pending'}
+          <span
+            className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold border transition-colors ${
+              STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.pending
+            }`}
+          >
+            ● {normalizeStatus(status)}
           </span>
 
           <span className="rounded-full bg-[var(--color-accent-gold)]/20 px-3 py-1 text-xs font-bold uppercase text-[var(--color-text-gold)]">

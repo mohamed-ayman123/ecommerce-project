@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Search, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
 import OrderDetailPanel from '@/components/orders/OrderDetailPanel'
-import { fetchAdminOrders } from '@/store/slices/ordersSlice'
+import { fetchAdminOrders, setOrders } from '@/store/slices/ordersSlice'
 import { fetchProducts } from '@/store/slices/productsSlice'
 import {
   buildStoreCatalogLookup,
@@ -453,9 +453,12 @@ function OrdersPage() {
           currency={currency}
           onClose={() => setSelectedOrder(null)}
           onUpdated={(updated) => {
-            const newStatus = updated?.status || updated?.order?.status
+            const rawUpdated = updated?.order || updated
+            const newStatus = rawUpdated?.status
             if (newStatus && selectedOrder) {
-              setSelectedOrder((prev) => (prev ? { ...prev, status: newStatus } : null))
+              const formattedStatus =
+                String(newStatus).charAt(0).toUpperCase() + String(newStatus).slice(1).toLowerCase()
+              setSelectedOrder((prev) => (prev ? { ...prev, status: formattedStatus } : null))
               const updatedItems = items.map((item) => {
                 const id = item._id || item.id
                 const targetId = selectedOrder.originalId || selectedOrder._id || selectedOrder.id
