@@ -325,12 +325,12 @@ function OrdersPage() {
       {!isLoading && !error && (
         <div className="overflow-x-auto rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] shadow-sm dark:border-[var(--color-primary-medium)]/30 dark:bg-[var(--color-dark-bg-card)]">
           <div className="min-w-[720px]">
-            <div className="grid grid-cols-6 gap-4 bg-[var(--color-bg-main)] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] dark:bg-[var(--color-dark-bg-main)] dark:text-[var(--color-text-gold)]">
+            <div className="grid grid-cols-6 gap-4 bg-[var(--color-bg-main)] px-6 py-3.5 text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)] dark:bg-[var(--color-dark-bg-main)] dark:text-[var(--color-text-gold)] text-center">
               <span>Order</span>
               <span>Customer</span>
               <span>Date</span>
               <span>Status</span>
-              <span className="text-center">Payment</span>
+              <span>Payment</span>
               <span>Total</span>
             </div>
 
@@ -345,29 +345,38 @@ function OrdersPage() {
                 key={order.originalId || order.id}
                 type="button"
                 onClick={() => setSelectedOrder(order)}
-                className="grid w-full grid-cols-6 items-center gap-4 whitespace-nowrap border-t border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/20 px-6 py-4 text-left transition-colors hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:hover:bg-[var(--color-primary-medium)]/25 group cursor-pointer"
+                className="grid w-full grid-cols-6 items-center gap-4 whitespace-nowrap border-t border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/20 px-6 py-4 text-center transition-colors hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:hover:bg-[var(--color-primary-medium)]/25 group cursor-pointer"
               >
-                <span className="font-mono text-sm font-semibold text-[var(--color-text-gold)]">
+                {/* 1. Order ID */}
+                <span className="font-mono text-sm font-semibold text-[var(--color-text-gold)] text-center">
                   {order.id}
                 </span>
 
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-bg-input)] text-sm font-bold text-[var(--color-primary-dark)] dark:bg-[var(--color-primary-medium)]/50 dark:text-white">
-                  {order.customer}
-                </span>
+                {/* 2. Customer Avatar */}
+                <div className="flex items-center justify-center">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-bg-input)] text-sm font-bold text-[var(--color-primary-dark)] dark:bg-[var(--color-primary-medium)]/50 dark:text-white">
+                    {order.customer}
+                  </span>
+                </div>
 
-                <span className="text-sm font-medium text-[var(--color-text-secondary)] dark:text-slate-200">
+                {/* 3. Date */}
+                <span className="text-sm font-medium text-[var(--color-text-secondary)] dark:text-slate-200 text-center">
                   {order.date}
                 </span>
 
-                <span
-                  className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${
-                    statusStyles[order.status] ||
-                    'bg-[var(--color-bg-input)] text-[var(--color-text-secondary)] dark:bg-[var(--color-primary-medium)]/40 dark:text-slate-300'
-                  }`}
-                >
-                  ● {order.status}
-                </span>
+                {/* 4. Order Status */}
+                <div className="flex items-center justify-center">
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold ${
+                      statusStyles[order.status] ||
+                      'bg-[var(--color-bg-input)] text-[var(--color-text-secondary)] dark:bg-[var(--color-primary-medium)]/40 dark:text-slate-300'
+                    }`}
+                  >
+                    ● {order.status}
+                  </span>
+                </div>
 
+                {/* 5. Payment */}
                 <div className="flex flex-col items-center justify-center gap-1 text-center">
                   <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[var(--color-text-primary)] dark:text-white">
                     {renderPaymentMethodIcon(order.method)}
@@ -383,7 +392,8 @@ function OrdersPage() {
                   </span>
                 </div>
 
-                <span className="text-sm font-bold text-[var(--color-text-primary)] dark:text-white">
+                {/* 6. Total */}
+                <span className="text-sm font-bold text-[var(--color-text-primary)] dark:text-white text-center">
                   {order.total} {currency}
                 </span>
               </button>
