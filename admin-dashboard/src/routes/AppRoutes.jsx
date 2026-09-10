@@ -13,6 +13,7 @@ import SettingsPage from "@/pages/settings/SettingsPage";
 import Login from "@/pages/auth/Login";
 import Products from "@/pages/products/Products";
 import Carts from "@/pages/carts/Carts";
+import DashboardOverview from "@/pages/dashboard/DashboardOverview";
 import NotFound from "@/pages/error/NotFound";
 
 export default function AppRoutes() {
@@ -39,7 +40,7 @@ export default function AppRoutes() {
       {/* Protected Dashboard routes (guarded by ProtectedRoute + wrapped with AppLayout) */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<h2>dashboard</h2>} />
+          <Route path="/dashboard" element={<DashboardOverview />} />
           <Route path="/dashboard/products" element={<Products />} />
           <Route path="/dashboard/products/new" element={<AddProduct />} />
           <Route path="/dashboard/products/:id/edit" element={<EditProduct />} />
