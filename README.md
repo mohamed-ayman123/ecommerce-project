@@ -195,7 +195,7 @@ Both apps communicate with the SEF Academy training backend:
 
 ---
 
-## 📦 Electronics Reference Dataset
+## Electronics Reference Dataset
 A catalog of **52 realistic electronics products** (MacBooks, iPhones, Sony headphones, PS5 consoles, OLED monitors, Keychron keyboards) is available for reference and sample inputs at:
 - `shared/data/electronicsProducts.json`
 
@@ -203,7 +203,7 @@ A catalog of **52 realistic electronics products** (MacBooks, iPhones, Sony head
 
 ## Project Status & Completed Milestones
 
-### 🛡️ Admin Dashboard (`admin-dashboard`) — **100% COMPLETE & PRODUCTION-AUDITED**
+### Admin Dashboard (`admin-dashboard`) — **100% COMPLETE & PRODUCTION-AUDITED**
 - ✅ **Authentication**: Secure JWT login with validation, show/hide password, and offline demo mode.
 - ✅ **Executive Dashboard Overview**: Live 6-KPI metrics grid, interactive fulfillment status breakdown, top 5 best sellers leaderboard linking to product edit forms, latest customer orders feed, and dual-scope switcher (Store vs Platform).
 - ✅ **Product Inventory**: Full catalog view (grid & table), multi-filter search, stock badges, Cloudinary image upload forms, and quick edit modal.
@@ -219,5 +219,5 @@ A catalog of **52 realistic electronics products** (MacBooks, iPhones, Sony head
   - Production build in <200ms (`vite build`).
   - Mobile responsive from 360px up to 4K displays.
 
-### 🛍️ Customer Store (`store`) — **Next Phase**
+### Customer Store (`store`) — **Next Phase**
 - 🎯 Customer storefront development with product discovery, cart, wishlist, checkout, and order history.
