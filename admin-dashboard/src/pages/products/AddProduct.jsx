@@ -26,7 +26,7 @@ export default function AddProduct() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 pb-12">
+    <div className="max-w-7xl mx-auto space-y-6 pb-12">
       {/* Back button pill */}
       <div>
         <Link
@@ -39,30 +39,32 @@ export default function AddProduct() {
       </div>
 
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-white via-[var(--color-bg-main)]/30 to-white dark:from-[var(--color-dark-bg-card)] dark:via-[var(--color-dark-bg-main)]/40 dark:to-[var(--color-dark-bg-card)] p-6 sm:p-8 rounded-3xl border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/30 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 transition-colors">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[var(--color-primary-dark)] text-white dark:bg-[var(--color-primary-medium)] flex items-center justify-center shrink-0 shadow-sm border border-[var(--color-primary-medium)]/30">
-            <Box className="w-6 h-6 text-[var(--color-text-gold)]" />
+      <div className="bg-gradient-to-r from-white via-bg-main/30 to-white dark:from-dark-bg-card dark:via-dark-bg-main/40 dark:to-dark-bg-card p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-border-medium dark:border-primary-medium/30 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 transition-colors">
+        <div className="flex items-start sm:items-center gap-3.5 sm:gap-4 min-w-0 flex-1">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-primary-dark text-white dark:bg-primary-medium flex items-center justify-center shrink-0 shadow-sm border border-primary-medium/30">
+            <Box className="w-5 h-5 sm:w-6 sm:h-6 text-text-gold" />
           </div>
-          <div className="space-y-1.5">
-            <Badge variant="primary" size="sm">
-              NEW PRODUCT
-            </Badge>
-            <h1 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] tracking-tight">
+          <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <Badge variant="primary" size="sm">
+                NEW PRODUCT
+              </Badge>
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary-dark dark:text-text-light tracking-tight">
               Create New Product
             </h1>
-            <p className="text-xs text-[var(--color-text-secondary)] font-body">
+            <p className="text-xs text-text-secondary font-body line-clamp-2 sm:line-clamp-none">
               Add a new item with detailed specifications, pricing, inventory, and gallery assets.
             </p>
           </div>
         </div>
 
         {/* Right Status Card */}
-        <div className="p-4 rounded-2xl bg-[var(--color-bg-main)]/80 dark:bg-[var(--color-dark-bg-main)]/60 border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/30 min-w-[200px] space-y-1">
-          <span className="text-[10px] font-bold text-[var(--color-primary-dark)] dark:text-[var(--color-text-gold)] tracking-widest uppercase font-heading">
+        <div className="p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-bg-main/80 dark:bg-dark-bg-main/60 border border-border-medium dark:border-primary-medium/30 min-w-0 md:min-w-[200px] shrink-0 space-y-1">
+          <span className="text-[10px] font-bold text-primary-dark dark:text-text-gold tracking-widest uppercase font-heading">
             CATALOG STATUS: READY
           </span>
-          <p className="text-xs text-[var(--color-text-secondary)] font-body">
+          <p className="text-xs text-text-secondary font-body">
             Fill required details and publish directly to the storefront.
           </p>
         </div>

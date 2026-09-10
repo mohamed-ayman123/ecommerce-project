@@ -22,10 +22,15 @@ export const formatDate = (value, includeTime = false) => {
   return date.toLocaleDateString('en-GB', options)
 }
 
-export const formatCurrency = (amount, currency = 'EGP') => {
+export const formatPrice = (amount) => {
   const num = Number(amount) || 0
-  return `${num.toLocaleString(undefined, {
+  return num.toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })} ${currency}`
+  })
 }
+
+export const formatCurrency = (amount, currency = 'EGP') => {
+  return `${formatPrice(amount)} ${currency}`
+}
+

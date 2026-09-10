@@ -31,7 +31,6 @@ const initialState = {
   error: null,
   searchTerm: '',
   sortBy: 'newest',
-  storeOnly: true,
   selectedCart: null,
 }
 
@@ -48,10 +47,6 @@ const cartsSlice = createSlice({
     },
     setPage: (state, action) => {
       state.page = action.payload
-    },
-    setStoreOnly: (state, action) => {
-      state.storeOnly = action.payload
-      state.page = 1
     },
     setSelectedCart: (state, action) => {
       state.selectedCart = action.payload
@@ -86,7 +81,6 @@ export const {
   setSearchTerm,
   setSortBy,
   setPage,
-  setStoreOnly,
   setSelectedCart,
   clearCartError,
 } = cartsSlice.actions

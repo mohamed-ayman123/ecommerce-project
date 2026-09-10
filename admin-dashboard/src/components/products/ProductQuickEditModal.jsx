@@ -18,6 +18,7 @@ function QuickEditForm({ product, currency, onClose }) {
         : '',
     stock: product?.stock ?? 0,
     featured: Boolean(product?.featured),
+    isActive: product?.isActive ?? true,
   }))
 
   const productId = product?._id || product?.id
@@ -31,6 +32,7 @@ function QuickEditForm({ product, currency, onClose }) {
         formData.discountPrice !== '' ? Number(formData.discountPrice) : null,
       stock: Number(formData.stock),
       featured: formData.featured,
+      isActive: formData.isActive,
     }
 
     if (payload.price < 0 || payload.stock < 0) {
@@ -110,7 +112,26 @@ function QuickEditForm({ product, currency, onClose }) {
         }
       />
 
-      <div className="pt-2">
+      <div className="pt-2 space-y-3">
+        <label className="flex items-center gap-3 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            checked={formData.isActive}
+            onChange={(e) =>
+              setFormData({ ...formData, isActive: e.target.checked })
+            }
+            className="h-4 w-4 rounded border-[var(--color-border-medium)] text-[var(--color-primary-medium)] focus:ring-[var(--color-primary-medium)] dark:border-white/20 dark:bg-[var(--color-dark-bg-main)]"
+          />
+          <div className="flex flex-col">
+            <span className="text-xs font-bold font-heading text-[var(--color-primary-dark)] dark:text-white">
+              Active in Store
+            </span>
+            <span className="text-[11px] text-[var(--color-text-secondary)] font-body">
+              Make product live and visible to customers across the catalog
+            </span>
+          </div>
+        </label>
+
         <label className="flex items-center gap-3 cursor-pointer select-none">
           <input
             type="checkbox"

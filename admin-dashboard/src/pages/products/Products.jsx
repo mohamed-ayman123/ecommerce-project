@@ -25,6 +25,7 @@ import ProductQuickEditModal from '@/components/products/ProductQuickEditModal'
 import {
   fetchProducts,
   deleteProductById,
+  selectProductCatalogStats,
 } from '@/store/slices/productsSlice'
 import { isElectronicsOrHardwareProduct } from '@/constants/categories'
 
@@ -66,6 +67,10 @@ export default function Products() {
     setCurrentPage(1)
   }
 
+  // Memoized catalog statistics from Redux SSOT
+  const catalogStats = useSelector(selectProductCatalogStats)
+  const filterCounts = catalogStats.counts
+
   // Filter products client-side for immediate responsive search/chip filtering
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -95,6 +100,8 @@ export default function Products() {
         matchesFilter = Number(product.stock) > 0
       } else if (filter === 'outOfStock') {
         matchesFilter = Number(product.stock) === 0
+      } else if (filter === 'draft') {
+        matchesFilter = product.isActive === false
       }
 
       return matchesSearch && matchesFilter
@@ -157,19 +164,19 @@ export default function Products() {
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12">
       {/* Top Header Banner */}
-      <div className="bg-gradient-to-r from-white via-[var(--color-bg-main)]/30 to-white dark:from-[var(--color-dark-bg-card)] dark:via-[var(--color-dark-bg-main)]/40 dark:to-[var(--color-dark-bg-card)] p-6 sm:p-8 rounded-3xl border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/30 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
+      <div className="bg-gradient-to-r from-white via-bg-main/30 to-white dark:from-dark-bg-card dark:via-dark-bg-main/40 dark:to-dark-bg-card p-6 sm:p-8 rounded-3xl border border-border-medium dark:border-primary-medium/30 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[var(--color-primary-dark)] text-white dark:bg-[var(--color-primary-medium)] flex items-center justify-center shrink-0 shadow-sm border border-[var(--color-primary-medium)]/30">
-            <Package className="w-6 h-6 text-[var(--color-text-gold)]" />
+          <div className="w-12 h-12 rounded-2xl bg-primary-dark text-white dark:bg-primary-medium flex items-center justify-center shrink-0 shadow-sm border border-primary-medium/30">
+            <Package className="w-6 h-6 text-text-gold" />
           </div>
           <div>
             <Badge variant="primary" size="sm">
               CATALOG MANAGEMENT
             </Badge>
-            <h1 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold font-heading text-primary-dark dark:text-text-light tracking-tight">
               Products Catalog
             </h1>
-            <p className="text-xs text-[var(--color-text-secondary)] font-body">
+            <p className="text-xs text-text-secondary font-body">
               Manage inventories, update pricing and discounts, and promote key items.
             </p>
           </div>
@@ -199,7 +206,7 @@ export default function Products() {
       </div>
 
       {/* KPI Stats Bar */}
-      <ProductStats products={items} />
+      <ProductStats stats={catalogStats} />
 
       {/* Error Alert if any */}
       {error && (
@@ -226,6 +233,7 @@ export default function Products() {
         filter={filter}
         onFilterChange={handleFilterChange}
         totalResults={totalItems}
+        counts={filterCounts}
       />
 
       {/* Loading Skeleton State */}
@@ -234,7 +242,7 @@ export default function Products() {
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-2xl border border-[var(--color-border-medium)] bg-white dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/30 p-4 space-y-3 animate-pulse"
+              className="rounded-2xl border border-border-medium bg-white dark:bg-dark-bg-card dark:border-primary-medium/30 p-4 space-y-3 animate-pulse"
             >
               <div className="h-44 w-full rounded-xl bg-slate-200 dark:bg-slate-800" />
               <div className="h-4 w-1/3 rounded-sm bg-slate-200 dark:bg-slate-800" />
@@ -261,14 +269,14 @@ export default function Products() {
         </div>
       ) : (
         /* Empty State */
-        <div className="rounded-3xl border border-[var(--color-border-medium)] bg-white p-12 text-center shadow-xs dark:border-[var(--color-primary-medium)]/30 dark:bg-[var(--color-dark-bg-card)]">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--color-bg-main)] text-[var(--color-text-secondary)] dark:bg-[var(--color-dark-bg-main)] dark:text-slate-400">
+        <div className="rounded-3xl border border-border-medium bg-white p-12 text-center shadow-xs dark:border-primary-medium/30 dark:bg-dark-bg-card">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-bg-main text-text-secondary dark:bg-dark-bg-main dark:text-slate-400">
             <SearchX className="h-8 w-8" />
           </div>
-          <h3 className="mt-4 text-base font-bold font-heading text-[var(--color-primary-dark)] dark:text-white">
+          <h3 className="mt-4 text-base font-bold font-heading text-primary-dark dark:text-white">
             No products found
           </h3>
-          <p className="mt-1 text-xs text-[var(--color-text-secondary)] max-w-sm mx-auto font-body">
+          <p className="mt-1 text-xs text-text-secondary max-w-sm mx-auto font-body">
             {search || filter !== 'all'
               ? 'Try adjusting your search terms or clearing current filter selections.'
               : 'Your inventory catalog is currently empty. Get started by adding your first product.'}
@@ -307,7 +315,7 @@ export default function Products() {
         pageSize={pageSize}
         itemLabel="products"
         onPageChange={goToPage}
-        className="pt-4 border-t border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/20"
+        className="pt-4 border-t border-border-light dark:border-primary-medium/20"
       />
 
       {/* Product Details Modal */}
@@ -358,14 +366,14 @@ export default function Products() {
         }
       >
         <div className="space-y-3">
-          <p className="text-sm text-[var(--color-text-primary)] dark:text-[var(--color-text-light)]">
+          <p className="text-sm text-text-primary dark:text-text-light">
             Are you sure you want to delete{' '}
-            <strong className="font-bold text-[var(--color-primary-dark)] dark:text-[var(--color-text-gold)]">
+            <strong className="font-bold text-primary-dark dark:text-text-gold">
               {productToDelete?.name}
             </strong>
             ?
           </p>
-          <p className="text-xs text-[var(--color-text-secondary)]">
+          <p className="text-xs text-text-secondary">
             This action will permanently remove this item from your catalog and API responses.
           </p>
         </div>

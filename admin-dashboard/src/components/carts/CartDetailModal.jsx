@@ -1,7 +1,7 @@
 import Modal from '@/components/common/Modal'
 import Button from '@/components/common/Button'
 import { Package, ShoppingCart } from 'lucide-react'
-import { formatDate } from '@/utils/formatters'
+import { formatDate, formatCurrency } from '@/utils/formatters'
 
 export default function CartDetailModal({ cart, currency = 'EGP', onClose }) {
   if (!cart) return null
@@ -10,6 +10,15 @@ export default function CartDetailModal({ cart, currency = 'EGP', onClose }) {
   const subtotal =
     cart.subtotal ??
     items.reduce((sum, it) => sum + (it.price || 0) * (it.quantity || 1), 0)
+
+  const user = cart.user || cart.customer || {}
+  const customerName =
+    user.username ||
+    user.name ||
+    (user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : '') ||
+    cart.customerName ||
+    'Guest Customer'
+  const customerEmail = user.email || cart.email || 'N/A'
 
   return (
     <Modal
@@ -45,7 +54,7 @@ export default function CartDetailModal({ cart, currency = 'EGP', onClose }) {
                 Name:
               </span>
               <span className="font-semibold text-primary-dark dark:text-white">
-                {cart.user?.username || 'Guest Customer'}
+                {customerName}
               </span>
             </div>
             <div>
@@ -53,7 +62,7 @@ export default function CartDetailModal({ cart, currency = 'EGP', onClose }) {
                 Email:
               </span>
               <span className="font-semibold text-primary-dark dark:text-white">
-                {cart.user?.email || 'N/A'}
+                {customerEmail}
               </span>
             </div>
             <div>
@@ -103,12 +112,12 @@ export default function CartDetailModal({ cart, currency = 'EGP', onClose }) {
                       {item.name}
                     </div>
                     <div className="text-xs text-text-secondary dark:text-slate-400">
-                      Unit: {item.price?.toLocaleString()} {currency} × {item.quantity}
+                      Unit: {formatCurrency(item.price, currency)} × {item.quantity}
                     </div>
                   </div>
                 </div>
                 <div className="text-sm font-bold text-primary-dark dark:text-white font-heading">
-                  {((item.price || 0) * (item.quantity || 1)).toLocaleString()} {currency}
+                  {formatCurrency((Number(item.price) || 0) * (Number(item.quantity) || 1), currency)}
                 </div>
               </div>
             ))}
@@ -121,7 +130,7 @@ export default function CartDetailModal({ cart, currency = 'EGP', onClose }) {
             Total Cart Value:
           </span>
           <span className="text-xl font-bold text-accent-gold font-heading">
-            {subtotal.toLocaleString()} {currency}
+            {formatCurrency(subtotal, currency)}
           </span>
         </div>
       </div>

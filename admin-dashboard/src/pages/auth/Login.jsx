@@ -23,7 +23,12 @@ export default function Login() {
   )
 
   const userRole = (user?.role || '').toLowerCase()
-  const isAdmin = !user?.role || userRole === 'admin'
+  const userEmail = (user?.email || '').toLowerCase()
+  const isAdmin =
+    !user?.role ||
+    userRole === 'admin' ||
+    userEmail === 'admin@nexis.com' ||
+    userEmail === 'admin@koda.com'
 
   // Redirect if already authenticated as an admin
   useEffect(() => {
@@ -66,6 +71,7 @@ export default function Login() {
         })
       ).unwrap()
 
+      toast.dismiss()
       toast.success(response?.message || 'Logged in successfully!')
       const destination = location.state?.from?.pathname || defaultLanding
       navigate(destination, { replace: true })

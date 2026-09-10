@@ -1,4 +1,5 @@
 import { ShoppingCart, DollarSign, Package, TrendingUp } from 'lucide-react'
+import { formatPrice } from '@/utils/formatters'
 
 export default function CartStats({ stats, currency = 'EGP' }) {
   const { totalActive = 0, totalPipelineValue = 0, totalItemsCount = 0, avgValue = '0.00' } = stats || {}
@@ -35,7 +36,7 @@ export default function CartStats({ stats, currency = 'EGP' }) {
           </div>
         </div>
         <p className="text-2xl font-bold text-primary-dark dark:text-white mt-2 font-heading">
-          {totalPipelineValue.toLocaleString()}{' '}
+          {formatPrice(totalPipelineValue)}{' '}
           <span className="text-sm font-normal text-accent-gold">{currency}</span>
         </p>
         <p className="text-xs text-text-secondary dark:text-slate-400 mt-1">
@@ -72,7 +73,7 @@ export default function CartStats({ stats, currency = 'EGP' }) {
           </div>
         </div>
         <p className="text-2xl font-bold text-primary-dark dark:text-white mt-2 font-heading">
-          {avgValue}{' '}
+          {formatPrice(avgValue)}{' '}
           <span className="text-sm font-normal text-text-secondary dark:text-slate-400">
             {currency}
           </span>

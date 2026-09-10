@@ -6,10 +6,12 @@ import {
   PackageCheck,
   PackageX,
   Edit3,
+  EyeOff,
 } from 'lucide-react'
 import Modal from '@/components/common/Modal'
 import Button from '@/components/common/Button'
 import Badge from '@/components/common/Badge'
+import { formatPrice } from '@/utils/formatters'
 
 export default function ProductDetails({
   isOpen,
@@ -35,6 +37,7 @@ export default function ProductDetails({
     images = [],
     tags = [],
     featured = false,
+    isActive = true,
   } = product
 
   const productId = _id || id
@@ -117,8 +120,9 @@ export default function ProductDetails({
                     'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=600'
                 }}
               />
-              {featured && (
-                <div className="absolute left-3 top-3">
+              {/* Badges on preview */}
+              <div className="absolute left-3 top-3 flex flex-col items-start gap-1.5 pointer-events-none">
+                {featured && (
                   <Badge
                     variant="gold"
                     size="sm"
@@ -127,8 +131,18 @@ export default function ProductDetails({
                     <Sparkles className="h-3 w-3 fill-slate-950 text-slate-950" />
                     Featured
                   </Badge>
-                </div>
-              )}
+                )}
+                {isActive === false && (
+                  <Badge
+                    variant="draft"
+                    size="sm"
+                    className="!bg-slate-900 dark:!bg-slate-800 !text-white !border-slate-600 shadow-md backdrop-blur-xs font-heading font-extrabold flex items-center gap-1.5 px-2.5 py-0.5"
+                  >
+                    <EyeOff className="h-3 w-3 !text-white stroke-[2.5]" />
+                    <span className="!text-white">Draft / Hidden</span>
+                  </Badge>
+                )}
+              </div>
             </div>
 
             {/* Thumbnails if multiple */}
@@ -159,7 +173,7 @@ export default function ProductDetails({
           {/* Core Info */}
           <div className="flex flex-col justify-between space-y-4">
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1 rounded-lg bg-[var(--color-bg-input)] px-2.5 py-1 text-xs font-bold text-[var(--color-primary-medium)] dark:bg-[var(--color-primary-medium)]/30 dark:text-[var(--color-text-gold)]">
                   <Layers className="h-3 w-3" />
                   {category}
@@ -167,6 +181,13 @@ export default function ProductDetails({
                 <span className="rounded-lg bg-[var(--color-bg-input)] px-2.5 py-1 text-xs font-semibold text-[var(--color-text-secondary)] dark:bg-[var(--color-dark-bg-main)] dark:text-slate-300">
                   {brand}
                 </span>
+                <Badge
+                  variant={isActive ? 'success' : 'draft'}
+                  size="sm"
+                  className="ml-auto"
+                >
+                  {isActive ? 'Active in Store' : 'Draft / Unpublished'}
+                </Badge>
               </div>
 
               <h2 className="text-xl font-bold font-heading text-[var(--color-primary-dark)] dark:text-white leading-tight">
@@ -180,13 +201,13 @@ export default function ProductDetails({
                 </div>
                 <div className="mt-0.5 flex items-baseline gap-2">
                   <span className="text-2xl font-black font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-gold)]">
-                    {displayPrice}{' '}
+                    {formatPrice(displayPrice)}{' '}
                     <span className="text-sm font-semibold">{currency}</span>
                   </span>
                   {hasDiscount && (
                     <>
                       <span className="text-sm text-[var(--color-text-secondary)] line-through">
-                        {price} {currency}
+                        {formatPrice(price)} {currency}
                       </span>
                       <Badge
                         variant="danger"

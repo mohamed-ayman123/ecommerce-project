@@ -10,7 +10,7 @@ import {
   Tag,
 } from 'lucide-react'
 import CartItemRow from './CartItemRow'
-import { formatDate } from '@/utils/formatters'
+import { formatDate, formatPrice } from '@/utils/formatters'
 import Badge from '@/components/common/Badge'
 import Button from '@/components/common/Button'
 
@@ -45,8 +45,14 @@ export default function CartCard({
     items.reduce((sum, it) => sum + (it.price || 0) * (it.quantity || 1), 0)
   const itemCount =
     cart.itemCount ?? items.reduce((sum, it) => sum + (it.quantity || 1), 0)
-  const customerName = cart.user?.username || 'Guest Customer'
-  const customerEmail = cart.user?.email || 'No email associated'
+  const user = cart.user || cart.customer || {}
+  const customerName =
+    user.username ||
+    user.name ||
+    (user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : '') ||
+    cart.customerName ||
+    'Guest Customer'
+  const customerEmail = user.email || cart.email || 'No email associated'
   const initials =
     customerName
       .split(' ')
@@ -100,7 +106,7 @@ export default function CartCard({
               {itemCount} {itemCount === 1 ? 'item' : 'items'}
             </div>
             <div className="text-lg font-bold text-primary-dark dark:text-white font-heading">
-              {subtotal.toLocaleString()}{' '}
+              {formatPrice(subtotal)}{' '}
               <span className="text-xs font-semibold text-accent-gold">{currency}</span>
             </div>
           </div>

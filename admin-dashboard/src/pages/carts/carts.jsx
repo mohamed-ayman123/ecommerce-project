@@ -11,10 +11,9 @@ import {
   setSearchTerm,
   setSortBy,
   setPage,
-  setStoreOnly,
   setSelectedCart,
 } from '@/store/slices/cartsSlice'
-import { fetchProducts } from '@/store/slices/productsSlice'
+import { selectStoreCatalogLookup } from '@/store/slices/productsSlice'
 import CartStats from '@/components/carts/CartStats'
 import CartFilters from '@/components/carts/CartFilters'
 import CartCard from '@/components/carts/CartCard'
@@ -23,7 +22,6 @@ import Button from '@/components/common/Button'
 import Badge from '@/components/common/Badge'
 import Pagination from '@/components/common/Pagination'
 import {
-  buildStoreCatalogLookup,
   isStoreCart,
   filterStoreCart,
 } from '@/utils/storeCatalog'
@@ -39,24 +37,20 @@ export default function Carts() {
     error,
     searchTerm,
     sortBy,
-    storeOnly,
     selectedCart,
   } = useSelector((state) => state.carts)
 
-  const products = useSelector((state) => state.products.items || [])
+  const storeCatalogLookup = useSelector(selectStoreCatalogLookup)
   const preferences = useSelector((state) => state.ui?.preferences)
   const currency = preferences?.currency || 'EGP'
   const pageSize = Number(preferences?.defaultPageSize) || 25
 
   const [expandedCartIds, setExpandedCartIds] = useState({})
 
-  // Fetch active carts and ensure store products catalog is loaded
+  // Fetch active carts
   useEffect(() => {
     dispatch(fetchAdminCarts({ limit: 100 }))
-    if (products.length === 0) {
-      dispatch(fetchProducts({ limit: 100 }))
-    }
-  }, [dispatch, products.length])
+  }, [dispatch])
 
   const toggleCartExpand = (id) => {
     setExpandedCartIds((prev) => ({
@@ -65,20 +59,13 @@ export default function Carts() {
     }))
   }
 
-  // 2. Pure Data-Driven Catalog Matching
-  const storeCatalogLookup = useMemo(
-    () => buildStoreCatalogLookup(products),
-    [products]
-  )
-
   // 3. Store-Scope Filter:
-  // Shows only carts containing Nexis Tech electronics products when storeOnly is true.
+  // Shows only carts containing Nexis Tech electronics products.
   const storeScopedCarts = useMemo(() => {
-    if (!storeOnly) return rawCarts
     return rawCarts
       .filter((cart) => isStoreCart(cart, storeCatalogLookup))
       .map((cart) => filterStoreCart(cart, storeCatalogLookup))
-  }, [rawCarts, storeOnly, storeCatalogLookup])
+  }, [rawCarts, storeCatalogLookup])
 
   // 4. Search and Sort Filtering
   const filteredCarts = useMemo(() => {
@@ -87,14 +74,21 @@ export default function Carts() {
     if (searchTerm.trim()) {
       const q = searchTerm.toLowerCase().trim()
       result = result.filter((cart) => {
-        const username = cart.user?.username?.toLowerCase() || ''
-        const email = cart.user?.email?.toLowerCase() || ''
+        const user = (typeof cart.user === 'object' && cart.user !== null) ? cart.user : (cart.customer || {})
+        const customerName = (
+          user.username ||
+          user.name ||
+          `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+          cart.customerName ||
+          'Guest Customer'
+        ).toLowerCase()
+        const email = (user.email || cart.email || '').toLowerCase()
         const cartId = (cart._id || cart.id || '').toLowerCase()
         const itemMatch = cart.items?.some((item) =>
-          item.name?.toLowerCase().includes(q)
+          (item.name || item.title || item.product?.name || '').toLowerCase().includes(q)
         )
         return (
-          username.includes(q) ||
+          customerName.includes(q) ||
           email.includes(q) ||
           cartId.includes(q) ||
           itemMatch
@@ -162,24 +156,22 @@ export default function Carts() {
   return (
     <div className="w-full space-y-6">
       {/* Top Header Card */}
-      <div className="bg-white dark:bg-[var(--color-dark-bg-card)] p-6 rounded-2xl border border-border-light dark:border-white/10 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="bg-white dark:bg-dark-bg-card p-4 sm:p-6 rounded-2xl border border-border-light dark:border-white/10 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <Badge variant="gold" size="sm">
               <ShoppingCart className="w-3.5 h-3.5" />
               Active Carts Monitor
             </Badge>
-            {storeOnly && (
-              <Badge variant="success" size="sm">
-                <Sparkles className="w-3 h-3" />
-                Nexis Tech Catalog Matched (Electronics & Hardware)
-              </Badge>
-            )}
+            <Badge variant="success" size="sm">
+              <Sparkles className="w-3 h-3" />
+              Nexis Store Carts (Electronics)
+            </Badge>
           </div>
-          <h1 className="text-2xl font-bold text-primary-dark dark:text-white font-heading">
+          <h1 className="text-xl sm:text-2xl font-bold text-primary-dark dark:text-white font-heading">
             Live Shopping Carts
           </h1>
-          <p className="text-text-secondary dark:text-slate-400 text-sm mt-1">
+          <p className="text-text-secondary dark:text-slate-400 text-xs sm:text-sm mt-1">
             Real-time visibility into customer shopping sessions, abandoned cart values, and item demand.
           </p>
         </div>
@@ -206,8 +198,6 @@ export default function Carts() {
         onSearchChange={(val) => dispatch(setSearchTerm(val))}
         sortBy={sortBy}
         onSortChange={(val) => dispatch(setSortBy(val))}
-        storeOnly={storeOnly}
-        onStoreOnlyChange={(val) => dispatch(setStoreOnly(val))}
       />
 
       {/* Error Banner */}
@@ -264,9 +254,7 @@ export default function Carts() {
           <p className="text-sm text-text-secondary dark:text-slate-400 max-w-md">
             {searchTerm
               ? `No shopping carts match "${searchTerm}". Try another query or clear the filter.`
-              : storeOnly
-              ? 'No active carts currently hold Electronics & Hardware items from Nexis Tech. You can switch the scope filter to view all shared API carts.'
-              : 'There are currently no active carts held by customers in the database.'}
+              : 'There are currently no active customer carts holding Nexis Tech merchandise.'}
           </p>
           <div className="flex items-center gap-3 mt-2">
             {searchTerm && (
@@ -276,15 +264,6 @@ export default function Carts() {
                 onClick={() => dispatch(setSearchTerm(''))}
               >
                 Clear Search
-              </Button>
-            )}
-            {storeOnly && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => dispatch(setStoreOnly(false))}
-              >
-                Show All Shared Carts
               </Button>
             )}
           </div>

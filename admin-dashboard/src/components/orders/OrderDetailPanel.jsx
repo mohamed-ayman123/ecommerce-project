@@ -8,6 +8,7 @@ import Dropdown from '@/components/common/Dropdown'
 import Button from '@/components/common/Button'
 import Badge from '@/components/common/Badge'
 import { getAdminNote, saveAdminNote } from '@/utils/orderNotes'
+import { formatCurrency } from '@/utils/formatters'
 
 const STATUS_OPTIONS = [
   'Pending',
@@ -56,6 +57,18 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
           .filter(Boolean)
           .join(', ')
     : '—'
+
+  const isStripe =
+    String(order.method || order.paymentMethod || '').toLowerCase() === 'stripe' ||
+    customerNote.toLowerCase().includes('stripe') ||
+    customerNote.toLowerCase().includes('card')
+
+  const currentStatus = String(status || order.status || '').toLowerCase()
+  const derivedPayment = ['cancelled', 'returned'].includes(currentStatus)
+    ? 'Failed'
+    : (['delivered', 'shipped'].includes(currentStatus) || isStripe)
+      ? 'Paid'
+      : (order.payment || order.paymentStatus || 'Pending')
 
   const handleSave = async () => {
     if (!orderId) {
@@ -125,11 +138,11 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
       <div className="flex items-center justify-between border-b border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/30 px-6 py-4">
         <div className="flex items-center gap-2">
           <Badge status={status} dot />
-          <Badge status={order.payment || 'pending'} rounded="md" size="sm" />
+          <Badge status={derivedPayment} rounded="md" size="sm" />
         </div>
 
         <span className="text-sm text-[var(--color-text-secondary)] dark:text-slate-300">
-          {order.method || '—'}
+          {order.method || (isStripe ? 'Stripe' : 'Cash')}
         </span>
       </div>
 
@@ -220,12 +233,12 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
                 )}
                 <p className="text-xs text-[var(--color-text-secondary)] dark:text-slate-400">
                   x {item.qty || item.quantity || 1} ·{' '}
-                  {item.unitPrice || item.price || '0.00'} {currency}
+                  {formatCurrency(item.unitPrice || item.price, currency)}
                 </p>
               </div>
 
               <span className="text-sm font-bold text-[var(--color-text-primary)] dark:text-[var(--color-text-gold)]">
-                {item.total || item.totalPrice || '0.00'} {currency}
+                {formatCurrency(item.total || item.totalPrice || (Number(item.price || item.unitPrice || 0) * Number(item.qty || item.quantity || 1)), currency)}
               </span>
             </div>
           ))}
@@ -236,21 +249,21 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
           <div className="flex items-center justify-between text-sm">
             <span className="text-[var(--color-text-secondary)] dark:text-slate-400">Subtotal</span>
             <span className="font-semibold text-[var(--color-text-primary)] dark:text-white">
-              {order.subtotal || '0.00'} {currency}
+              {formatCurrency(order.subtotal, currency)}
             </span>
           </div>
 
           <div className="flex items-center justify-between text-sm">
             <span className="text-[var(--color-text-secondary)] dark:text-slate-400">Shipping</span>
             <span className="font-semibold text-[var(--color-text-primary)] dark:text-white">
-              {order.shipping || order.shippingFee || '0.00'} {currency}
+              {formatCurrency(order.shipping || order.shippingFee, currency)}
             </span>
           </div>
 
           <div className="flex items-center justify-between text-sm">
             <span className="text-[var(--color-text-secondary)] dark:text-slate-400">Tax</span>
             <span className="font-semibold text-[var(--color-text-primary)] dark:text-white">
-              {order.tax || '0.00'} {currency}
+              {formatCurrency(order.tax, currency)}
             </span>
           </div>
 
@@ -259,7 +272,7 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
           <div className="flex items-center justify-between text-base font-bold">
             <span className="text-[var(--color-text-primary)] dark:text-white">Total</span>
             <span className="text-[var(--color-primary-dark)] dark:text-[var(--color-text-gold)]">
-              {order.total || order.totalPrice || '0.00'} {currency}
+              {formatCurrency(order.total || order.totalPrice, currency)}
             </span>
           </div>
         </div>

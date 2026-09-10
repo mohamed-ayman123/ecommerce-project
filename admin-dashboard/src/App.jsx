@@ -19,6 +19,7 @@ export default function App() {
       <ToastContainer
         position={preferences?.toastPosition || "top-right"}
         autoClose={preferences?.toastDuration || 3000}
+        limit={2}
         theme={theme === "dark" ? "dark" : "colored"}
         hideProgressBar={false}
         newestOnTop

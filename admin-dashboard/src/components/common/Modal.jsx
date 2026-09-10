@@ -36,24 +36,24 @@ export default function Modal({
     <div
       role="dialog"
       aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-hidden"
     >
       {/* Backdrop overlay */}
       <div
         role="presentation"
         onClick={closeOnBackdrop ? onClose : undefined}
-        className="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity duration-200 animate-fade-in"
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-200 animate-fade-in"
       />
 
       {/* Modal Surface */}
       <div
-        className={`relative w-full ${maxWidth} rounded-2xl bg-white dark:bg-[var(--color-dark-bg-card)] border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/30 shadow-2xl z-10 overflow-hidden transform transition-all duration-200 animate-scale-in`}
+        className={`relative w-full ${maxWidth} max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] flex flex-col rounded-2xl bg-white dark:bg-dark-bg-card border border-border-medium dark:border-primary-medium/30 shadow-2xl z-10 overflow-hidden transform transition-all duration-200 animate-scale-in my-auto`}
       >
         {/* Modal Header */}
         {(title || onClose) && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border-medium)]/60 dark:border-[var(--color-primary-medium)]/30">
+          <div className="shrink-0 flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-border-medium/60 dark:border-primary-medium/30 bg-white/95 dark:bg-dark-bg-card/95 backdrop-blur-xs z-20">
             {title && (
-              <h3 className="text-base font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)]">
+              <h3 className="text-sm sm:text-base font-bold font-heading text-primary-dark dark:text-text-light truncate pr-2">
                 {title}
               </h3>
             )}
@@ -62,7 +62,7 @@ export default function Modal({
                 type="button"
                 onClick={onClose}
                 aria-label="Close modal"
-                className="p-1 rounded-lg text-[var(--color-text-secondary)] hover:text-rose-500 hover:bg-[var(--color-bg-main)]/50 dark:hover:bg-[var(--color-dark-bg-main)] transition-colors cursor-pointer"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-text-secondary hover:text-rose-500 hover:bg-bg-main dark:text-slate-300 dark:hover:bg-primary-medium/30 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -71,13 +71,13 @@ export default function Modal({
         )}
 
         {/* Modal Body */}
-        <div className="px-6 py-5 text-sm text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] font-body">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-4 sm:px-6 py-4 sm:py-5 text-sm text-text-primary dark:text-text-light font-body">
           {children}
         </div>
 
         {/* Modal Footer */}
         {footer && (
-          <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[var(--color-bg-main)]/30 dark:bg-[var(--color-dark-bg-main)]/40 border-t border-[var(--color-border-medium)]/60 dark:border-[var(--color-primary-medium)]/30">
+          <div className="shrink-0 flex items-center justify-end gap-2.5 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-bg-main/30 dark:bg-dark-bg-main/40 border-t border-border-medium/60 dark:border-primary-medium/30 z-20">
             {footer}
           </div>
         )}

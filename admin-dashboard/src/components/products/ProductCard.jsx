@@ -7,8 +7,10 @@ import {
   Star,
   ChevronLeft,
   ChevronRight,
+  EyeOff,
 } from 'lucide-react'
 import Badge from '@/components/common/Badge'
+import { formatPrice } from '@/utils/formatters'
 
 export default function ProductCard({
   product,
@@ -29,6 +31,7 @@ export default function ProductCard({
     images = [],
     tags = [],
     featured = false,
+    isActive = true,
   } = product
 
   const getImageUrl = (img) => {
@@ -87,9 +90,9 @@ export default function ProductCard({
   const isOutOfStock = Number(stock) === 0
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl border border-[var(--color-border-medium)] bg-white shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-[var(--color-primary-medium)]/30 dark:bg-[var(--color-dark-bg-card)]">
+    <div className="group flex flex-col overflow-hidden rounded-2xl border border-border-medium bg-white shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-primary-medium/30 dark:bg-dark-bg-card">
       {/* Product Image Banner & Slider */}
-      <div className="relative h-52 w-full overflow-hidden bg-[var(--color-bg-input)]/40 dark:bg-[var(--color-dark-bg-main)] select-none">
+      <div className="relative h-52 w-full overflow-hidden bg-bg-input/40 dark:bg-dark-bg-main select-none">
         <img
           key={currentImageIndex}
           src={currentImage}
@@ -136,7 +139,7 @@ export default function ProductCard({
                   aria-label={`Go to image ${idx + 1}`}
                   className={`h-1.5 rounded-full transition-all cursor-pointer ${
                     currentImageIndex === idx
-                      ? 'w-3 bg-[var(--color-text-gold)]'
+                      ? 'w-3 bg-text-gold'
                       : 'w-1.5 bg-white/60 hover:bg-white'
                   }`}
                 />
@@ -145,9 +148,9 @@ export default function ProductCard({
           </>
         )}
 
-        {/* Featured Badge (Top-Left) */}
-        {featured && (
-          <div className="absolute left-3 top-3 z-10">
+        {/* Status Badges (Top-Left) */}
+        <div className="absolute left-3 top-3 z-10 flex flex-col items-start gap-1.5 pointer-events-none">
+          {featured && (
             <Badge
               variant="gold"
               size="sm"
@@ -156,8 +159,18 @@ export default function ProductCard({
               <Star className="h-3 w-3 fill-slate-950 text-slate-950" />
               Featured
             </Badge>
-          </div>
-        )}
+          )}
+          {isActive === false && (
+            <Badge
+              variant="draft"
+              size="sm"
+              className="!bg-slate-900 dark:!bg-slate-800 !text-white !border-slate-600 shadow-md backdrop-blur-xs font-heading font-extrabold flex items-center gap-1.5 px-2.5 py-0.5"
+            >
+              <EyeOff className="h-3 w-3 !text-white stroke-[2.5]" />
+              <span className="!text-white">Draft</span>
+            </Badge>
+          )}
+        </div>
 
         {/* Discount Badge (Top-Right, always consistent) */}
         {hasDiscount && (
@@ -198,32 +211,32 @@ export default function ProductCard({
       <div className="flex flex-1 flex-col p-5">
         {/* Category & Brand */}
         <div className="mb-2 flex items-center justify-between gap-2 text-xs">
-          <span className="font-bold uppercase tracking-wider text-[var(--color-primary-medium)] dark:text-[var(--color-text-gold)]">
+          <span className="font-bold uppercase tracking-wider text-primary-medium dark:text-text-gold">
             {category}
           </span>
-          <span className="text-[var(--color-text-secondary)] truncate">
+          <span className="text-text-secondary truncate">
             {brand}
           </span>
         </div>
 
         {/* Title */}
-        <h3 className="line-clamp-1 text-base font-bold font-heading text-[var(--color-text-primary)] dark:text-white" title={name}>
+        <h3 className="line-clamp-1 text-base font-bold font-heading text-text-primary dark:text-white" title={name}>
           {name}
         </h3>
 
         {/* Description */}
-        <p className="mt-1.5 line-clamp-2 min-h-10 text-xs leading-relaxed text-[var(--color-text-secondary)] font-body">
+        <p className="mt-1.5 line-clamp-2 min-h-10 text-xs leading-relaxed text-text-secondary font-body">
           {description || 'No description available for this product.'}
         </p>
 
         {/* Pricing */}
         <div className="mt-3 flex items-baseline gap-2">
-          <span className="text-lg font-black font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-gold)]">
-            {displayPrice} <span className="text-xs font-semibold">{currency}</span>
+          <span className="text-lg font-black font-heading text-primary-dark dark:text-text-gold">
+            {formatPrice(displayPrice)} <span className="text-xs font-semibold">{currency}</span>
           </span>
           {hasDiscount && (
-            <span className="text-xs text-[var(--color-text-secondary)] line-through">
-              {price} {currency}
+            <span className="text-xs text-text-secondary line-through">
+              {formatPrice(price)} {currency}
             </span>
           )}
         </div>
@@ -234,7 +247,7 @@ export default function ProductCard({
             {tags.slice(0, 3).map((tag, i) => (
               <span
                 key={`${tag}-${i}`}
-                className="rounded-lg bg-[var(--color-bg-input)]/60 px-2 py-0.5 text-[10px] font-medium text-[var(--color-text-secondary)] dark:bg-[var(--color-primary-medium)]/30 dark:text-slate-300"
+                className="rounded-lg bg-bg-input/60 px-2 py-0.5 text-[10px] font-medium text-text-secondary dark:bg-primary-medium/30 dark:text-slate-300"
               >
                 #{tag}
               </span>
@@ -243,11 +256,11 @@ export default function ProductCard({
         )}
 
         {/* Action Buttons */}
-        <div className="mt-auto pt-4 border-t border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/20 grid grid-cols-4 gap-1.5">
+        <div className="mt-auto pt-4 border-t border-border-light dark:border-primary-medium/20 grid grid-cols-4 gap-1.5">
           <button
             type="button"
             onClick={() => onView?.(product)}
-            className="flex flex-col items-center justify-center gap-1 rounded-xl p-2 text-xs font-semibold text-[var(--color-text-secondary)] transition hover:bg-[var(--color-bg-input)]/60 hover:text-[var(--color-text-primary)] dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30 dark:hover:text-white cursor-pointer"
+            className="flex flex-col items-center justify-center gap-1 rounded-xl p-2 text-xs font-semibold text-text-secondary transition hover:bg-bg-input/60 hover:text-text-primary dark:text-slate-300 dark:hover:bg-primary-medium/30 dark:hover:text-white cursor-pointer"
             title="View Details"
           >
             <Eye className="h-4 w-4" />
@@ -257,7 +270,7 @@ export default function ProductCard({
           <button
             type="button"
             onClick={() => onEdit?.(product)}
-            className="flex flex-col items-center justify-center gap-1 rounded-xl p-2 text-xs font-semibold text-[var(--color-text-secondary)] transition hover:bg-[var(--color-bg-input)]/60 hover:text-[var(--color-text-primary)] dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30 dark:hover:text-white cursor-pointer"
+            className="flex flex-col items-center justify-center gap-1 rounded-xl p-2 text-xs font-semibold text-text-secondary transition hover:bg-bg-input/60 hover:text-text-primary dark:text-slate-300 dark:hover:bg-primary-medium/30 dark:hover:text-white cursor-pointer"
             title="Edit Full Product"
           >
             <Edit3 className="h-4 w-4" />
@@ -267,7 +280,7 @@ export default function ProductCard({
           <button
             type="button"
             onClick={() => onQuickEdit?.(product)}
-            className="flex flex-col items-center justify-center gap-1 rounded-xl p-2 text-xs font-semibold text-[var(--color-text-secondary)] transition hover:bg-[var(--color-bg-input)]/60 hover:text-[var(--color-text-primary)] dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30 dark:hover:text-white cursor-pointer"
+            className="flex flex-col items-center justify-center gap-1 rounded-xl p-2 text-xs font-semibold text-text-secondary transition hover:bg-bg-input/60 hover:text-text-primary dark:text-slate-300 dark:hover:bg-primary-medium/30 dark:hover:text-white cursor-pointer"
             title="Quick Edit"
           >
             <SlidersHorizontal className="h-4 w-4" />

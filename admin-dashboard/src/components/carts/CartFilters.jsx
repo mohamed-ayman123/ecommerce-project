@@ -9,23 +9,16 @@ const SORT_OPTIONS = [
   { value: 'most-items', label: 'Most Items' },
 ]
 
-const SCOPE_OPTIONS = [
-  { value: 'store-only', label: 'Nexis Tech (Electronics Only)' },
-  { value: 'all-carts', label: 'All Shared Database Carts' },
-]
-
 export default function CartFilters({
   searchTerm,
   onSearchChange,
   sortBy,
   onSortChange,
-  storeOnly,
-  onStoreOnlyChange,
 }) {
   return (
-    <div className="bg-white dark:bg-[var(--color-dark-bg-card)] p-4 rounded-2xl border border-border-light dark:border-white/10 shadow-xs flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
+    <div className="bg-white dark:bg-[var(--color-dark-bg-card)] p-4 rounded-2xl border border-border-light dark:border-white/10 shadow-xs flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between">
       {/* Search Input */}
-      <div className="relative w-full lg:w-96">
+      <div className="relative flex-1 max-w-md">
         <Search className="w-4 h-4 text-text-secondary dark:text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
         <input
           type="text"
@@ -36,29 +29,15 @@ export default function CartFilters({
         />
       </div>
 
-      {/* Filter Dropdowns using Common Component Dropdown */}
-      <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
-        {/* Store Scope Filter */}
-        <div className="w-full sm:w-auto">
-          <Dropdown
-            value={storeOnly ? 'store-only' : 'all-carts'}
-            onChange={(val) => onStoreOnlyChange(val === 'store-only')}
-            options={SCOPE_OPTIONS}
-            ariaLabel="Store Filter Scope"
-            placeholder="Select Store Scope"
-          />
-        </div>
-
-        {/* Sort By Dropdown */}
-        <div className="w-full sm:w-auto">
-          <Dropdown
-            value={sortBy}
-            onChange={onSortChange}
-            options={SORT_OPTIONS}
-            ariaLabel="Sort by"
-            placeholder="Sort by"
-          />
-        </div>
+      {/* Sort By Dropdown using Common Component Dropdown */}
+      <div className="w-full sm:w-auto shrink-0">
+        <Dropdown
+          value={sortBy}
+          onChange={onSortChange}
+          options={SORT_OPTIONS}
+          ariaLabel="Sort by"
+          placeholder="Sort by"
+        />
       </div>
     </div>
   )

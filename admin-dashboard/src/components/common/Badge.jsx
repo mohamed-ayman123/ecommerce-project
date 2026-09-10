@@ -14,6 +14,8 @@ const STATUS_VARIANTS = {
   paid: 'success',
   failed: 'danger',
   refunded: 'neutral',
+  draft: 'draft',
+  inactive: 'draft',
 }
 
 const VARIANTS = {
@@ -35,6 +37,8 @@ const VARIANTS = {
     'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/25',
   neutral:
     'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/25',
+  draft:
+    'bg-slate-900 text-white dark:bg-slate-800 dark:text-white border-slate-700 shadow-2xs',
 }
 
 const SIZES = {

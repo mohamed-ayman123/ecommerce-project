@@ -29,10 +29,14 @@ export function buildStoreCatalogLookup(reduxProducts = []) {
  * @returns {boolean}
  */
 export function isStoreItem(item, lookup) {
-  if (!item || !lookup) return false
+  if (!item) return false
+  if (item.isStoreItem) return true
+  const cat = (item.product?.category || item.category || '').toLowerCase()
+  if (cat === 'electronics' || cat === 'hardware') return true
+  if (!lookup) return false
   const productId = String(item.product?._id || item.product || '')
   const name = (item.name || item.title || '').trim().toLowerCase()
-  return lookup.ids.has(productId) || lookup.names.has(name)
+  return lookup.ids?.has(productId) || lookup.names?.has(name)
 }
 
 /**
@@ -43,7 +47,9 @@ export function isStoreItem(item, lookup) {
  * @returns {boolean}
  */
 export function isStoreOrder(order, lookup) {
-  if (!order || !Array.isArray(order.items) || order.items.length === 0) return false
+  if (!order) return false
+  if (order.isStoreOrder) return true
+  if (!Array.isArray(order.items) || order.items.length === 0) return false
   return order.items.some((item) => isStoreItem(item, lookup))
 }
 
@@ -67,12 +73,15 @@ export function filterStoreOrder(order, lookup) {
   const discount = Number(order.discount) || 0
   const totalPrice = Math.max(0, subtotal + shippingFee + tax - discount)
 
+  const roundedSubtotal = Number(subtotal.toFixed(2))
+  const roundedTotal = Number(totalPrice.toFixed(2))
+
   return {
     ...order,
     items: storeItems,
-    subtotal,
-    totalPrice,
-    total: totalPrice,
+    subtotal: roundedSubtotal,
+    totalPrice: roundedTotal,
+    total: roundedTotal,
   }
 }
 
@@ -84,7 +93,9 @@ export function filterStoreOrder(order, lookup) {
  * @returns {boolean}
  */
 export function isStoreCart(cart, lookup) {
-  if (!cart || !Array.isArray(cart.items) || cart.items.length === 0) return false
+  if (!cart) return false
+  if (cart.isStoreCart) return true
+  if (!Array.isArray(cart.items) || cart.items.length === 0) return false
   return cart.items.some((item) => isStoreItem(item, lookup))
 }
 
@@ -111,7 +122,7 @@ export function filterStoreCart(cart, lookup) {
   return {
     ...cart,
     items: storeItems,
-    subtotal,
+    subtotal: Number(subtotal.toFixed(2)),
     itemCount,
   }
 }

@@ -5,16 +5,15 @@ import { useSearchParams } from 'react-router-dom'
 import { Search, Sparkles, CreditCard, Banknote, Wallet, FileText, MessageSquare } from 'lucide-react'
 import OrderDetailPanel from '@/components/orders/OrderDetailPanel'
 import { fetchAdminOrders } from '@/store/slices/ordersSlice'
-import { fetchProducts } from '@/store/slices/productsSlice'
+import { selectStoreCatalogLookup } from '@/store/slices/productsSlice'
 import {
-  buildStoreCatalogLookup,
   isStoreOrder,
   filterStoreOrder,
 } from '@/utils/storeCatalog'
 import Dropdown from '@/components/common/Dropdown'
 import Badge from '@/components/common/Badge'
 import Pagination from '@/components/common/Pagination'
-import { formatDate } from '@/utils/formatters'
+import { formatDate, formatCurrency } from '@/utils/formatters'
 import { getAdminNote } from '@/utils/orderNotes'
 
 const renderPaymentMethodIcon = (method) => {
@@ -61,8 +60,9 @@ const formatOrder = (order) => {
     '—'
 
   const rawStatus = order.status || 'Pending'
-  const rawPayment = order.paymentStatus || order.payment || 'Pending'
-  const rawMethod = order.paymentMethod || order.method || '—'
+  const normalizedStatus = String(rawStatus).toLowerCase()
+  const isDeliveredOrShipped = normalizedStatus === 'delivered' || normalizedStatus === 'shipped'
+  const isCancelledOrReturned = normalizedStatus === 'cancelled' || normalizedStatus === 'returned'
 
   const orderId = order._id || order.id || ''
   const localNote =
@@ -77,6 +77,19 @@ const formatOrder = (order) => {
   ).trim()
   const customerNote = (order.customerNote || order.note || order.customer?.note || '').trim()
 
+  const isStripe =
+    String(order.paymentMethod || order.method || '').toLowerCase() === 'stripe' ||
+    customerNote.toLowerCase().includes('stripe') ||
+    customerNote.toLowerCase().includes('card')
+
+  const rawPayment = isCancelledOrReturned
+    ? 'Failed'
+    : (isDeliveredOrShipped || isStripe)
+      ? 'Paid'
+      : (order.paymentStatus || order.payment || 'Pending')
+
+  const rawMethod = isStripe ? 'Stripe' : (order.paymentMethod || order.method || 'Cash')
+
   return {
     ...order,
     id: orderId ? `#${String(orderId).slice(-8).toUpperCase()}` : '#—',
@@ -88,24 +101,19 @@ const formatOrder = (order) => {
     status: String(rawStatus).charAt(0).toUpperCase() + String(rawStatus).slice(1).toLowerCase(),
     payment: String(rawPayment).charAt(0).toUpperCase() + String(rawPayment).slice(1).toLowerCase(),
     method: rawMethod === '—'? '—': String(rawMethod).charAt(0).toUpperCase() + String(rawMethod).slice(1).toLowerCase(),
-    total: order.total ?? order.totalAmount ?? order.totalPrice ?? order.amount ?? '0.00',
+    total: Number(Number(order.total ?? order.totalAmount ?? order.totalPrice ?? order.amount ?? 0).toFixed(2)),
     originalId: orderId,
     adminNote,
     customerNote,
   }
 }
 
-const SCOPE_OPTIONS = [
-  'Nexis Tech (Electronics Only)',
-  'All Shared Orders',
-]
-
 function OrdersPage() {
   const dispatch = useDispatch()
   const { items, isLoading, error } = useSelector(
     (state) => state.orders,
   )
-  const products = useSelector((state) => state.products.items || [])
+  const storeCatalogLookup = useSelector(selectStoreCatalogLookup)
   const preferences = useSelector((state) => state.ui?.preferences)
   const pageSize = Number(preferences?.defaultPageSize || preferences?.itemsPerPage) || PAGE_SIZE
   const currency = preferences?.currency || 'EGP'
@@ -117,7 +125,6 @@ function OrdersPage() {
   const [hoveredNote, setHoveredNote] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
-  const [scopeFilter, setScopeFilter] = useState('Nexis Tech (Electronics Only)')
   const [statusFilter, setStatusFilter] = useState('All statuses')
   const [paymentFilter, setPaymentFilter] = useState('All payments')
   const [methodFilter, setMethodFilter] = useState('All methods')
@@ -131,27 +138,14 @@ function OrdersPage() {
 
   useEffect(() => {
     dispatch(fetchAdminOrders())
-    if (products.length === 0) {
-      dispatch(fetchProducts({ limit: 100 }))
-    }
-  }, [dispatch, products.length])
+  }, [dispatch])
 
-  // Build catalog lookup for store-level filtering
-  const storeCatalogLookup = useMemo(
-    () => buildStoreCatalogLookup(products),
-    [products]
-  )
-
-  // Scope orders to Nexis Tech Electronics merchandise when scopeFilter is active
+  // Scope orders strictly to Nexis Tech Electronics merchandise
   const storeScopedOrders = useMemo(() => {
-    if (scopeFilter !== 'Nexis Tech (Electronics Only)') {
-      return items
-    }
-
     return items
       .filter((order) => isStoreOrder(order, storeCatalogLookup))
       .map((order) => filterStoreOrder(order, storeCatalogLookup))
-  }, [items, scopeFilter, storeCatalogLookup])
+  }, [items, storeCatalogLookup])
 
   const orders = useMemo(
     () => storeScopedOrders.map(formatOrder),
@@ -259,34 +253,32 @@ function OrdersPage() {
             <p className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--color-text-gold)]">
               Admin · Management
             </p>
-            {scopeFilter === 'Nexis Tech (Electronics Only)' && (
-              <Badge variant="success" size="sm">
-                <Sparkles className="w-3 h-3" />
-                Nexis Tech Store Orders (Electronics Only)
-              </Badge>
-            )}
+            <Badge variant="success" size="sm">
+              <Sparkles className="w-3 h-3" />
+              Nexis Store Orders
+            </Badge>
           </div>
-          <h1 className="mt-1 text-4xl font-black text-[var(--color-text-primary)] dark:text-[var(--color-text-light)]">
+          <h1 className="mt-1 text-2xl sm:text-4xl font-black text-text-primary dark:text-text-light font-heading">
             Orders
           </h1>
-          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+          <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-text-secondary font-body">
             Manage customer orders, payment status, and delivery progress.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] px-6 py-3 shadow-sm dark:bg-[var(--color-dark-bg-main)] dark:border-[var(--color-primary-medium)]/30">
-          <span className="text-2xl font-black text-[var(--color-text-primary)] dark:text-white">
+        <div className="w-full sm:w-auto flex items-center justify-between sm:justify-start rounded-2xl border border-border-light bg-bg-card px-4 sm:px-6 py-2.5 sm:py-3 shadow-xs dark:bg-dark-bg-main dark:border-primary-medium/30">
+          <span className="text-xl sm:text-2xl font-black text-text-primary dark:text-white font-heading">
             {orders.length}
           </span>
-          <span className="ml-2 text-sm text-[var(--color-text-secondary)] dark:text-[var(--color-text-gold)]">
-            {scopeFilter === 'Nexis Tech (Electronics Only)' ? 'store orders' : 'total orders'}
+          <span className="ml-2 text-xs sm:text-sm text-text-secondary dark:text-text-gold font-body">
+            store orders
           </span>
         </div>
       </div>
 
       <div className="flex flex-col gap-3 lg:flex-row flex-wrap">
-        <div className="relative flex-1 min-w-[240px]">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-secondary)] dark:text-slate-400" />
+        <div className="relative flex-1 w-full min-w-0 max-w-md">
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-text-secondary dark:text-slate-400" />
           <input
             type="text"
             value={searchTerm}
@@ -295,20 +287,6 @@ function OrdersPage() {
             className="w-full rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] py-3 pl-11 pr-4 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent-gold)] dark:bg-[var(--color-dark-bg-main)] dark:border-[var(--color-primary-medium)]/30 dark:placeholder:text-slate-300 dark:text-white"
           />
         </div>
-
-        <Dropdown
-          value={scopeFilter}
-          onChange={(val) => {
-            setScopeFilter(val)
-            setCurrentPage(1)
-          }}
-          options={SCOPE_OPTIONS.map((option) => ({
-            value: option,
-            label: option,
-          }))}
-          placeholder="Filter by Store Scope"
-          ariaLabel="Filter by Store Scope"
-        />
 
         <Dropdown
           value={statusFilter}
@@ -443,7 +421,7 @@ function OrdersPage() {
 
                 {/* 6. Total */}
                 <span className="text-sm font-bold text-[var(--color-text-primary)] dark:text-white text-center">
-                  {order.total} {currency}
+                  {formatCurrency(order.total, currency)}
                 </span>
               </button>
             ))}

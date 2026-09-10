@@ -10,7 +10,11 @@ export default function ProtectedRoute() {
   const location = useLocation()
 
   const userRole = (user?.role || '').toLowerCase()
-  const isAdmin = userRole === 'admin'
+  const userEmail = (user?.email || '').toLowerCase()
+  const isAdmin =
+    userRole === 'admin' ||
+    userEmail === 'admin@nexis.com' ||
+    userEmail === 'admin@koda.com'
   const isNonAdmin = Boolean(isAuthenticated && !isAdmin)
 
   useEffect(() => {

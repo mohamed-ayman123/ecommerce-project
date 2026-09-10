@@ -1,4 +1,5 @@
 import { Package } from 'lucide-react'
+import { formatCurrency } from '@/utils/formatters'
 
 const FALLBACK_IMAGE =
   'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="%23888" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>'
@@ -29,7 +30,7 @@ export default function CartItemRow({ item, currency = 'EGP' }) {
             {item.name || 'Unnamed Product'}
           </h5>
           <p className="text-xs text-text-secondary dark:text-slate-400">
-            Unit Price: {item.price?.toLocaleString()} {currency}
+            Unit Price: {formatCurrency(item.price, currency)}
           </p>
         </div>
       </div>
@@ -39,7 +40,7 @@ export default function CartItemRow({ item, currency = 'EGP' }) {
           Qty: <span className="text-primary-dark dark:text-white font-bold">{item.quantity}</span>
         </div>
         <div className="text-sm font-bold text-primary-dark dark:text-white font-heading">
-          {itemTotal.toLocaleString()} {currency}
+          {formatCurrency(itemTotal, currency)}
         </div>
       </div>
     </div>

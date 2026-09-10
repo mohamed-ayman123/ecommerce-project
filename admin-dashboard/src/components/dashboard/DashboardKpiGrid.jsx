@@ -6,15 +6,9 @@ import {
   Award,
   Users,
 } from 'lucide-react'
+import { formatCurrency } from '@/utils/formatters'
 
 export default function DashboardKpiGrid({ stats, currency = 'EGP' }) {
-  const formatCurrency = (val) => {
-    const num = Number(val) || 0
-    return `${num.toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })} ${currency}`
-  }
 
   const topProductName = stats.topProduct?.name || '—'
   const topProductUnits = stats.topProduct?.totalSold ?? 0
@@ -41,7 +35,7 @@ export default function DashboardKpiGrid({ stats, currency = 'EGP' }) {
     {
       id: 'total-revenue',
       title: 'Revenue',
-      value: formatCurrency(stats.totalRevenue),
+      value: formatCurrency(stats.totalRevenue, currency),
       subtitle: 'Total gross revenue',
       icon: DollarSign,
       iconStyle: 'bg-accent-gold/15 text-accent-gold border border-accent-gold/25',
@@ -50,7 +44,7 @@ export default function DashboardKpiGrid({ stats, currency = 'EGP' }) {
     {
       id: 'this-month',
       title: 'This Month',
-      value: formatCurrency(stats.thisMonthRevenue),
+      value: formatCurrency(stats.thisMonthRevenue, currency),
       subtitle: 'Monthly sales target',
       icon: TrendingUp,
       iconStyle: 'bg-primary-dark/10 dark:bg-primary-medium/30 text-primary-dark dark:text-text-gold border border-primary-medium/20',

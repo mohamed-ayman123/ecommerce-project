@@ -11,14 +11,11 @@ import {
 } from '@/components/dashboard/DashboardSkeletons'
 import {
   fetchDashboardData,
-  setDashboardScope,
-  selectDashboardScope,
   selectDashboardStats,
 } from '@/store/slices/dashboardSlice'
 
 export default function DashboardOverview() {
   const dispatch = useDispatch()
-  const activeScope = useSelector(selectDashboardScope)
   const stats = useSelector(selectDashboardStats)
   const currency = useSelector(
     (state) => state.ui?.preferences?.currency || 'EGP'
@@ -55,16 +52,10 @@ export default function DashboardOverview() {
     setIsRefreshing(false)
   }
 
-  const handleScopeChange = (newScope) => {
-    dispatch(setDashboardScope(newScope))
-  }
-
   return (
     <div className="space-y-4 sm:space-y-6 pb-12">
-      {/* 1. Header with Scope Switcher & Refresh Button */}
+      {/* 1. Header with Live Status & Refresh Button */}
       <DashboardHeader
-        activeScope={activeScope}
-        onScopeChange={handleScopeChange}
         onRefresh={handleRefresh}
         isRefreshing={isRefreshing}
       />

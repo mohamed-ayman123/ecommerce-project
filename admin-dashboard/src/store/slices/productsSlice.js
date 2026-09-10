@@ -7,6 +7,26 @@ import {
   deleteProduct,
 } from '@/api/products'
 import { isElectronicsOrHardwareProduct } from '@/constants/categories'
+import { buildStoreCatalogLookup } from '@/utils/storeCatalog'
+
+const DRAFTS_STORAGE_KEY = 'nexis_draft_products'
+
+function getStoredDrafts() {
+  try {
+    const raw = localStorage.getItem(DRAFTS_STORAGE_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch {
+    return []
+  }
+}
+
+function saveStoredDrafts(drafts) {
+  try {
+    localStorage.setItem(DRAFTS_STORAGE_KEY, JSON.stringify(drafts))
+  } catch {
+    // Ignore storage quota error
+  }
+}
 
 // Async Thunks - Service Layer via Redux
 export const fetchProducts = createAsyncThunk(
@@ -156,8 +176,16 @@ const productsSlice = createSlice({
           payload.data ||
           (Array.isArray(payload) ? payload : [])
 
+        // Hydrate drafts saved in localStorage so they persist across reloads
+        const storedDrafts = getStoredDrafts()
+        const existingIds = new Set(rawItems.map((p) => String(p._id || p.id)))
+        const validDrafts = storedDrafts.filter(
+          (d) => !existingIds.has(String(d._id || d.id)) && d.isActive === false
+        )
+        const combined = [...rawItems, ...validDrafts]
+
         // Strict category filter: Electronics & Hardware products ONLY
-        state.items = rawItems.filter(isElectronicsOrHardwareProduct)
+        state.items = combined.filter(isElectronicsOrHardwareProduct)
         state.total = state.items.length
         state.page = payload.currentPage || payload.page || 1
         state.totalPages = payload.totalPages || 1
@@ -194,6 +222,14 @@ const productsSlice = createSlice({
           (created._id || created.id) &&
           isElectronicsOrHardwareProduct(created)
         ) {
+          const cId = created._id || created.id
+          if (created.isActive === false) {
+            const currentDrafts = getStoredDrafts().filter(
+              (d) => String(d._id || d.id) !== String(cId)
+            )
+            currentDrafts.push(created)
+            saveStoredDrafts(currentDrafts)
+          }
           state.items.unshift(created)
           state.total += 1
         }
@@ -213,6 +249,16 @@ const productsSlice = createSlice({
         const updated = action.payload?.product || action.payload
         if (updated) {
           const updatedId = updated._id || updated.id
+
+          // Sync with localStorage drafts
+          const currentDrafts = getStoredDrafts().filter(
+            (d) => String(d._id || d.id) !== String(updatedId)
+          )
+          if (updated.isActive === false) {
+            currentDrafts.push(updated)
+          }
+          saveStoredDrafts(currentDrafts)
+
           const idx = state.items.findIndex(
             (p) => (p._id || p.id) === updatedId
           )
@@ -240,6 +286,13 @@ const productsSlice = createSlice({
       .addCase(deleteProductById.fulfilled, (state, action) => {
         state.isLoading = false
         const deletedId = action.payload.id
+
+        // Remove from localStorage drafts if present
+        const currentDrafts = getStoredDrafts().filter(
+          (d) => String(d._id || d.id) !== String(deletedId)
+        )
+        saveStoredDrafts(currentDrafts)
+
         state.items = state.items.filter(
           (p) => (p._id || p.id) !== deletedId
         )
@@ -264,30 +317,53 @@ export const {
 // ==========================================
 
 /**
- * Product Catalog & Inventory Statistics Selector
- * Computes catalog totals, in-stock count, and out-of-stock count.
+ * Product Catalog & Inventory Statistics Selector (Memoized Domain Selector)
+ * Computes official store totals, in-stock, out-of-stock, featured, and drafts counts.
  */
-export const selectProductStats = createSelector(
+export const selectProductCatalogStats = createSelector(
   [
     (state) => state.products?.items || [],
     (state) => Boolean(state.products?.isLoading),
   ],
   (products, isLoading) => {
-    const totalProducts = products.length
-    const inStockProducts = products.filter(
-      (p) => (Number(p.stock) || Number(p.quantity) || 0) > 0
-    ).length
-    const outOfStockProducts = products.filter(
-      (p) => (Number(p.stock) || Number(p.quantity) || 0) <= 0
-    ).length
+    const valid = products.filter(isElectronicsOrHardwareProduct)
+    const total = valid.length
+    const inStock = valid.filter((p) => Number(p.stock) > 0).length
+    const outOfStock = valid.filter((p) => Number(p.stock) === 0).length
+    const featured = valid.filter((p) => Boolean(p.featured)).length
+    const drafts = valid.filter((p) => p.isActive === false).length
 
     return {
-      totalProducts,
-      inStockProducts,
-      outOfStockProducts,
+      total,
+      totalProducts: total,
+      inStock,
+      inStockProducts: inStock,
+      outOfStock,
+      outOfStockProducts: outOfStock,
+      featured,
+      drafts,
+      counts: {
+        all: total,
+        featured,
+        inStock,
+        outOfStock,
+        draft: drafts,
+      },
       isProductsLoading: isLoading,
     }
   }
+)
+
+// Backward-compatible alias for dashboardSlice
+export const selectProductStats = selectProductCatalogStats
+
+/**
+ * Fast lookup set memoized selector for Nexis products catalog.
+ * Used across Orders, Carts, and Dashboard for O(1) item matching.
+ */
+export const selectStoreCatalogLookup = createSelector(
+  [(state) => state.products?.items || []],
+  (products) => buildStoreCatalogLookup(products)
 )
 
 export default productsSlice.reducer

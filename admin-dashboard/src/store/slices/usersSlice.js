@@ -88,7 +88,7 @@ const usersSlice = createSlice({
       })
       .addCase(fetchUsers.fulfilled, (state, action) => {
         state.isLoading = false
-        const payload = action.payload
+        const payload = action.payload || {}
         state.items = payload.users || (Array.isArray(payload) ? payload : [])
         state.total = payload.total ?? state.items.length
         state.page = payload.page ?? 1

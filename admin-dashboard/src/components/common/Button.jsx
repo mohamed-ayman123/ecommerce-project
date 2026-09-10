@@ -8,24 +8,24 @@ export default function Button({
   type = 'button',
   ...props
 }) {
-  const baseStyles =
-    'inline-flex items-center justify-center font-heading font-semibold rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer'
+  const hasDisplay = /\b(hidden|flex|inline-flex|block|inline|grid|inline-block)\b/.test(className)
+  const baseStyles = `${hasDisplay ? '' : 'inline-flex '}items-center justify-center font-heading font-semibold rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer`
 
   const variants = {
     primary:
-      'bg-[var(--color-primary-dark)] hover:bg-[var(--color-primary-medium)] dark:bg-[var(--color-primary-medium)] dark:hover:bg-[var(--color-accent-gold-hover)] text-white focus:ring-[var(--color-primary-dark)] shadow-sm active:scale-[0.99]',
+      'bg-primary-dark hover:bg-primary-medium dark:bg-primary-medium dark:hover:bg-accent-gold-hover text-white focus:ring-primary-dark shadow-sm active:scale-[0.99]',
     secondary:
-      'bg-[var(--color-bg-main)] hover:bg-[var(--color-border-medium)] dark:bg-[var(--color-dark-bg-main)] dark:hover:bg-[var(--color-primary-medium)]/40 text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] focus:ring-[var(--color-primary-medium)]',
+      'bg-bg-main hover:bg-border-medium dark:bg-dark-bg-main dark:hover:bg-primary-medium/40 text-text-primary dark:text-text-light focus:ring-primary-medium',
     outline:
-      'border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/50 hover:bg-[var(--color-bg-main)] dark:hover:bg-[var(--color-dark-bg-main)] text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] focus:ring-[var(--color-primary-medium)]',
+      'border border-border-medium dark:border-primary-medium/50 hover:bg-bg-main dark:hover:bg-dark-bg-main text-text-primary dark:text-text-light focus:ring-primary-medium',
     gold:
-      'bg-[var(--color-text-gold)] hover:bg-[var(--color-accent-gold-hover)] text-white focus:ring-[var(--color-text-gold)] shadow-sm active:scale-[0.99]',
+      'bg-text-gold hover:bg-accent-gold-hover text-white focus:ring-text-gold shadow-sm active:scale-[0.99]',
     danger:
       'bg-rose-600 hover:bg-rose-700 text-white focus:ring-rose-500 shadow-sm',
     ghost:
-      'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:hover:bg-[var(--color-dark-bg-main)] hover:text-[var(--color-text-primary)] dark:hover:text-[var(--color-text-light)] focus:ring-[var(--color-primary-medium)]',
+      'text-text-secondary hover:bg-bg-main dark:hover:bg-dark-bg-main hover:text-text-primary dark:hover:text-text-light focus:ring-primary-medium',
     subtle:
-      'bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-main)] border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/40 text-[var(--color-primary-dark)] dark:text-[var(--color-text-gold)] hover:border-[var(--color-accent-gold-hover)] hover:bg-[var(--color-border-light)] dark:hover:bg-[var(--color-primary-medium)]/30 focus:ring-[var(--color-primary-medium)] shadow-2xs',
+      'bg-bg-main dark:bg-dark-bg-main border border-border-medium dark:border-primary-medium/40 text-primary-dark dark:text-text-gold hover:border-accent-gold-hover hover:bg-border-light dark:hover:bg-primary-medium/30 focus:ring-primary-medium shadow-2xs',
     none: '',
   }
 
