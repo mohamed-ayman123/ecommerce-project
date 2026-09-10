@@ -46,9 +46,12 @@ export const changeOrderStatus = createAsyncThunk(
       const data = await updateOrderStatus(id, statusData)
       return { id, data, statusData }
     } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || err.message || 'Failed to update order status'
-      )
+      const errorMessage =
+        err.response?.data?.errors?.join?.(', ') ||
+        err.response?.data?.message ||
+        err.message ||
+        'Failed to update order status'
+      return rejectWithValue(errorMessage)
     }
   }
 )

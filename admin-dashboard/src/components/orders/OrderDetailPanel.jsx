@@ -9,27 +9,35 @@ import Button from '@/components/common/Button'
 const STATUS_OPTIONS = [
   'Pending',
   'Confirmed',
+  'Processing',
   'Shipped',
   'Delivered',
   'Cancelled',
+  'Returned',
 ]
+
+const normalizeStatus = (s) => {
+  if (!s) return 'Pending'
+  const str = String(s).trim()
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+}
 
 function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
   const dispatch = useDispatch()
   const [prevOrder, setPrevOrder] = useState(order)
-  const [status, setStatus] = useState(order?.status || 'Pending')
-  const [note, setNote] = useState('')
+  const [status, setStatus] = useState(normalizeStatus(order?.status))
+  const [note, setNote] = useState(order?.adminNote || '')
   const [isSaving, setIsSaving] = useState(false)
 
   if (order !== prevOrder) {
     setPrevOrder(order)
-    setStatus(order?.status || 'Pending')
-    setNote('')
+    setStatus(normalizeStatus(order?.status))
+    setNote(order?.adminNote || '')
   }
 
   if (!order) return null
 
-  const orderId = order.originalId || order._id || order.id
+  const orderId = order._id || order.originalId || (order.id?.startsWith?.('#') ? '' : order.id)
   const customerNote =
     order.customerNote || order.note || order.customer?.note || ''
 
@@ -43,15 +51,22 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
 
   const handleSave = async () => {
     if (!orderId) {
-      toast.error('Order ID is missing')
+      toast.error('Valid Order ID is missing')
       return
     }
 
     try {
       setIsSaving(true)
 
+      const statusData = {
+        status: status.toLowerCase().trim(),
+      }
+      if (note && note.trim()) {
+        statusData.adminNote = note.trim()
+      }
+
       const result = await dispatch(
-        changeOrderStatus({ id: orderId, statusData: { status, note } })
+        changeOrderStatus({ id: orderId, statusData })
       ).unwrap()
 
       toast.success('Order status updated successfully')
@@ -67,8 +82,6 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
       setIsSaving(false)
     }
   }
-
-  const isDelivered = order.status?.toLowerCase() === 'delivered'
 
   return (
     <aside className="flex h-full w-full max-w-md flex-col bg-[var(--color-bg-card)] text-[var(--color-text-primary)] shadow-2xl dark:bg-[var(--color-dark-bg-card)] dark:text-white border-l border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/30">
@@ -232,14 +245,14 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
         </div>
 
         {/* Customer Note */}
-        {isDelivered && (
+        {customerNote && (
           <>
             <p className="mb-3 mt-6 text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-text-secondary)] dark:text-[var(--color-text-gold)]">
               Customer Note
             </p>
 
             <div className="rounded-2xl border border-[var(--color-border-light)] bg-[var(--color-bg-main)] p-4 text-sm italic text-[var(--color-text-secondary)] dark:bg-[var(--color-dark-bg-main)] dark:border-[var(--color-primary-medium)]/30 dark:text-slate-300">
-              {customerNote ? `“${customerNote}”` : 'No customer note available.'}
+              “{customerNote}”
             </div>
           </>
         )}
