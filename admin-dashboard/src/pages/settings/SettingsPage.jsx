@@ -9,7 +9,6 @@ import {
   RotateCcw,
   Save,
   LayoutGrid,
-  ChevronDown,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import {
@@ -19,6 +18,8 @@ import {
 } from '@/store/slices/uiSlice'
 import Button from '@/components/common/Button'
 import Modal from '@/components/common/Modal'
+import Badge from '@/components/common/Badge'
+import Dropdown from '@/components/common/Dropdown'
 
 function Toggle({ checked, onChange, label }) {
   return (
@@ -44,29 +45,7 @@ function Toggle({ checked, onChange, label }) {
   )
 }
 
-function SelectDropdown({ name, value, onChange, options }) {
-  return (
-    <div className="relative inline-block w-full sm:w-auto min-w-[210px]">
-      <select
-        name={name}
-        value={value}
-        onChange={onChange}
-        className="w-full appearance-none rounded-xl border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/40 bg-[var(--color-bg-input)]/45 dark:bg-[var(--color-dark-bg-main)] pl-3.5 pr-10 py-2.5 text-sm font-body text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-medium)] dark:focus:ring-[var(--color-text-gold)] cursor-pointer transition-colors shadow-2xs"
-      >
-        {options.map((opt) => (
-          <option
-            key={opt.value}
-            value={opt.value}
-            className="bg-white dark:bg-[var(--color-dark-bg-card)] text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] py-1"
-          >
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--color-text-secondary)] dark:text-[var(--color-text-gold)]" />
-    </div>
-  )
-}
+
 
 function SectionCard({ icon: Icon, title, description, children }) {
   return (
@@ -134,12 +113,11 @@ export default function SettingsPage() {
 
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
+  const handleSelect = (name, val) => {
     const parsedValue =
       name === 'defaultPageSize' || name === 'toastDuration'
-        ? Number(value)
-        : value
+        ? Number(val)
+        : val
     setFormData((prev) => ({
       ...prev,
       [name]: parsedValue,
@@ -174,9 +152,9 @@ export default function SettingsPage() {
             <SettingsIcon className="w-6 h-6 text-[var(--color-text-gold)]" />
           </div>
           <div className="space-y-1">
-            <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase font-heading bg-[var(--color-primary-medium)]/15 text-[var(--color-primary-dark)] border border-[var(--color-primary-medium)]/25 dark:bg-[var(--color-primary-medium)]/30 dark:text-[var(--color-text-gold)]">
+            <Badge variant="primary" size="sm">
               PREFERENCES
-            </span>
+            </Badge>
             <h1 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] tracking-tight">
               Dashboard Settings
             </h1>
@@ -234,16 +212,16 @@ export default function SettingsPage() {
             label="Default Landing Page"
             hint="The primary screen displayed when accessing the root dashboard."
           >
-            <SelectDropdown
-              name="defaultLanding"
+            <Dropdown
               value={formData.defaultLanding}
-              onChange={handleChange}
+              onChange={(val) => handleSelect('defaultLanding', val)}
               options={[
                 { value: '/dashboard', label: 'Dashboard Overview' },
                 { value: '/dashboard/products', label: 'Products Catalog' },
                 { value: '/dashboard/users', label: 'Users & Administrators' },
                 { value: '/dashboard/orders', label: 'Orders Management' },
               ]}
+              ariaLabel="Default Landing Page"
             />
           </SettingRow>
         </SectionCard>
@@ -259,16 +237,16 @@ export default function SettingsPage() {
             label="Default Rows Per Page"
             hint="Initial pagination record count for directory tables."
           >
-            <SelectDropdown
-              name="defaultPageSize"
+            <Dropdown
               value={formData.defaultPageSize}
-              onChange={handleChange}
+              onChange={(val) => handleSelect('defaultPageSize', val)}
               options={[
                 { value: 10, label: '10 items per page' },
                 { value: 25, label: '25 items per page' },
                 { value: 50, label: '50 items per page' },
                 { value: 100, label: '100 items per page' },
               ]}
+              ariaLabel="Default Rows Per Page"
             />
           </SettingRow>
 
@@ -276,16 +254,16 @@ export default function SettingsPage() {
             label="Catalog Currency"
             hint="Default currency symbol used for pricing formats."
           >
-            <SelectDropdown
-              name="currency"
+            <Dropdown
               value={formData.currency}
-              onChange={handleChange}
+              onChange={(val) => handleSelect('currency', val)}
               options={[
                 { value: 'EGP', label: 'EGP (E£ - Egyptian Pound)' },
                 { value: 'USD', label: 'USD ($ - US Dollar)' },
                 { value: 'EUR', label: 'EUR (€ - Euro)' },
                 { value: 'GBP', label: 'GBP (£ - British Pound)' },
               ]}
+              ariaLabel="Catalog Currency"
             />
           </SettingRow>
         </SectionCard>
@@ -301,16 +279,16 @@ export default function SettingsPage() {
             label="Toast Popup Placement"
             hint="Position on the screen where confirmation and error toasts appear."
           >
-            <SelectDropdown
-              name="toastPosition"
+            <Dropdown
               value={formData.toastPosition}
-              onChange={handleChange}
+              onChange={(val) => handleSelect('toastPosition', val)}
               options={[
                 { value: 'top-right', label: 'Top Right (Standard)' },
                 { value: 'top-center', label: 'Top Center' },
                 { value: 'bottom-right', label: 'Bottom Right' },
                 { value: 'bottom-center', label: 'Bottom Center' },
               ]}
+              ariaLabel="Toast Popup Placement"
             />
           </SettingRow>
 
@@ -318,15 +296,15 @@ export default function SettingsPage() {
             label="Toast Dismissal Timer"
             hint="How many seconds popup messages remain visible before automatically closing."
           >
-            <SelectDropdown
-              name="toastDuration"
+            <Dropdown
               value={formData.toastDuration}
-              onChange={handleChange}
+              onChange={(val) => handleSelect('toastDuration', val)}
               options={[
                 { value: 2000, label: '2 Seconds (Fast)' },
                 { value: 3000, label: '3 Seconds (Standard)' },
                 { value: 5000, label: '5 Seconds (Extended)' },
               ]}
+              ariaLabel="Toast Dismissal Timer"
             />
           </SettingRow>
         </SectionCard>

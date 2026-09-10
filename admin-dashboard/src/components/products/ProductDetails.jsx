@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import Modal from '@/components/common/Modal'
 import Button from '@/components/common/Button'
+import Badge from '@/components/common/Badge'
 
 export default function ProductDetails({
   isOpen,
@@ -118,10 +119,14 @@ export default function ProductDetails({
               />
               {featured && (
                 <div className="absolute left-3 top-3">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 text-slate-950 px-2.5 h-6 text-[11px] font-extrabold font-heading tracking-wide shadow-md border border-amber-300/80 backdrop-blur-xs">
+                  <Badge
+                    variant="gold"
+                    size="sm"
+                    className="bg-amber-400 text-slate-950 border-amber-300/80 shadow-md backdrop-blur-xs font-heading font-extrabold"
+                  >
                     <Sparkles className="h-3 w-3 fill-slate-950 text-slate-950" />
                     Featured
-                  </span>
+                  </Badge>
                 </div>
               )}
             </div>
@@ -183,9 +188,13 @@ export default function ProductDetails({
                       <span className="text-sm text-[var(--color-text-secondary)] line-through">
                         {price} {currency}
                       </span>
-                      <span className="inline-flex items-center justify-center h-5 px-2 rounded-full bg-rose-600 text-[10px] font-bold font-heading tabular-nums text-white leading-none shadow-xs">
+                      <Badge
+                        variant="danger"
+                        size="sm"
+                        className="bg-rose-600 text-white font-heading tabular-nums shadow-xs"
+                      >
                         -{discountPercentage}%
-                      </span>
+                      </Badge>
                     </>
                   )}
                 </div>
@@ -194,15 +203,15 @@ export default function ProductDetails({
               {/* Inventory Status */}
               <div className="flex items-center gap-2">
                 {isOutOfStock ? (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-3 py-1 text-xs font-bold text-rose-700 dark:bg-rose-950/50 dark:text-rose-400">
+                  <Badge variant="danger" size="md">
                     <PackageX className="h-3.5 w-3.5" />
                     Out of Stock
-                  </span>
+                  </Badge>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400">
+                  <Badge variant="success" size="md">
                     <PackageCheck className="h-3.5 w-3.5" />
                     {stock} in stock
-                  </span>
+                  </Badge>
                 )}
               </div>
             </div>

@@ -1,5 +1,6 @@
 import { RefreshCw, Building2, Globe2, LayoutDashboard } from 'lucide-react'
 import Button from '@/components/common/Button'
+import Badge from '@/components/common/Badge'
 
 export default function DashboardHeader({
   activeScope,
@@ -15,9 +16,9 @@ export default function DashboardHeader({
           <LayoutDashboard className="w-5 h-5 sm:w-6 sm:h-6 text-text-gold" />
         </div>
         <div className="space-y-0.5 sm:space-y-1 min-w-0 flex-1">
-          <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase font-heading bg-primary-medium/15 text-primary-dark border border-primary-medium/25 dark:bg-primary-medium/30 dark:text-text-gold">
+          <Badge variant="primary" size="sm">
             STORE OVERVIEW
-          </span>
+          </Badge>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-primary-dark dark:text-text-light tracking-tight truncate">
             Dashboard Overview
           </h1>

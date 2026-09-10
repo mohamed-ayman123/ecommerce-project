@@ -2,8 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   ShoppingCart,
-  ChevronLeft,
-  ChevronRight,
   RefreshCw,
   AlertCircle,
   Sparkles,
@@ -22,6 +20,8 @@ import CartFilters from '@/components/carts/CartFilters'
 import CartCard from '@/components/carts/CartCard'
 import CartDetailModal from '@/components/carts/CartDetailModal'
 import Button from '@/components/common/Button'
+import Badge from '@/components/common/Badge'
+import Pagination from '@/components/common/Pagination'
 import {
   buildStoreCatalogLookup,
   isStoreCart,
@@ -34,9 +34,7 @@ export default function Carts() {
   // 1. Redux as Single Source of Truth
   const {
     items: rawCarts,
-    total: rawTotal,
     page,
-    totalPages,
     isLoading,
     error,
     searchTerm,
@@ -54,11 +52,11 @@ export default function Carts() {
 
   // Fetch active carts and ensure store products catalog is loaded
   useEffect(() => {
-    dispatch(fetchAdminCarts({ page, limit: pageSize }))
+    dispatch(fetchAdminCarts({ limit: 100 }))
     if (products.length === 0) {
       dispatch(fetchProducts({ limit: 100 }))
     }
-  }, [dispatch, page, pageSize, products.length])
+  }, [dispatch, products.length])
 
   const toggleCartExpand = (id) => {
     setExpandedCartIds((prev) => ({
@@ -151,21 +149,31 @@ export default function Carts() {
     }
   }, [filteredCarts])
 
+  // 6. Pagination calculations based on store preferences (defaultPageSize)
+  const totalCarts = filteredCarts.length
+  const totalPages = Math.max(1, Math.ceil(totalCarts / pageSize))
+  const safePage = Math.min(page, totalPages)
+
+  const paginatedCarts = useMemo(() => {
+    const start = (safePage - 1) * pageSize
+    return filteredCarts.slice(start, start + pageSize)
+  }, [filteredCarts, safePage, pageSize])
+
   return (
     <div className="w-full space-y-6">
       {/* Top Header Card */}
       <div className="bg-white dark:bg-[var(--color-dark-bg-card)] p-6 rounded-2xl border border-border-light dark:border-white/10 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-1">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-accent-gold/10 text-accent-gold border border-accent-gold/20 tracking-wider uppercase">
+            <Badge variant="gold" size="sm">
               <ShoppingCart className="w-3.5 h-3.5" />
               Active Carts Monitor
-            </span>
+            </Badge>
             {storeOnly && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              <Badge variant="success" size="sm">
                 <Sparkles className="w-3 h-3" />
                 Nexis Tech Catalog Matched (Electronics & Hardware)
-              </span>
+              </Badge>
             )}
           </div>
           <h1 className="text-2xl font-bold text-primary-dark dark:text-white font-heading">
@@ -284,9 +292,9 @@ export default function Carts() {
       )}
 
       {/* Active Carts List */}
-      {!isLoading && !error && filteredCarts.length > 0 && (
+      {!isLoading && !error && paginatedCarts.length > 0 && (
         <div className="space-y-4">
-          {filteredCarts.map((cart) => (
+          {paginatedCarts.map((cart) => (
             <CartCard
               key={cart._id || cart.id}
               cart={cart}
@@ -300,63 +308,16 @@ export default function Carts() {
       )}
 
       {/* Pagination Controls */}
-      {totalPages > 1 && !searchTerm && (
-        <div className="bg-white dark:bg-[var(--color-dark-bg-card)] p-4 rounded-2xl border border-border-light dark:border-white/10 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
-          <span className="text-xs text-text-secondary dark:text-slate-400">
-            Showing Page <span className="font-semibold text-primary-dark dark:text-white">{page}</span> of{' '}
-            <span className="font-semibold text-primary-dark dark:text-white">{totalPages}</span> ({rawTotal} total carts in DB)
-          </span>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => dispatch(setPage(Math.max(1, page - 1)))}
-              disabled={page <= 1 || isLoading}
-              className="p-2 rounded-xl border border-border-light dark:border-white/10 hover:bg-bg-input/50 dark:hover:bg-white/5 text-primary-dark dark:text-white disabled:opacity-40 cursor-pointer"
-              title="Previous Page"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => {
-              if (
-                p === 1 ||
-                p === totalPages ||
-                (p >= page - 1 && p <= page + 1)
-              ) {
-                return (
-                  <button
-                    key={p}
-                    onClick={() => dispatch(setPage(p))}
-                    className={`w-8 h-8 rounded-xl text-xs font-semibold cursor-pointer transition-colors ${
-                      p === page
-                        ? 'bg-primary-dark text-white shadow-xs'
-                        : 'border border-border-light dark:border-white/10 text-primary-dark dark:text-white hover:bg-bg-input/50 dark:hover:bg-white/5'
-                    }`}
-                  >
-                    {p}
-                  </button>
-                )
-              }
-              if (p === page - 2 || p === page + 2) {
-                return (
-                  <span key={p} className="text-xs text-text-secondary dark:text-slate-400">
-                    ...
-                  </span>
-                )
-              }
-              return null
-            })}
-
-            <button
-              onClick={() => dispatch(setPage(Math.min(totalPages, page + 1)))}
-              disabled={page >= totalPages || isLoading}
-              className="p-2 rounded-xl border border-border-light dark:border-white/10 hover:bg-bg-input/50 dark:hover:bg-white/5 text-primary-dark dark:text-white disabled:opacity-40 cursor-pointer"
-              title="Next Page"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+      {totalCarts > 0 && (
+        <Pagination
+          currentPage={safePage}
+          totalPages={totalPages}
+          totalItems={totalCarts}
+          pageSize={pageSize}
+          itemLabel="carts"
+          onPageChange={(newPage) => dispatch(setPage(newPage))}
+          className="p-4 bg-white dark:bg-[var(--color-dark-bg-card)] rounded-2xl border border-border-light dark:border-white/10 shadow-xs"
+        />
       )}
 
       {/* Cart Detail Modal using Common Modal & Button */}

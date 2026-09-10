@@ -30,11 +30,11 @@ export default function NotFound() {
       {/* Decorative ambient background glows using Logo gradient colors */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-40 -left-40 h-[450px] w-[450px] rounded-full bg-gradient-to-br from-[#2F4842]/25 to-[#44635B]/20 blur-3xl dark:from-[#2F4842]/40 dark:to-[#44635B]/30"
+        className="pointer-events-none absolute -top-40 -left-40 h-[450px] w-[450px] rounded-full bg-gradient-to-br from-[var(--color-primary-dark)]/25 to-[var(--color-primary-medium)]/20 blur-3xl dark:from-[var(--color-primary-dark)]/40 dark:to-[var(--color-primary-medium)]/30"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-40 -right-40 h-[450px] w-[450px] rounded-full bg-gradient-to-tl from-[#DDA136]/20 via-[#C58C2B]/15 to-transparent blur-3xl dark:from-[#DDA136]/30 dark:via-[#C58C2B]/20"
+        className="pointer-events-none absolute -bottom-40 -right-40 h-[450px] w-[450px] rounded-full bg-gradient-to-tl from-[var(--color-accent-gold)]/20 via-[var(--color-accent-gold-hover)]/15 to-transparent blur-3xl dark:from-[var(--color-accent-gold)]/30 dark:via-[var(--color-accent-gold-hover)]/20"
       />
 
       {/* Brand Logo Header */}
@@ -50,7 +50,7 @@ export default function NotFound() {
         <div className="p-8 sm:p-10">
           {/* Stylized Logo-Gradient 404 Display */}
           <div className="mb-3">
-            <span className="font-heading text-7xl font-black tracking-tight select-none sm:text-8xl bg-gradient-to-r from-[var(--color-primary-dark)] via-[var(--color-primary-medium)] to-[var(--color-accent-gold)] bg-clip-text text-transparent dark:from-[#62978B] dark:via-emerald-300 dark:to-[var(--color-accent-gold)]">
+            <span className="font-heading text-7xl font-black tracking-tight select-none sm:text-8xl bg-gradient-to-r from-[var(--color-primary-dark)] via-[var(--color-primary-medium)] to-[var(--color-accent-gold)] bg-clip-text text-transparent dark:from-[var(--color-primary-medium)] dark:via-emerald-300 dark:to-[var(--color-accent-gold)]">
               404
             </span>
           </div>
@@ -85,7 +85,7 @@ export default function NotFound() {
               type="button"
               size="md"
               onClick={handlePrimaryAction}
-              className="w-full sm:w-auto bg-gradient-to-r from-[var(--color-primary-dark)] to-[var(--color-primary-medium)] hover:from-[var(--color-primary-medium)] hover:to-[#263c37] dark:from-[var(--color-primary-medium)] dark:to-[var(--color-primary-dark)] dark:hover:from-[var(--color-accent-gold-hover)] dark:hover:to-[var(--color-accent-gold)] text-white shadow-md hover:shadow-lg transition-all"
+              className="w-full sm:w-auto bg-gradient-to-r from-[var(--color-primary-dark)] to-[var(--color-primary-medium)] hover:from-[var(--color-primary-medium)] hover:to-[var(--color-primary-dark)] dark:from-[var(--color-primary-medium)] dark:to-[var(--color-primary-dark)] dark:hover:from-[var(--color-accent-gold-hover)] dark:hover:to-[var(--color-accent-gold)] text-white shadow-md hover:shadow-lg transition-all"
             >
               {isAuthenticated ? (
                 <>

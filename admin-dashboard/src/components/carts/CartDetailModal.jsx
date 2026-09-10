@@ -1,19 +1,7 @@
 import Modal from '@/components/common/Modal'
 import Button from '@/components/common/Button'
 import { Package, ShoppingCart } from 'lucide-react'
-
-const formatDate = (value) => {
-  if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return String(value)
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
+import { formatDate } from '@/utils/formatters'
 
 export default function CartDetailModal({ cart, currency = 'EGP', onClose }) {
   if (!cart) return null

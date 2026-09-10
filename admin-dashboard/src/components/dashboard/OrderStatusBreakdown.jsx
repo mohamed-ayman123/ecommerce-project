@@ -7,6 +7,7 @@ import {
   XCircle,
   Activity,
 } from 'lucide-react'
+import Badge from '@/components/common/Badge'
 
 const STATUS_CONFIGS = [
   {
@@ -61,19 +62,19 @@ export default function OrderStatusBreakdown({ stats }) {
       {/* Section Header */}
       <div className="flex items-center justify-between gap-3 mb-4 sm:mb-6">
         <div>
-          <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase font-heading bg-primary-medium/15 text-primary-dark border border-primary-medium/25 dark:bg-primary-medium/30 dark:text-text-gold">
+          <Badge variant="primary" size="sm">
             FULFILLMENT METRICS
-          </span>
+          </Badge>
           <h2 className="text-lg sm:text-xl font-bold font-heading text-primary-dark dark:text-text-light tracking-tight mt-1">
             Live fulfillment breakdown
           </h2>
         </div>
 
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+        <Badge variant="success" size="sm">
           <Activity className="w-3.5 h-3.5" />
           <span className="hidden xs:inline">Updated from API</span>
           <span className="xs:hidden">Live</span>
-        </div>
+        </Badge>
       </div>
 
       {/* 6-box responsive grid */}

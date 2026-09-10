@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
+import Badge from '@/components/common/Badge'
 
 export default function ProductCard({
   product,
@@ -147,32 +148,48 @@ export default function ProductCard({
         {/* Featured Badge (Top-Left) */}
         {featured && (
           <div className="absolute left-3 top-3 z-10">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 text-slate-950 px-2.5 h-6 text-[11px] font-extrabold font-heading tracking-wide shadow-md border border-amber-300/80 backdrop-blur-xs">
+            <Badge
+              variant="gold"
+              size="sm"
+              className="bg-amber-400 text-slate-950 border-amber-300/80 shadow-md backdrop-blur-xs font-heading font-extrabold"
+            >
               <Star className="h-3 w-3 fill-slate-950 text-slate-950" />
               Featured
-            </span>
+            </Badge>
           </div>
         )}
 
         {/* Discount Badge (Top-Right, always consistent) */}
         {hasDiscount && (
           <div className="absolute right-3 top-3 z-10">
-            <span className="inline-flex items-center justify-center h-6 px-2.5 rounded-full bg-rose-600 text-[11px] font-bold font-heading tabular-nums text-white shadow-md leading-none tracking-tight">
+            <Badge
+              variant="danger"
+              size="sm"
+              className="bg-rose-600 text-white border-rose-500 shadow-md font-heading tabular-nums"
+            >
               -{discountPercentage}%
-            </span>
+            </Badge>
           </div>
         )}
 
         {/* Stock Badge */}
         <div className="absolute bottom-3 left-3">
           {isOutOfStock ? (
-            <span className="rounded-full bg-rose-600/90 backdrop-blur-xs px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+            <Badge
+              variant="danger"
+              size="sm"
+              className="bg-rose-600/90 text-white border-rose-500/80 shadow-sm backdrop-blur-xs"
+            >
               Out of stock
-            </span>
+            </Badge>
           ) : (
-            <span className="rounded-full bg-emerald-600/90 backdrop-blur-xs px-2.5 py-1 text-xs font-semibold text-white shadow-sm">
+            <Badge
+              variant="success"
+              size="sm"
+              className="bg-emerald-600/90 text-white border-emerald-500/80 shadow-sm backdrop-blur-xs"
+            >
               {stock} in stock
-            </span>
+            </Badge>
           )}
         </div>
       </div>

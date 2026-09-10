@@ -24,19 +24,23 @@ export default function Button({
       'bg-rose-600 hover:bg-rose-700 text-white focus:ring-rose-500 shadow-sm',
     ghost:
       'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:hover:bg-[var(--color-dark-bg-main)] hover:text-[var(--color-text-primary)] dark:hover:text-[var(--color-text-light)] focus:ring-[var(--color-primary-medium)]',
+    subtle:
+      'bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-main)] border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/40 text-[var(--color-primary-dark)] dark:text-[var(--color-text-gold)] hover:border-[var(--color-accent-gold-hover)] hover:bg-[var(--color-border-light)] dark:hover:bg-[var(--color-primary-medium)]/30 focus:ring-[var(--color-primary-medium)] shadow-2xs',
+    none: '',
   }
 
   const sizes = {
     sm: 'px-3 py-1.5 text-xs',
     md: 'px-4 py-2 text-sm',
     lg: 'px-5 py-2.5 text-base',
+    none: '',
   }
 
   return (
     <button
       type={type}
       disabled={disabled || isLoading}
-      className={`${baseStyles} ${variants[variant] || variants.primary} ${sizes[size] || sizes.md} ${className}`}
+      className={`${baseStyles} ${variants[variant] ?? variants.primary} ${sizes[size] ?? sizes.md} ${className}`}
       {...props}
     >
       {isLoading ? (

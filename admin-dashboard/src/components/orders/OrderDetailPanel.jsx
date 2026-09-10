@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
+import { Link } from 'react-router-dom'
 import { X } from 'lucide-react'
 import { toast } from 'react-toastify'
 import { changeOrderStatus } from '@/store/slices/ordersSlice'
 import Dropdown from '@/components/common/Dropdown'
 import Button from '@/components/common/Button'
+import Badge from '@/components/common/Badge'
+import { getAdminNote, saveAdminNote } from '@/utils/orderNotes'
 
 const STATUS_OPTIONS = [
   'Pending',
@@ -16,33 +19,28 @@ const STATUS_OPTIONS = [
   'Returned',
 ]
 
-const STATUS_STYLES = {
-  pending: 'bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border-amber-200/50',
-  confirmed: 'bg-sky-50 text-sky-600 dark:bg-sky-950/40 dark:text-sky-400 border-sky-200/50',
-  processing: 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400 border-violet-200/50',
-  shipped: 'bg-cyan-50 text-cyan-600 dark:bg-cyan-950/40 dark:text-cyan-400 border-cyan-200/50',
-  delivered: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-200/50',
-  cancelled: 'bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-400 border-rose-200/50',
-  returned: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200/50',
-}
-
 const normalizeStatus = (s) => {
   if (!s) return 'Pending'
   const str = String(s).trim()
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
 }
 
+const resolveNote = (o) => {
+  if (!o) return ''
+  return o.adminNote || getAdminNote(o._id || o.originalId || o.id) || ''
+}
+
 function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
   const dispatch = useDispatch()
   const [prevOrder, setPrevOrder] = useState(order)
   const [status, setStatus] = useState(normalizeStatus(order?.status))
-  const [note, setNote] = useState(order?.adminNote || '')
+  const [note, setNote] = useState(resolveNote(order))
   const [isSaving, setIsSaving] = useState(false)
 
   if (order !== prevOrder) {
     setPrevOrder(order)
     setStatus(normalizeStatus(order?.status))
-    setNote(order?.adminNote || '')
+    setNote(resolveNote(order))
   }
 
   if (!order) return null
@@ -68,19 +66,26 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
     try {
       setIsSaving(true)
 
+      const trimmedNote = (note || '').trim()
       const statusData = {
         status: status.toLowerCase().trim(),
-      }
-      if (note && note.trim()) {
-        statusData.adminNote = note.trim()
+        adminNote: trimmedNote,
       }
 
       const result = await dispatch(
         changeOrderStatus({ id: orderId, statusData })
       ).unwrap()
 
-      toast.success('Order status updated successfully')
-      onUpdated?.(result.data?.order || result.data)
+      // Save to localStorage helper so it persists across sessions
+      saveAdminNote([orderId, order._id, order.id, order.originalId], trimmedNote)
+
+      toast.success('Order updated successfully')
+      const returnedOrder = result?.data?.order || result?.data || {}
+      onUpdated?.({
+        ...returnedOrder,
+        status,
+        adminNote: trimmedNote,
+      })
       onClose?.()
     } catch (error) {
       toast.error(
@@ -119,17 +124,8 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
       {/* Status and payment */}
       <div className="flex items-center justify-between border-b border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/30 px-6 py-4">
         <div className="flex items-center gap-2">
-          <span
-            className={`flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold border transition-colors ${
-              STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.pending
-            }`}
-          >
-            ● {normalizeStatus(status)}
-          </span>
-
-          <span className="rounded-full bg-[var(--color-accent-gold)]/20 px-3 py-1 text-xs font-bold uppercase text-[var(--color-text-gold)]">
-            {order.payment || 'Pending'}
-          </span>
+          <Badge status={status} dot />
+          <Badge status={order.payment || 'pending'} rounded="md" size="sm" />
         </div>
 
         <span className="text-sm text-[var(--color-text-secondary)] dark:text-slate-300">
@@ -209,9 +205,19 @@ function OrderDetailPanel({ order, currency = 'EGP', onClose, onUpdated }) {
               )}
 
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-[var(--color-text-primary)] dark:text-white">
-                  {item.name || item.productName || 'Product'}
-                </p>
+                {item.product?._id || item.product ? (
+                  <Link
+                    to={`/dashboard/products/${item.product?._id || item.product}/edit`}
+                    className="truncate text-sm font-semibold text-[var(--color-text-primary)] dark:text-white hover:text-[var(--color-accent-gold)] transition-colors block"
+                    title="Edit product"
+                  >
+                    {item.name || item.productName || 'Product'}
+                  </Link>
+                ) : (
+                  <p className="truncate text-sm font-semibold text-[var(--color-text-primary)] dark:text-white">
+                    {item.name || item.productName || 'Product'}
+                  </p>
+                )}
                 <p className="text-xs text-[var(--color-text-secondary)] dark:text-slate-400">
                   x {item.qty || item.quantity || 1} ·{' '}
                   {item.unitPrice || item.price || '0.00'} {currency}

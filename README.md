@@ -18,15 +18,15 @@ ecommerce-project/
 │       └── electronicsProducts.json
 ├── admin-dashboard/       # Enterprise Admin Control Panel (Port 5174)
 │   ├── src/
-│   │   ├── api/           # API service layer (auth, orders, products, carts, users)
+│   │   ├── api/           # API service layer (auth, orders, products, carts, users, axios)
 │   │   ├── components/    # Modular component library
-│   │   │   ├── common/    # Reusable atoms (Button, Modal, Dropdown, Logo, etc.)
+│   │   │   ├── common/    # Reusable UI primitives (Badge, Button, Dropdown, Input, Logo, Modal, Pagination)
 │   │   │   ├── layout/    # Shell components (Navbar, Sidebar, AppLayout, AuthLayout)
 │   │   │   ├── dashboard/ # Executive dashboard cards (Header, KpiGrid, StatusBreakdown, TopProducts, RecentOrders, Skeletons)
 │   │   │   ├── products/  # ProductCard, ProductForm, ProductDetails, ProductQuickEditModal
 │   │   │   ├── orders/    # OrderDetailPanel, OrderStatusModal, etc.
 │   │   │   └── carts/     # CartCard, CartStats, CartDetailModal, CartItemRow, CartFilters
-│   │   ├── constants/     # Allowed categories, subcategories & catalog validation rules
+│   │   ├── constants/     # Allowed categories, subcategories & catalog validation rules (categories.js)
 │   │   ├── pages/         # Application page views
 │   │   │   ├── auth/      # Login.jsx (with instant demo credentials fill)
 │   │   │   ├── dashboard/ # DashboardOverview.jsx (Executive real-time metrics & feeds)
@@ -38,7 +38,7 @@ ecommerce-project/
 │   │   │   └── error/     # NotFound.jsx (404 error page)
 │   │   ├── routes/        # AppRoutes.jsx, ProtectedRoute.jsx
 │   │   ├── store/         # Redux Toolkit store & slices (auth, products, orders, carts, users, dashboard, ui)
-│   │   ├── utils/         # Store catalog isolation helpers (order/cart filtering, fast Set lookups)
+│   │   ├── utils/         # Utility modules: formatters.js, orderNotes.js, storeCatalog.js
 │   │   ├── index.css      # Tailwind v4 theme, Nexis Tech design tokens & fonts
 │   │   └── main.jsx       # App entry (Redux Provider, BrowserRouter, ToastContainer)
 │   └── vite.config.js     # Port 5174, @ alias, Tailwind v4
@@ -146,6 +146,22 @@ Both apps include an SVG `Logo` component representing the Nexis Tech brand mark
   <Logo variant="dark" size="sm" showText={false} />
   ```
 
+### 4. Common UI Primitives (`admin-dashboard/src/components/common/`)
+To eliminate duplicate code and enforce consistent styling across all pages, common UI primitives are centralized:
+
+- **`Badge.jsx`**: Semantic status pills and taxonomy tags.
+  - Standardized color variants: `success` (green), `warning` (amber), `danger` (rose/red), `info` (sky/blue), `purple` (indigo/purple), `gold` (accent gold), `default` (slate), and `outline`.
+  - Configurable sizes (`sm`, `md`) and optional pulsing dot indicators. Deployed across 15+ cards, tables, and modal views.
+- **`Pagination.jsx`**: Universal responsive pagination bar.
+  - Automatically calculates and displays the current item slice (`Showing 1 to 10 of 24 items`).
+  - Supports dynamic page boundary jumping, direct page selection buttons, and previous/next controls. Automatically hides if total items fit within a single page.
+- **`Button.jsx`**: Universal design-system interactive button.
+  - 7 stylistic variants: `primary`, `secondary`, `outline`, `gold`, `danger`, `ghost`, and `subtle`.
+  - Built-in loading state with animated SVG spinner, left/right icon injection, disabled state enforcement, and prop overrides via nullish coalescing.
+- **`Dropdown.jsx`**: Accessible custom dropdown selector with keyboard support, replacing unstylable native `<select>` tags across filters, forms, and settings.
+- **`Modal.jsx`**: Accessible dialog overlay with backdrop dismiss, Escape key listener, smooth fade transitions, and structured header, body, and action footer slots.
+- **`Input.jsx`**: Standardized text, number, and search inputs with unified borders, focus rings, and dark mode styling.
+
 ---
 
 ## State Management (Redux Toolkit)
@@ -180,6 +196,19 @@ Because the application communicates with a shared training backend hosting mult
 - **`isStoreItem(item, lookup)`**: Validates whether a line item belongs to Nexis Tech's electronics catalog.
 - **`isStoreOrder(order, lookup)` & `filterStoreOrder(order, lookup)`**: Filters platform orders to isolate Nexis Tech items, recalculating store subtotal, taxes, shipping fees, and accurate gross/net revenue.
 - **`isStoreCart(cart, lookup)` & `filterStoreCart(cart, lookup)`**: Filters active carts to calculate accurate abandoned cart values specifically for Nexis Tech merchandise.
+
+### 3. Universal Formatters (`src/utils/formatters.js`)
+- **`formatCurrency(amount, currency = 'USD')`**: Centralized, locale-safe currency formatting supporting `EGP`, `USD`, `EUR`, and `GBP` with graceful numeric fallbacks.
+- **`formatDate(dateString, options)`**: Standardized human-readable date and time formatting across order histories, table timestamps, and user registration dates.
+
+### 4. Multi-Key Persistent Order Notes (`src/utils/orderNotes.js`)
+- **`getOrderNotes(orderId)` / `saveOrderNotes(orderId, notes)`**: High-reliability admin note persistence in `localStorage` supporting both raw MongoDB `_id` and normalized `orderId` keys for seamless order fulfillment tracking.
+
+### 5. Store Isolation & Resilient Pagination Architecture
+The admin dashboard implements a unified client-side pagination pattern across all four primary catalog views (`Products.jsx`, `OrdersPage.jsx`, `carts.jsx`, `UserList.jsx`):
+- **Store-Scoped Range Calculation**: Item counts and page boundaries are computed directly from the store-scoped dataset (`scopedItems.length`) rather than raw platform arrays. This prevents "ghost" empty pages (e.g. browsing to page 5 when Nexis Tech only has 2 records).
+- **Boundary Clamping (`safePage`)**: Dynamic page clamping via `Math.min(currentPage, totalPages || 1)` ensures that adjusting filters or switching stores automatically clamps out-of-bounds pagination indices back to valid ranges.
+- **Global Preferences Sync**: Initial rows-per-page defaults are tied directly to the Redux UI preferences slice (`defaultPageSize`), controllable via the **Settings** page (`10`, `25`, `50`, or `100` rows).
 
 ---
 
@@ -231,7 +260,10 @@ A catalog of **52 realistic electronics products** (MacBooks, iPhones, Sony head
 - ✅ **Active Carts & Abandoned Checkouts**: Live customer cart tracking and items drawer.
 - ✅ **Settings & Preferences**: Live theme switcher (Dark Forest & Light), catalog currency formatter (`EGP`, `USD`, `EUR`, `GBP`), table row density presets, landing page router, and notification toast positioning.
 - ✅ **Engineering & Quality Assurance**: 
-  - Zero hardcoded colors (strict design tokens).
+  - Zero hardcoded colors (strict design tokens & Tailwind v4 `@theme`).
+  - Centralized UI primitive library (`Badge`, `Pagination`, `Button`, `Dropdown`, `Modal`, `Input`, `Logo`).
+  - Resilient store-isolated pagination architecture with dynamic safe-page clamping.
+  - Multi-key persistent admin order notes (`localStorage`).
   - 100% memoized selectors (`createSelector`).
   - Cache-first zero-latency navigation.
   - Zero lint warnings (`oxlint`).

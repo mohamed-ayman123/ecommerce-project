@@ -2,7 +2,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toggleTheme, toggleMobileSidebar } from '../../store/slices/uiSlice'
 import { logoutUser } from '../../store/slices/authSlice'
+import { LogOut } from 'lucide-react'
 import Logo from '../common/Logo'
+import Button from '../common/Button'
 
 function NavBar() {
   const dispatch = useDispatch()
@@ -140,29 +142,16 @@ function NavBar() {
           </div>
 
           {/* Desktop Logout Button */}
-          <button
+          <Button
             type="button"
+            variant="gold"
+            size="md"
             onClick={handleLogout}
-            className="hidden md:flex items-center gap-2 rounded-xl bg-[var(--color-accent-gold-hover)] px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition hover:bg-[var(--color-text-gold)] active:scale-[0.98]"
+            className="hidden md:inline-flex items-center gap-2"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-log-out"
-            >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <polyline points="16 17 21 12 16 7" />
-              <line x1="21" x2="9" y1="12" y2="12" />
-            </svg>
+            <LogOut className="w-4 h-4" />
             Logout
-          </button>
+          </Button>
 
           {/* Mobile Logout Button */}
           <button

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { ArrowLeft, Box } from 'lucide-react'
 import { toast } from 'react-toastify'
 import ProductForm from '@/components/products/ProductForm'
+import Badge from '@/components/common/Badge'
 import { addNewProduct } from '@/store/slices/productsSlice'
 
 export default function AddProduct() {
@@ -44,9 +45,9 @@ export default function AddProduct() {
             <Box className="w-6 h-6 text-[var(--color-text-gold)]" />
           </div>
           <div className="space-y-1.5">
-            <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase font-heading bg-[var(--color-primary-medium)]/15 text-[var(--color-primary-dark)] border border-[var(--color-primary-medium)]/25 dark:bg-[var(--color-primary-medium)]/30 dark:text-[var(--color-text-gold)]">
+            <Badge variant="primary" size="sm">
               NEW PRODUCT
-            </span>
+            </Badge>
             <h1 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] tracking-tight">
               Create New Product
             </h1>

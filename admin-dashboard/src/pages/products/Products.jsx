@@ -5,8 +5,6 @@ import {
   Package,
   AlertCircle,
   Trash2,
-  ChevronLeft,
-  ChevronRight,
   Plus,
   RefreshCw,
   SearchX,
@@ -15,6 +13,8 @@ import { toast } from 'react-toastify'
 
 import Modal from '@/components/common/Modal'
 import Button from '@/components/common/Button'
+import Pagination from '@/components/common/Pagination'
+import Badge from '@/components/common/Badge'
 
 import ProductStats from '@/components/products/ProductStats'
 import ProductFilterBar from '@/components/products/ProductFilterBar'
@@ -163,9 +163,9 @@ export default function Products() {
             <Package className="w-6 h-6 text-[var(--color-text-gold)]" />
           </div>
           <div>
-            <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase font-heading bg-[var(--color-primary-medium)]/15 text-[var(--color-primary-dark)] border border-[var(--color-primary-medium)]/25 dark:bg-[var(--color-primary-medium)]/30 dark:text-[var(--color-text-gold)]">
+            <Badge variant="primary" size="sm">
               CATALOG MANAGEMENT
-            </span>
+            </Badge>
             <h1 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] tracking-tight">
               Products Catalog
             </h1>
@@ -300,54 +300,15 @@ export default function Products() {
       )}
 
       {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/20">
-          <div className="text-xs text-[var(--color-text-secondary)] font-body">
-            Showing <span className="font-bold text-[var(--color-primary-dark)] dark:text-white">{(safePage - 1) * pageSize + 1}</span> to{' '}
-            <span className="font-bold text-[var(--color-primary-dark)] dark:text-white">
-              {Math.min(safePage * pageSize, totalItems)}
-            </span>{' '}
-            of <span className="font-bold text-[var(--color-primary-dark)] dark:text-white">{totalItems}</span> products
-          </div>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => goToPage(safePage - 1)}
-              disabled={safePage === 1}
-              aria-label="Previous page"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border-light)] bg-white text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40 dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer transition-colors"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-              <button
-                key={pageNum}
-                type="button"
-                onClick={() => goToPage(pageNum)}
-                className={`flex h-9 min-w-9 items-center justify-center rounded-xl px-2 text-xs font-bold font-heading transition-colors cursor-pointer ${
-                  safePage === pageNum
-                    ? 'bg-[var(--color-primary-dark)] text-white dark:bg-[var(--color-text-gold)] dark:text-[var(--color-primary-dark)] shadow-xs'
-                    : 'border border-[var(--color-border-light)] bg-white text-[var(--color-text-primary)] hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40 dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30'
-                }`}
-              >
-                {pageNum}
-              </button>
-            ))}
-
-            <button
-              type="button"
-              onClick={() => goToPage(safePage + 1)}
-              disabled={safePage === totalPages}
-              aria-label="Next page"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border-light)] bg-white text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40 dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer transition-colors"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      )}
+      <Pagination
+        currentPage={safePage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        pageSize={pageSize}
+        itemLabel="products"
+        onPageChange={goToPage}
+        className="pt-4 border-t border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/20"
+      />
 
       {/* Product Details Modal */}
       <ProductDetails

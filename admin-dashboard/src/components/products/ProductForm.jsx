@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import Button from '@/components/common/Button'
 import Input from '@/components/common/Input'
+import Dropdown from '@/components/common/Dropdown'
 
 const CATEGORIES = [
   { value: 'electronics', label: 'Electronics' },
@@ -504,34 +505,24 @@ export default function ProductForm({
               <label className="block text-xs font-bold text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] uppercase tracking-wider font-heading">
                 Category
               </label>
-              <select
+              <Dropdown
                 value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-white dark:bg-[var(--color-dark-bg-main)] border border-[var(--color-border-medium)] hover:border-[var(--color-primary-medium)] dark:border-[var(--color-primary-medium)]/40 rounded-xl text-sm text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] font-body focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-medium)] dark:focus:ring-[var(--color-text-gold)] cursor-pointer shadow-2xs"
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c.value} value={c.value} className="bg-white dark:bg-[var(--color-dark-bg-main)] text-[var(--color-text-primary)] dark:text-[var(--color-text-light)]">
-                    {c.label}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setForm({ ...form, category: val })}
+                options={CATEGORIES}
+                ariaLabel="Category"
+              />
             </div>
 
             <div className="space-y-1.5">
               <label className="block text-xs font-bold text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] uppercase tracking-wider font-heading">
                 Subcategory
               </label>
-              <select
+              <Dropdown
                 value={form.subcategory}
-                onChange={(e) => setForm({ ...form, subcategory: e.target.value })}
-                className="w-full px-3.5 py-2.5 bg-white dark:bg-[var(--color-dark-bg-main)] border border-[var(--color-border-medium)] hover:border-[var(--color-primary-medium)] dark:border-[var(--color-primary-medium)]/40 rounded-xl text-sm text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] font-body focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-medium)] dark:focus:ring-[var(--color-text-gold)] cursor-pointer shadow-2xs"
-              >
-                {SUBCATEGORIES.map((s) => (
-                  <option key={s.value} value={s.value} className="bg-white dark:bg-[var(--color-dark-bg-main)] text-[var(--color-text-primary)] dark:text-[var(--color-text-light)]">
-                    {s.label}
-                  </option>
-                ))}
-              </select>
+                onChange={(val) => setForm({ ...form, subcategory: val })}
+                options={SUBCATEGORIES}
+                ariaLabel="Subcategory"
+              />
             </div>
           </div>
 

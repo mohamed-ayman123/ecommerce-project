@@ -5,6 +5,7 @@ import { ArrowLeft, Edit3, Loader2, AlertCircle } from 'lucide-react'
 import { toast } from 'react-toastify'
 import ProductForm from '@/components/products/ProductForm'
 import Button from '@/components/common/Button'
+import Badge from '@/components/common/Badge'
 import {
   fetchProductById,
   updateExistingProduct,
@@ -94,9 +95,9 @@ export default function EditProduct() {
             <Edit3 className="w-6 h-6 text-[var(--color-text-gold)]" />
           </div>
           <div className="space-y-1.5">
-            <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase font-heading bg-[var(--color-primary-medium)]/15 text-[var(--color-primary-dark)] border border-[var(--color-primary-medium)]/25 dark:bg-[var(--color-primary-medium)]/30 dark:text-[var(--color-text-gold)]">
+            <Badge variant="primary" size="sm">
               EDIT PRODUCT
-            </span>
+            </Badge>
             <h1 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] tracking-tight">
               {selectedProduct?.name ? `Edit: ${selectedProduct.name}` : 'Update Product'}
             </h1>

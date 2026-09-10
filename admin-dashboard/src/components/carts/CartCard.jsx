@@ -10,19 +10,9 @@ import {
   Tag,
 } from 'lucide-react'
 import CartItemRow from './CartItemRow'
-
-const formatDate = (value) => {
-  if (!value) return '—'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return String(value)
-  return date.toLocaleDateString('en-GB', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
+import { formatDate } from '@/utils/formatters'
+import Badge from '@/components/common/Badge'
+import Button from '@/components/common/Button'
 
 const formatRelativeTime = (value) => {
   if (!value) return ''
@@ -85,10 +75,9 @@ export default function CartCard({
               <h3 className="text-base font-bold text-primary-dark dark:text-white font-heading">
                 {customerName}
               </h3>
-              <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <Badge variant="success" size="sm" dot>
                 Active Cart
-              </span>
+              </Badge>
             </div>
             <div className="flex items-center gap-3 text-xs text-text-secondary dark:text-slate-400 mt-0.5">
               <span className="flex items-center gap-1">
@@ -117,31 +106,33 @@ export default function CartCard({
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => onOpenDetails(cart)}
-              className="px-3 py-1.5 text-xs font-medium rounded-xl border border-border-light dark:border-white/10 hover:bg-bg-input/50 dark:hover:bg-white/5 text-primary-dark dark:text-white transition-colors cursor-pointer flex items-center gap-1.5"
               title="View Full Details"
             >
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ExternalLink className="w-3.5 h-3.5 mr-1" />
               <span className="hidden sm:inline">Details</span>
-            </button>
+            </Button>
 
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => onToggleExpand(cartId)}
-              className="px-3 py-1.5 text-xs font-medium rounded-xl bg-primary-dark/5 dark:bg-white/5 hover:bg-primary-dark/10 dark:hover:bg-white/10 text-primary-dark dark:text-white transition-colors cursor-pointer flex items-center gap-1"
             >
               {isExpanded ? (
                 <>
                   <span>Hide Items</span>
-                  <ChevronUp className="w-4 h-4" />
+                  <ChevronUp className="w-4 h-4 ml-1" />
                 </>
               ) : (
                 <>
                   <span>View Items ({items.length})</span>
-                  <ChevronDown className="w-4 h-4" />
+                  <ChevronDown className="w-4 h-4 ml-1" />
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

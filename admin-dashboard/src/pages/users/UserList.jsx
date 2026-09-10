@@ -10,8 +10,6 @@ import {
   AlertCircle,
   Mail,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
   Search,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
@@ -19,6 +17,8 @@ import Modal from '@/components/common/Modal'
 import Input from '@/components/common/Input'
 import Button from '@/components/common/Button'
 import Dropdown from '@/components/common/Dropdown'
+import Badge from '@/components/common/Badge'
+import Pagination from '@/components/common/Pagination'
 import {
   fetchUsers,
   createNewUser,
@@ -67,6 +67,11 @@ export default function UserList() {
   const startIndex = (safePage - 1) * pageSize
   const endIndex = Math.min(startIndex + pageSize, totalUsers)
   const paginatedUsers = filteredUsers.slice(startIndex, endIndex)
+
+  const goToPage = (page) => {
+    if (page < 1 || page > totalPages) return
+    setCurrentPage(page)
+  }
 
   const [userToDelete, setUserToDelete] = useState(null)
   const [formData, setFormData] = useState({
@@ -163,9 +168,9 @@ export default function UserList() {
             <Users className="w-6 h-6 text-[var(--color-text-gold)]" />
           </div>
           <div className="space-y-1">
-            <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase font-heading bg-[var(--color-primary-medium)]/15 text-[var(--color-primary-dark)] border border-[var(--color-primary-medium)]/25 dark:bg-[var(--color-primary-medium)]/30 dark:text-[var(--color-text-gold)]">
+            <Badge variant="primary" size="sm">
               USER MANAGEMENT
-            </span>
+            </Badge>
             <h1 className="text-2xl sm:text-3xl font-bold font-heading text-[var(--color-primary-dark)] dark:text-[var(--color-text-light)] tracking-tight">
               Users & Administrators
             </h1>
@@ -351,7 +356,17 @@ export default function UserList() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-border-medium)]/30 font-body">
-                {paginatedUsers.map((user) => {
+                {paginatedUsers.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="px-6 py-12 text-center text-xs sm:text-sm text-[var(--color-text-secondary)] dark:text-slate-400 font-body"
+                    >
+                      No users match your search or filter criteria.
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedUsers.map((user) => {
                   const userId = user._id || user.id
                   const displayName =
                     `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
@@ -391,20 +406,14 @@ export default function UserList() {
                       </td>
 
                       <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold font-heading ${
-                            isAdmin
-                              ? 'bg-[var(--color-primary-dark)] text-white dark:bg-[var(--color-primary-medium)]'
-                              : 'bg-[var(--color-bg-input)]/70 text-[var(--color-primary-dark)] dark:bg-[var(--color-dark-bg-main)] dark:text-[var(--color-text-gold)] border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/40'
-                          }`}
-                        >
+                        <Badge variant={isAdmin ? 'primary' : 'neutral'} size="sm">
                           {isAdmin ? (
                             <Shield className="w-3 h-3 text-[var(--color-text-gold)]" />
                           ) : (
                             <UserIcon className="w-3 h-3 text-[var(--color-text-secondary)]" />
                           )}
                           <span>{role}</span>
-                        </span>
+                        </Badge>
                       </td>
 
                       <td className="px-6 py-4 text-right">
@@ -423,72 +432,24 @@ export default function UserList() {
                       </td>
                     </tr>
                   )
-                })}
-              </tbody>
+                })
+              )}
+            </tbody>
             </table>
           </div>
         )}
 
         {/* Pagination Footer */}
         {!isLoading && !error && totalUsers > 0 && (
-          <div className="flex flex-col items-center justify-between gap-4 border-t border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/30 px-6 py-4 sm:flex-row bg-[var(--color-bg-card)] dark:bg-[var(--color-dark-bg-card)]">
-            <p className="text-xs text-[var(--color-text-secondary)] dark:text-slate-300">
-              Showing{' '}
-              <span className="font-semibold text-[var(--color-text-primary)] dark:text-white">
-                {startIndex + 1}
-              </span>{' '}
-              to{' '}
-              <span className="font-semibold text-[var(--color-text-primary)] dark:text-white">
-                {endIndex}
-              </span>{' '}
-              of{' '}
-              <span className="font-semibold text-[var(--color-text-primary)] dark:text-white">
-                {totalUsers}
-              </span>{' '}
-              users
-            </p>
-
-            {totalPages > 1 && (
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => goToPage(safePage - 1)}
-                  disabled={safePage === 1}
-                  aria-label="Previous page"
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40 dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer transition-colors"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-
-                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                  (page) => (
-                    <button
-                      key={page}
-                      type="button"
-                      onClick={() => goToPage(page)}
-                      className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold cursor-pointer transition-colors ${
-                        page === safePage
-                          ? 'bg-[var(--color-primary-dark)] text-white dark:bg-[var(--color-text-gold)] dark:text-[var(--color-primary-dark)] shadow-sm'
-                          : 'border border-[var(--color-border-light)] bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40 dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ),
-                )}
-
-                <button
-                  type="button"
-                  onClick={() => goToPage(safePage + 1)}
-                  disabled={safePage === totalPages}
-                  aria-label="Next page"
-                  className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--color-border-light)] bg-[var(--color-bg-card)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-card)] dark:border-[var(--color-primary-medium)]/40 dark:text-slate-300 dark:hover:bg-[var(--color-primary-medium)]/30 disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer transition-colors"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-          </div>
+          <Pagination
+            currentPage={safePage}
+            totalPages={totalPages}
+            totalItems={totalUsers}
+            pageSize={pageSize}
+            itemLabel="users"
+            onPageChange={goToPage}
+            className="border-t border-[var(--color-border-light)] dark:border-[var(--color-primary-medium)]/30 px-6 py-4 bg-[var(--color-bg-card)] dark:bg-[var(--color-dark-bg-card)]"
+          />
         )}
       </div>
 

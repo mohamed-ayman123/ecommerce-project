@@ -107,7 +107,7 @@ export default function Login() {
   }
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-10 overflow-hidden bg-gradient-to-br from-[#121c19] via-[#1a2b27] to-[#0f1715] transition-colors duration-300">
+    <div className="relative min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-10 overflow-hidden bg-gradient-to-br from-[var(--color-dark-bg-main)] via-[var(--color-dark-bg-card)] to-[var(--color-primary-dark)] transition-colors duration-300">
       {/* Dynamic Atmospheric Glows & Background Accents */}
       <div className="absolute -top-32 -left-32 w-96 h-96 sm:w-[540px] sm:h-[540px] bg-[var(--color-primary-medium)]/30 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute -bottom-40 -right-40 w-96 h-96 sm:w-[600px] sm:h-[600px] bg-[var(--color-text-gold)]/20 rounded-full blur-[140px] pointer-events-none" />
@@ -117,7 +117,7 @@ export default function Login() {
       <div 
         className="absolute inset-0 pointer-events-none opacity-20"
         style={{
-          backgroundImage: `radial-gradient(#C58C2B 1px, transparent 1px), radial-gradient(#44635B 1px, transparent 1px)`,
+          backgroundImage: `radial-gradient(var(--color-accent-gold-hover) 1px, transparent 1px), radial-gradient(var(--color-primary-medium) 1px, transparent 1px)`,
           backgroundSize: `36px 36px`,
           backgroundPosition: `0 0, 18px 18px`
         }}
@@ -127,7 +127,7 @@ export default function Login() {
       <div className="relative z-10 w-full max-w-md lg:max-w-4xl rounded-3xl border border-white/20 dark:border-white/10 shadow-[0_25px_80px_-15px_rgba(0,0,0,0.6)] backdrop-blur-2xl flex overflow-hidden ring-1 ring-white/15">
         
         {/* Left Brand Showcase (Desktop only) */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#233833]/95 via-[#2F4842]/95 to-[#16221f]/95 p-10 text-white flex-col justify-between relative overflow-hidden border-r border-white/10">
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[var(--color-primary-dark)]/95 via-[var(--color-primary-medium)]/95 to-[var(--color-dark-bg-main)]/95 p-10 text-white flex-col justify-between relative overflow-hidden border-r border-white/10">
           {/* Subtle Ambient Decorative Glows */}
           <div className="absolute -top-24 -left-24 w-72 h-72 bg-[var(--color-text-gold)]/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-[var(--color-primary-medium)]/40 rounded-full blur-3xl pointer-events-none" />
@@ -169,7 +169,7 @@ export default function Login() {
         </div>
 
         {/* Right Form Panel (Elevated Glassmorphic Surface) */}
-        <div className="w-full lg:w-1/2 p-6 sm:p-10 flex flex-col justify-center relative overflow-hidden bg-gradient-to-b from-white/95 via-[#f8faf9]/95 to-[#edf3f0]/95 dark:from-[#1d2826]/95 dark:via-[#22332f]/95 dark:to-[#172320]/95 backdrop-blur-xl">
+        <div className="w-full lg:w-1/2 p-6 sm:p-10 flex flex-col justify-center relative overflow-hidden bg-gradient-to-b from-white/95 via-[var(--color-border-light)]/95 to-[var(--color-bg-main)]/95 dark:from-[var(--color-dark-bg-main)]/95 dark:via-[var(--color-dark-bg-card)]/95 dark:to-[var(--color-primary-dark)]/95 backdrop-blur-xl">
           {/* Subtle Ambient Refractions behind the Form */}
           <div className="absolute -top-16 -right-16 w-44 h-44 bg-[var(--color-text-gold)]/15 rounded-full blur-2xl pointer-events-none" />
           <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-[var(--color-primary-medium)]/15 rounded-full blur-2xl pointer-events-none" />
@@ -189,14 +189,16 @@ export default function Login() {
           </div>
 
           {/* Quick Demo Fill Button */}
-          <button
+          <Button
             type="button"
+            variant="subtle"
+            size="none"
             onClick={handleQuickFill}
-            className="relative z-10 w-full mb-6 flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-[var(--color-bg-main)] dark:bg-[var(--color-dark-bg-main)] border border-[var(--color-border-medium)] dark:border-[var(--color-primary-medium)]/40 text-xs font-semibold font-body text-[var(--color-primary-dark)] dark:text-[var(--color-text-gold)] hover:border-[var(--color-accent-gold-hover)] hover:bg-[var(--color-border-light)] dark:hover:bg-[var(--color-primary-medium)]/30 transition-all duration-150 cursor-pointer shadow-2xs"
+            className="relative z-10 w-full mb-6 flex items-center justify-center gap-2 px-3.5 py-2.5 text-xs font-semibold font-body"
           >
             <Sparkles className="w-3.5 h-3.5 text-[var(--color-text-gold)] shrink-0" />
             <span>Quick Fill Demo Credentials (admin@nexis.com)</span>
-          </button>
+          </Button>
 
           {/* Error banner */}
           {formError && (
@@ -269,7 +271,7 @@ export default function Login() {
             <Button
               type="submit"
               variant="primary"
-              size="lg"
+              size="md"
               isLoading={isLoading}
               className="w-full mt-2 shadow-md hover:shadow-lg transition-all"
             >
@@ -285,10 +287,12 @@ export default function Login() {
           </div>
 
           {/* Google Sign In Button */}
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="md"
             onClick={() => toast.info('Google SSO is configured for enterprise domains only.')}
-            className="relative z-10 w-full py-2.5 px-4 rounded-xl border border-[var(--color-border-medium)] dark:border-white/10 bg-white/80 dark:bg-white/5 text-sm font-semibold font-heading text-[var(--color-text-primary)] dark:text-[var(--color-text-light)] hover:bg-white dark:hover:bg-white/10 transition-all duration-150 flex items-center justify-center gap-3 cursor-pointer shadow-xs hover:shadow"
+            className="relative z-10 w-full flex items-center justify-center gap-3 bg-white/80 dark:bg-white/5"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -309,7 +313,7 @@ export default function Login() {
               />
             </svg>
             <span>Continue with Google</span>
-          </button>
+          </Button>
 
           <p className="relative z-10 text-[11px] text-center text-[var(--color-text-secondary)] dark:text-gray-400 mt-6 font-body">
             Authorized Personnel Only • Nexis Tech Commerce

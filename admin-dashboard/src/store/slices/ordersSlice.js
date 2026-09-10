@@ -136,16 +136,21 @@ const ordersSlice = createSlice({
         const { id, data, statusData } = action.payload
         const updatedOrder = data?.order || data
         const newStatus = updatedOrder?.status || statusData?.status
+        const newAdminNote =
+          statusData?.adminNote !== undefined
+            ? statusData.adminNote
+            : updatedOrder?.adminNote
 
         // Update in items list
         const idx = state.items.findIndex(
           (item) => (item._id || item.id) === id
         )
         if (idx !== -1) {
-          if (updatedOrder && typeof updatedOrder === 'object') {
-            state.items[idx] = { ...state.items[idx], ...updatedOrder }
-          } else if (newStatus) {
-            state.items[idx] = { ...state.items[idx], status: newStatus }
+          state.items[idx] = {
+            ...state.items[idx],
+            ...(updatedOrder && typeof updatedOrder === 'object' ? updatedOrder : {}),
+            ...(newStatus ? { status: newStatus } : {}),
+            ...(newAdminNote !== undefined ? { adminNote: newAdminNote } : {}),
           }
         }
 
@@ -156,8 +161,9 @@ const ordersSlice = createSlice({
         ) {
           state.selectedOrder = {
             ...state.selectedOrder,
-            ...(updatedOrder || {}),
+            ...(updatedOrder && typeof updatedOrder === 'object' ? updatedOrder : {}),
             status: newStatus || state.selectedOrder.status,
+            ...(newAdminNote !== undefined ? { adminNote: newAdminNote } : {}),
           }
         }
       })

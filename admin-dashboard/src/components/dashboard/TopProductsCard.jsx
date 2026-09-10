@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Package, Sparkles, ArrowRight } from 'lucide-react'
+import Badge from '@/components/common/Badge'
 
 export default function TopProductsCard({ topProducts = [], currency = 'EGP' }) {
   const [imageErrors, setImageErrors] = useState({})
@@ -17,9 +18,9 @@ export default function TopProductsCard({ topProducts = [], currency = 'EGP' }) 
         {/* Section Header */}
         <div className="flex items-center justify-between mb-4 sm:mb-5 gap-3">
           <div>
-            <span className="inline-block px-2 sm:px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-widest uppercase font-heading bg-primary-medium/15 text-primary-dark border border-primary-medium/25 dark:bg-primary-medium/30 dark:text-text-gold">
+            <Badge variant="primary" size="sm">
               PRODUCT PERFORMANCE
-            </span>
+            </Badge>
             <h2 className="text-lg sm:text-xl font-bold font-heading text-primary-dark dark:text-text-light tracking-tight mt-1">
               Best sellers
             </h2>
