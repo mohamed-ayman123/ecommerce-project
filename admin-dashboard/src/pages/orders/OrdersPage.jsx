@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Search, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
+import { Search, ChevronLeft, ChevronRight, Sparkles, CreditCard, Banknote, Wallet } from 'lucide-react'
 import OrderDetailPanel from '@/components/orders/OrderDetailPanel'
 import { fetchAdminOrders, setOrders } from '@/store/slices/ordersSlice'
 import { fetchProducts } from '@/store/slices/productsSlice'
@@ -21,10 +21,22 @@ const statusStyles = {
   Returned: 'bg-slate-100 text-slate-600',
 }
 
-const paymentStyles = {
-  Pending: 'bg-[var(--color-text-gold)]/20 text-[var(--color-text-gold)]',
-  Paid: 'bg-emerald-50 text-emerald-600',
-  Failed: 'bg-rose-50 text-rose-600',
+const paymentBadgeStyles = {
+  paid: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25',
+  pending: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25',
+  failed: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25',
+  refunded: 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/25',
+}
+
+const renderPaymentMethodIcon = (method) => {
+  const m = String(method || '').toLowerCase()
+  if (m.includes('stripe') || m.includes('card')) {
+    return <CreditCard className="w-3.5 h-3.5 shrink-0 text-sky-500" />
+  }
+  if (m.includes('paypal') || m.includes('paymob') || m.includes('wallet')) {
+    return <Wallet className="w-3.5 h-3.5 shrink-0 text-violet-500" />
+  }
+  return <Banknote className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
 }
 
 const PAYMENT_OPTIONS = [
@@ -318,7 +330,7 @@ function OrdersPage() {
               <span>Customer</span>
               <span>Date</span>
               <span>Status</span>
-              <span>Payment</span>
+              <span className="text-center">Payment</span>
               <span>Total</span>
             </div>
 
@@ -356,18 +368,19 @@ function OrdersPage() {
                   ● {order.status}
                 </span>
 
-                <div>
+                <div className="flex flex-col items-center justify-center gap-1 text-center">
+                  <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[var(--color-text-primary)] dark:text-white">
+                    {renderPaymentMethodIcon(order.method)}
+                    <span>{order.method || 'Cash'}</span>
+                  </div>
+
                   <span
-                    className={`inline-block rounded-lg px-3 py-1 text-xs font-bold uppercase ${
-                      paymentStyles[order.payment] ||
-                      'bg-[var(--color-bg-input)] text-[var(--color-text-secondary)] dark:bg-[var(--color-primary-medium)]/40 dark:text-slate-300'
+                    className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider border ${
+                      paymentBadgeStyles[(order.payment || 'pending').toLowerCase()] || paymentBadgeStyles.pending
                     }`}
                   >
-                    {order.payment}
+                    {order.payment || 'Pending'}
                   </span>
-                  <p className="mt-1 text-xs text-[var(--color-text-secondary)] dark:text-slate-400">
-                    {order.method}
-                  </p>
                 </div>
 
                 <span className="text-sm font-bold text-[var(--color-text-primary)] dark:text-white">
