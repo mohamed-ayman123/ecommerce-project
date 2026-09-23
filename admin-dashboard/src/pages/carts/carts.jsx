@@ -13,6 +13,7 @@ import {
   setPage,
   setSelectedCart,
 } from '@/store/slices/cartsSlice'
+
 import { selectStoreCatalogLookup } from '@/store/slices/productsSlice'
 import CartStats from '@/components/carts/CartStats'
 import CartFilters from '@/components/carts/CartFilters'
