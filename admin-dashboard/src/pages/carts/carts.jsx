@@ -301,6 +301,7 @@ export default function Carts() {
       )}
 
       {/* Cart Detail Modal using Common Modal & Button */}
+      
       <CartDetailModal
         cart={selectedCart}
         currency={currency}
